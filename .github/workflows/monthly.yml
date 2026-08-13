@@ -34,6 +34,7 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+          NAVER_COOKIES_JSON: ${{ secrets.NAVER_COOKIES_JSON }}
         run: python main.py
 
       - name: 결과 커밋 & 푸시

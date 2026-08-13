@@ -1,3 +1,7 @@
 pytrends==4.9.2
 playwright==1.62.0
 python-dotenv==1.0.1
+pandas==2.2.3
+scipy==1.15.3
+statsmodels==0.14.4
+openpyxl==3.1.5

@@ -30,14 +30,23 @@ def _search_total(query, api_type="blog"):
 
 
 def fetch_naver_counts():
-    """블로그+뉴스 결과 수 합산 → 브랜드 관심도 추정"""
+    """블로그+뉴스 결과 수 합산 → 브랜드 관심도 지수 (시몬스=100 기준)"""
     counts = {}
     for b in BRANDS:
-        blog = _search_total(b["query"], "blog")
-        news = _search_total(b["query"], "news")
-        counts[b["name"]] = blog + news
-        print(f"  {b['name']}: 블로그 {blog:,} + 뉴스 {news:,} = {blog+news:,}")
+        blog = _search_total(b["naver_kw"], "blog")
+        news = _search_total(b["naver_kw"], "news")
+        total = blog + news
+        counts[b["name"]] = total
+        print(f"  {b['name']}: 블로그 {blog:,} + 뉴스 {news:,} = {total:,}건")
 
+    # 시몬스 기준 100으로 정규화
     base = counts.get("시몬스", 1) or 1
-    normalized = {name: round((v / base) * 100, 1) for name, v in counts.items()}
+    normalized = {}
+    for name, cnt in counts.items():
+        normalized[name] = round((cnt / base) * 100, 1)
+
+    print("\n  [네이버 검색 지수] 시몬스=100 기준")
+    for name, idx in sorted(normalized.items(), key=lambda x: x[1], reverse=True):
+        print(f"  {name}: {idx}")
+
     return counts, normalized
