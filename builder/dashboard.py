@@ -207,6 +207,17 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
     </div>
   </div>
 
+  <!-- Row 2b: DataLab 트렌드 (§12, API 수집 시 표시) -->
+  <div class="chart-row" id="datalab-row" style="display:none;">
+    <div class="card">
+      <div class="card-title">네이버 데이터랩 검색어트렌드
+        <span class="source-badge badge-naver">Naver DataLab API</span>
+      </div>
+      <div class="card-sub">시몬스=100 기준 · 월별 추이 (키워드 그룹 통합)</div>
+      <div id="chart-datalab" style="height:360px;"></div>
+    </div>
+  </div>
+
   <!-- Row 3: Share of Search + 갭 분석 -->
   <div class="chart-row col2">
     <div class="card">
@@ -248,11 +259,23 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
     </div>
   </div>
 
+  <!-- Row 6: DART 매출 (§13, API 수집 시 표시) -->
+  <div class="chart-row" id="dart-row" style="display:none;">
+    <div class="card">
+      <div class="card-title">공시 매출 현황 (DART OpenAPI)</div>
+      <div class="card-sub">⚠ 종합가구(한샘·현대리바트·일룸)·렌탈(코웨이) 브랜드는 침대 외 사업 포함 — 직접 비교 주의</div>
+      <div id="dart-table"></div>
+    </div>
+  </div>
+
 </div><!-- /main -->
 
 <!-- 우측 인사이트 패널 -->
 <div id="insight-panel">
-  <h3>시몬스 포지셔닝</h3>
+  <h3>AI 임원 브리핑</h3>
+  <div id="insight-commentary"></div>
+
+  <h3 style="margin-top:16px;">시몬스 포지셔닝</h3>
   <div id="insight-simmons"></div>
 
   <h3 style="margin-top:16px;">주요 발견</h3>
@@ -580,7 +603,80 @@ function renderCVTable() {{
     </table>`;
 }}
 
-// 9. 인사이트 패널
+// 9. DataLab 트렌드 차트 (§12)
+function renderDatalab() {{
+  const dl = RAW.datalab || {{}};
+  const ms = dl.monthly_series || {{}};
+  const periods = dl.periods || [];
+  if (!Object.keys(ms).length) return;
+
+  document.getElementById('datalab-row').style.display = '';
+
+  const series = [];
+  Object.entries(ms).filter(([b]) => b !== '시몬스').forEach(([brand, pts]) => {{
+    const color = COLORS[brand] || '#888';
+    series.push({{
+      name: brand, type: 'line', data: pts.map(p => p.value),
+      lineStyle: {{color, width: 1.5}}, itemStyle: {{color}}, symbol: 'none'
+    }});
+  }});
+  if (ms['시몬스']) {{
+    const pts = ms['시몬스'];
+    series.push({{
+      name: '시몬스', type: 'line', data: pts.map(p => p.value),
+      lineStyle: {{color: '#0b0b0b', width: 3}}, itemStyle: {{color: '#0b0b0b'}},
+      symbol: 'circle', symbolSize: 5, z: 10
+    }});
+  }}
+  const pLabels = periods.map(p => p.substring(0, 7));
+  gc('chart-datalab').setOption({{
+    legend: {{data: Object.keys(ms), bottom: 0, textStyle: {{fontSize: 11}}, type: 'scroll'}},
+    grid: {{left: 45, right: 20, top: 10, bottom: 90}},
+    xAxis: {{type: 'category', data: pLabels, axisLabel: {{fontSize: 10, rotate: 45, interval: 0}}}},
+    yAxis: {{type: 'value', axisLabel: {{fontSize: 11}}}},
+    series,
+    tooltip: {{trigger: 'axis'}}
+  }});
+}}
+
+// 10. DART 매출 테이블 (§13)
+function renderDart() {{
+  const dart = RAW.dart || {{}};
+  if (!Object.keys(dart).length) return;
+
+  document.getElementById('dart-row').style.display = '';
+  const sorted = Object.entries(dart).sort((a, b) => b[1].amount - a[1].amount);
+  const rows = sorted.map(([brand, d]) => {{
+    const amountB = Math.round(d.amount / 100_000_000).toLocaleString();
+    const caution = d.caution ? ' <span style="color:#e65100;font-size:10px;">⚠</span>' : '';
+    return `<tr>
+      <td>${{brand}}${{caution}}</td>
+      <td style="text-align:right;">${{amountB}}억원</td>
+      <td>${{d.year}}년</td>
+      <td style="color:#888;font-size:11px;">${{d.note || ''}}</td>
+    </tr>`;
+  }}).join('');
+  document.getElementById('dart-table').innerHTML = `
+    <table class="data-table">
+      <thead><tr><th>브랜드</th><th>매출액</th><th>기준연도</th><th>비고</th></tr></thead>
+      <tbody>${{rows}}</tbody>
+    </table>`;
+}}
+
+// 11. AI 코멘터리
+function renderCommentary() {{
+  const text = RAW.commentary || '';
+  const el = document.getElementById('insight-commentary');
+  if (!text) {{
+    el.innerHTML = '<div class="insight-item" style="color:#999;font-size:11px;">ANTHROPIC_API_KEY 설정 시 자동 생성</div>';
+    return;
+  }}
+  // 마침표·느낌표 뒤 공백으로 문장 분리
+  const sentences = text.split(/(?<=[.!?])\\s+/).filter(s => s.trim());
+  el.innerHTML = sentences.map(s => `<div class="insight-item">${{s}}</div>`).join('');
+}}
+
+// 12. 인사이트 패널
 function renderInsights() {{
   const norm_g = RAW.google?.normalized || {{}};
   const norm_n = RAW.naver?.normalized || {{}};
@@ -660,15 +756,18 @@ function exportCSV() {{
 renderGoogleRank();
 renderNaverRank();
 renderMonthly();
+renderDatalab();
 renderSoS();
 renderGap();
 renderGender();
 renderAge();
 renderCVTable();
+renderDart();
+renderCommentary();
 renderInsights();
 
 window.addEventListener('resize', ()=>{{
-  ['chart-google-rank','chart-naver-rank','chart-monthly',
+  ['chart-google-rank','chart-naver-rank','chart-monthly','chart-datalab',
    'chart-sos','chart-gap','chart-gender','chart-age']
   .forEach(id=>{{const el=document.getElementById(id);if(el){{const inst=echarts.getInstanceByDom(el);if(inst)inst.resize();}}}});
 }});

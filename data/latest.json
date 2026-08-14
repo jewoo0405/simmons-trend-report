@@ -1,7 +1,7 @@
 {
-  "collected_at": "2026-08-14T13:33:46+09:00",
+  "collected_at": "2026-08-14T14:11:05+09:00",
   "baseline": "시몬스",
-  "run_id": "20260814_133346",
+  "run_id": "20260814_141105",
   "google": {
     "batches": [
       {
@@ -85,6 +85,7 @@
       "배치C: max/min=193.7x > 20 (배치 재구성 권장)"
     ]
   },
+  "naver_datalab_trend": {},
   "naver_datalab": {
     "시몬스": {
       "gender": {
@@ -178,6 +179,7 @@
       "blog_news_total": 208574
     }
   },
+  "dart": {},
   "gap": [
     {
       "brand": "이케아",

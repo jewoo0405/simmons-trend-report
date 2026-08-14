@@ -16,6 +16,9 @@ load_dotenv()
 import db
 from collector.google_collector import fetch_google_trends
 from collector.naver_collector import fetch_naver_counts, fetch_naver_demographics
+from collector.naver_datalab_api import fetch_datalab_trends
+from collector.dart_collector import fetch_dart_revenues
+from collector.commentary import generate_commentary
 from analyzer.validator import overall_confidence_score
 from analyzer.stats import share_of_search, detect_change_points, naver_google_gap
 from builder.dashboard import build_dashboard
@@ -52,7 +55,8 @@ def save_snapshot(payload, collected_date):
 
 
 def build_snapshot_payload(run_id, collected_at, google_data, naver_data,
-                           demographics, naver_stats, gap, conf_score):
+                           demographics, naver_stats, gap, conf_score,
+                           datalab_data=None, dart_data=None):
     """스냅샷 JSON 스키마 (§14-1) 구성"""
     # linked = 시몬스=100 재정규화 완료값 (스펙 §14-1 스키마 준수)
     google_linked = google_data.get("normalized", {})
@@ -78,8 +82,10 @@ def build_snapshot_payload(run_id, collected_at, google_data, naver_data,
             "normalized": google_data.get("normalized", {}),
             "warnings": google_warnings,
         },
+        "naver_datalab_trend": datalab_data or {},
         "naver_datalab": demographics,
         "naver_search": naver_search,
+        "dart": dart_data or {},
         "gap": gap,
         "quality": {
             "cv": cv_map,
@@ -157,19 +163,27 @@ def run():
     print(f"{'='*50}\n")
 
     # 1. Google Trends 수집
-    print("[1/4] Google Trends 수집 중...")
+    print("[1/6] Google Trends 수집 중...")
     google_data = fetch_google_trends(run_id, collected_at)
 
-    # 2. Naver 수집
-    print("\n[2/4] 네이버 관심도 수집 중...")
+    # 2. Naver 검색 지수 수집
+    print("\n[2/6] 네이버 관심도 수집 중...")
     naver_data = fetch_naver_counts(run_id, collected_at)
 
-    # 3. 네이버 인구통계 (DataLab Playwright)
-    print("\n[3/4] 네이버 성별·연령 수집 중...")
+    # 3. DataLab 검색어트렌드 수집 (§12)
+    print("\n[3/6] DataLab 검색어트렌드 수집 중...")
+    datalab_data = fetch_datalab_trends(run_id, collected_at)
+
+    # 4. 네이버 인구통계 (DataLab API 우선, Playwright 폴백)
+    print("\n[4/6] 네이버 성별·연령 수집 중...")
     demographics = fetch_naver_demographics(run_id, collected_at)
 
-    # 4. 분석
-    print("\n[4/4] 분석 중...")
+    # 5. DART 매출 수집 (§13)
+    print("\n[5/6] DART 매출 수집 중...")
+    dart_data = fetch_dart_revenues()
+
+    # 6. 분석
+    print("\n[6/6] 분석 중...")
     google_norm = google_data.get("normalized", {})
     naver_norm = naver_data.get("normalized", {})
     naver_stats = naver_data.get("stats", {})
@@ -204,15 +218,23 @@ def run():
     # ── 스냅샷 저장 (§14-1) ───────────────────────────────────────
     snapshot = build_snapshot_payload(
         run_id, collected_at, google_data, naver_data,
-        demographics, naver_stats, gap, conf_score
+        demographics, naver_stats, gap, conf_score,
+        datalab_data=datalab_data, dart_data=dart_data,
     )
     save_snapshot(snapshot, collected_date)
+
+    # ── AI 코멘터리 생성 (§16) ────────────────────────────────────
+    print("\n[AI] 임원 브리핑 생성 중...")
+    commentary = generate_commentary(snapshot)
 
     # ── 대시보드 데이터 조립 ───────────────────────────────────────
     payload = {
         "google": google_data,
         "naver": naver_data,
+        "datalab": datalab_data,
         "demographics": demographics,
+        "dart": dart_data,
+        "commentary": commentary,
         "sos": sos,
         "gap": gap,
         "change_points": change_points,

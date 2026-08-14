@@ -161,7 +161,22 @@ def _datalab_query(page, keyword, gender_id=None, age_ids=None):
 
 
 def fetch_naver_demographics(run_id, collected_at):
-    """Playwright + xlsx 다운로드로 DataLab 성별·연령 수집"""
+    """DataLab API (§12) 우선, 실패 시 Playwright + xlsx 폴백"""
+    # DataLab API 시도 (전 브랜드 커버, 쿠키 불필요)
+    try:
+        from collector.naver_datalab_api import fetch_datalab_demographics
+        result = fetch_datalab_demographics(run_id, collected_at)
+        if result and any(
+            any(v > 0 for v in d.get("gender", {}).values()) or
+            any(v > 0 for v in d.get("age", {}).values())
+            for d in result.values()
+        ):
+            print("  [DataLab 인구통계] API 수집 성공 (Playwright 건너뜀)")
+            return result
+        print("  [DataLab 인구통계] API 결과 없음 - Playwright 폴백")
+    except Exception as e:
+        print(f"  [DataLab 인구통계] API 오류, Playwright 폴백: {e}")
+
     cached = cache.get("naver_demo", {"id": NAVER_ID or "cookie"})
     if cached:
         print("  [DataLab] 캐시 사용")
