@@ -160,14 +160,14 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
         <span class="source-badge badge-google">Google Trends</span>
       </div>
       <div class="card-sub">시몬스=100 기준 · 최근 3개월 한국</div>
-      <div id="chart-google-rank" style="height:300px;"></div>
+      <div id="chart-google-rank" style="height:420px;"></div>
     </div>
     <div class="card">
       <div class="card-title">네이버 관심도 순위
         <span class="source-badge badge-naver">Naver Search</span>
       </div>
       <div class="card-sub">시몬스=100 기준 · 블로그+뉴스 건수</div>
-      <div id="chart-naver-rank" style="height:300px;"></div>
+      <div id="chart-naver-rank" style="height:420px;"></div>
     </div>
   </div>
 
@@ -178,7 +178,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
         <span class="source-badge badge-google">Google Trends</span>
       </div>
       <div class="card-sub">주요 5개 브랜드 · 음영은 신뢰구간(CV)</div>
-      <div id="chart-monthly" style="height:280px;"></div>
+      <div id="chart-monthly" style="height:420px;"></div>
     </div>
   </div>
 
@@ -187,12 +187,12 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
     <div class="card">
       <div class="card-title">Share of Search</div>
       <div class="card-sub">브랜드별 검색 점유율 (%)</div>
-      <div id="chart-sos" style="height:260px;"></div>
+      <div id="chart-sos" style="height:320px;"></div>
     </div>
     <div class="card">
       <div class="card-title">구글 vs 네이버 갭 분석</div>
       <div class="card-sub">플랫폼 간 순위 차이 — 차이 클수록 전략 검토 필요</div>
-      <div id="chart-gap" style="height:260px;"></div>
+      <div id="chart-gap" style="height:320px;"></div>
     </div>
   </div>
 
@@ -203,14 +203,14 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
         <span class="source-badge badge-naver">Naver DataLab</span>
       </div>
       <div class="card-sub">주요 4개 브랜드 성별 비교</div>
-      <div id="chart-gender" style="height:260px;"></div>
+      <div id="chart-gender" style="height:320px;"></div>
     </div>
     <div class="card">
       <div class="card-title">연령대별 검색 관심도
         <span class="source-badge badge-naver">Naver DataLab</span>
       </div>
       <div class="card-sub">주요 4개 브랜드 연령대 비교</div>
-      <div id="chart-age" style="height:260px;"></div>
+      <div id="chart-age" style="height:320px;"></div>
     </div>
   </div>
 
@@ -320,9 +320,9 @@ function renderMonthly() {{
   }});
   const pLabels = periods.map(p=>p.substring(0,7));
   gc('chart-monthly').setOption({{
-    legend:{{data:Object.keys(ms),bottom:0,textStyle:{{fontSize:11}}}},
-    grid:{{left:40,right:20,top:10,bottom:40}},
-    xAxis:{{type:'category',data:pLabels,axisLabel:{{fontSize:10,rotate:30}}}},
+    legend:{{data:Object.keys(ms),bottom:0,textStyle:{{fontSize:11}},type:'scroll'}},
+    grid:{{left:45,right:20,top:10,bottom:90}},
+    xAxis:{{type:'category',data:pLabels,axisLabel:{{fontSize:10,rotate:45,interval:0}}}},
     yAxis:{{type:'value',axisLabel:{{fontSize:11}}}},
     series,
     tooltip:{{trigger:'axis'}}
