@@ -23,6 +23,7 @@ import cache
 
 CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
 CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
+DATALAB_ENABLED = os.getenv("NAVER_DATALAB_ENABLED", "false").lower() == "true"
 DATALAB_URL = "https://openapi.naver.com/v1/datalab/search"
 
 SIMMONS = "시몬스"
@@ -118,13 +119,12 @@ def _normalize_to_simmons(batch_result, batch_names):
 def fetch_datalab_trends(run_id, collected_at):
     """
     데이터랩 검색어트렌드 수집.
-    Returns: {
-        "normalized": {brand: value (시몬스=100)},
-        "monthly_series": {brand: [{period, value}]},
-        "periods": [period_str],
-        "source": "datalab_api"
-    }
+    NAVER_DATALAB_ENABLED=true 일 때만 실행.
     """
+    if not DATALAB_ENABLED:
+        print("  [DataLab 트렌드] 비활성화 (NAVER_DATALAB_ENABLED=false)")
+        return {}
+
     cache_key = {"batches": DATALAB_BATCHES, "n": N_SAMPLES}
     cached = cache.get("naver_datalab_trend", cache_key)
     if cached:
@@ -247,9 +247,12 @@ def _collect_demographics_for_batch(batch_names):
 def fetch_datalab_demographics(run_id, collected_at):
     """
     성별·연령대 인구통계 수집 (DataLab API).
-    시몬스 포함한 배치에서 수집 → 시몬스 대비 비율로 정규화.
-    Returns: {brand: {gender: {여성: %, 남성: %}, age: {10대: %, ...}}}
+    NAVER_DATALAB_ENABLED=true 일 때만 실행.
     """
+    if not DATALAB_ENABLED:
+        print("  [DataLab 인구통계] 비활성화 (NAVER_DATALAB_ENABLED=false)")
+        return {}
+
     cache_key = {"batches": DATALAB_BATCHES, "type": "demo"}
     cached = cache.get("naver_datalab_demo", cache_key)
     if cached:

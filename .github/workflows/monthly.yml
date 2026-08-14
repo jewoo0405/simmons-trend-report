@@ -35,6 +35,9 @@ jobs:
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
           NAVER_COOKIES_JSON: ${{ secrets.NAVER_COOKIES_JSON }}
+          NAVER_DATALAB_ENABLED: ${{ secrets.NAVER_DATALAB_ENABLED }}
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python main.py
 
       - name: 품질 게이트 검증
