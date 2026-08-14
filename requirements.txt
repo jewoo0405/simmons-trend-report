@@ -1,4 +1,6 @@
+trendspy
 pytrends==4.9.2
+tenacity>=8.2.0
 playwright==1.62.0
 python-dotenv==1.0.1
 pandas==2.2.3
