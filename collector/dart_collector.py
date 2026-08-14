@@ -1,142 +1,170 @@
 """
-DART OpenAPI 매출 연동 — §13
+네이버 증권 + Playwright 재무 스크래핑 — API 키 불필요
+상장사 5개 브랜드 연간 매출액 수집
 
-https://opendart.fss.or.kr/api/fnlttSinglAcnt.json
-API 키 없으면 조용히 건너뜀.
-
-corp_code 매핑: DART에서 corpCode.xml을 받아 확인한 값.
-⚠ 표시 = 종합 가구·렌탈 등 침대 외 사업 포함 — 차트에 각주 필수.
+비상장(시몬스, 이케아, 씰리침대, 까사미아, 에몬스, 일룸) 수집 불가
+⚠ 브랜드 = 침대 외 사업 포함으로 직접 비교 주의
 """
-import os
-import json
-import urllib.request
-import urllib.parse
+import re
+import time
+import random
+import cache
+from io import StringIO
 
-DART_API_KEY = os.getenv("DART_API_KEY")
-DART_BASE_URL = "https://opendart.fss.or.kr/api"
+import pandas as pd
 
-# corp_code 매핑 (1회성 작업, 하드코딩)
-# DART corpCode.xml → 브랜드 회사명으로 검색하여 확인
-DART_CORP = {
-    "에이스침대": {
-        "code": "00133729",
-        "report_code": "11011",  # 사업보고서
-        "note": "매트리스 전업",
-        "caution": False,
-    },
-    "한샘": {
-        "code": "00213737",
-        "report_code": "11011",
-        "note": "종합 가구 — 침대·매트리스는 일부 사업부",
-        "caution": True,
-    },
-    "현대리바트": {
-        "code": "00155217",
-        "report_code": "11011",
-        "note": "종합 가구 — 침대 외 사업 포함",
-        "caution": True,
-    },
-    "일룸": {
-        "code": "01160621",
-        "report_code": "11011",
-        "note": "종합 가구",
-        "caution": True,
-    },
-    # 비공개 또는 유한회사 — DART 공시 없음
-    "시몬스": {
-        "code": None,
-        "note": "비상장 — 감사보고서(개별)만 존재, DART 공시 미확인",
-        "caution": False,
-    },
-    "이케아": {
-        "code": None,
-        "note": "유한회사 이케아코리아 — 별도 감사보고서 확인 필요",
-        "caution": True,
-    },
-    # 상장사 중 확인 필요 (corp_code 미확인)
-    "씰리침대": {"code": None, "note": "상장사 여부 확인 필요"},
-    "지누스": {"code": "00955711", "note": "코스피 상장", "caution": False},
-    "까사미아": {"code": None, "note": "확인 필요"},
-    "에몬스": {"code": None, "note": "확인 필요"},
-    "코웨이 비렉스": {"code": "00254900", "note": "코웨이(주) 전체 — 비렉스 분리 불가", "caution": True},
+STOCK_CODES = {
+    "에이스침대":    "003800",  # KOSDAQ
+    "한샘":          "009240",  # KOSPI
+    "현대리바트":    "079430",  # KOSPI
+    "지누스":        "013890",  # KOSPI
+    "코웨이 비렉스": "021240",  # KOSPI (코웨이 전체)
+}
+CAUTION = {"한샘", "현대리바트", "코웨이 비렉스"}
+NOTES = {
+    "에이스침대":    "매트리스 전업",
+    "한샘":          "종합 가구 포함",
+    "현대리바트":    "종합 가구 포함",
+    "지누스":        "매트리스 전업",
+    "코웨이 비렉스": "코웨이 전체 매출 (비렉스 분리 불가)",
 }
 
 
-def _dart_get(endpoint, params):
-    params["crtfc_key"] = DART_API_KEY
-    url = f"{DART_BASE_URL}/{endpoint}?" + urllib.parse.urlencode(params)
-    req = urllib.request.Request(url)
+def _lookup_stock_code(keyword):
+    """
+    ac.stock.naver.com 자동완성 API로 종목코드 조회 (Playwright 불필요).
+    STOCK_CODES에 없는 브랜드 추가 시 폴백으로 사용.
+    """
+    import urllib.request
+    import urllib.parse
+    import json
+
+    q = urllib.parse.quote(keyword)
+    url = f"https://ac.stock.naver.com/ac?q={q}&target=stock,index,marketindicator"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     try:
-        with urllib.request.urlopen(req, timeout=10) as res:
-            return json.loads(res.read().decode("utf-8"))
-    except Exception as e:
-        raise ValueError(f"DART API 오류: {e}")
-
-
-def _fetch_revenue(corp_code, bsns_year):
-    """단일 재무제표에서 매출액 추출"""
-    data = _dart_get("fnlttSinglAcnt.json", {
-        "corp_code": corp_code,
-        "bsns_year": str(bsns_year),
-        "reprt_code": "11011",  # 사업보고서
-        "fs_div": "CFS",        # 연결재무제표
-    })
-    if data.get("status") != "000":
-        # 연결 없으면 별도재무제표 시도
-        data = _dart_get("fnlttSinglAcnt.json", {
-            "corp_code": corp_code,
-            "bsns_year": str(bsns_year),
-            "reprt_code": "11011",
-            "fs_div": "OFS",
-        })
-    if data.get("status") != "000":
+        with urllib.request.urlopen(req, timeout=10) as r:
+            data = json.loads(r.read())
+            items = data.get("items", [])
+            for item in items:
+                if isinstance(item, dict):
+                    return item.get("code")
+        return None
+    except Exception:
         return None
 
-    for item in data.get("list", []):
-        if item.get("account_nm") in ("매출액", "수익(매출액)", "영업수익"):
-            try:
-                return {
-                    "year": bsns_year,
-                    "amount": int(item.get("thstrm_amount", "0").replace(",", "")),
-                    "unit": "원",
-                    "caution": DART_CORP.get("", {}).get("caution", False),
-                }
-            except (ValueError, TypeError):
-                pass
-    return None
+
+def _extract_annual_revenue(df):
+    """
+    WiseReport 연간실적 DataFrame에서 가장 최근 연간 매출액(억원) 추출.
+    MultiIndex 컬럼 처리 포함.
+    """
+    # 컬럼 레벨1 평탄화
+    if isinstance(df.columns, pd.MultiIndex):
+        col_names = [str(c[1]) if len(c) > 1 else str(c[0]) for c in df.columns]
+    else:
+        col_names = [str(c) for c in df.columns]
+
+    # 매출액 행
+    first_col = df.iloc[:, 0].astype(str)
+    if "매출액" not in first_col.values:
+        return None, None
+    idx = first_col.tolist().index("매출액")
+    row = df.iloc[idx]
+
+    # 연간(YYYY/12) 비예측 컬럼 역순 탐색
+    annual = [
+        (ci, col)
+        for ci, col in enumerate(col_names)
+        if re.search(r"\d{4}/12", col) and "(E)" not in col
+    ]
+    annual.sort(key=lambda x: x[1], reverse=True)  # 최신 연도 우선
+
+    for ci, col in annual:
+        val = row.iloc[ci]
+        try:
+            amount = float(str(val).replace(",", ""))
+            if amount > 0:
+                year = re.search(r"(\d{4})/12", col).group(1)
+                return int(amount), year
+        except (ValueError, TypeError):
+            continue
+    return None, None
+
+
+def _get_revenue(page, code, brand):
+    """네이버 증권 → WiseReport iframe에서 매출액 추출"""
+    page.goto(
+        f"https://finance.naver.com/item/coinfo.naver?code={code}",
+        timeout=30000,
+    )
+    page.wait_for_timeout(4000)
+
+    for frame in page.frames:
+        if "wisereport" not in frame.url:
+            continue
+        try:
+            content = frame.content()
+            tables = pd.read_html(StringIO(content), thousands=",")
+            for df in tables:
+                amount, year = _extract_annual_revenue(df)
+                if amount:
+                    return amount, year
+        except Exception:
+            pass
+    return None, None
 
 
 def fetch_dart_revenues(target_year=None):
     """
-    브랜드별 최근 매출액 수집.
-    Returns: {brand: {year, amount, unit, caution}} or {} if no API key.
+    네이버 증권에서 상장 브랜드 연간 매출액 수집.
+    Returns: {brand: {amount(억원), year, unit, caution, note, source}}
     """
-    if not DART_API_KEY:
-        print("  [DART] API 키 없음 (DART_API_KEY 미설정) — 건너뜀")
+    cache_key = {"brands": sorted(STOCK_CODES.keys()), "v": 3}
+    cached = cache.get("naver_revenue", cache_key)
+    if cached:
+        print("  [매출] 캐시 사용")
+        return cached
+
+    print(f"  [매출] 네이버 증권 스크래핑 ({len(STOCK_CODES)}개 상장사)")
+    results = {}
+
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        print("  [매출] Playwright 없음")
         return {}
 
-    from datetime import datetime
-    year = target_year or (datetime.now().year - 1)  # 전년도 사업보고서
-    print(f"  [DART] {year}년 사업보고서 수집 중...")
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            viewport={"width": 1280, "height": 900},
+        )
 
-    revenues = {}
-    for brand, info in DART_CORP.items():
-        code = info.get("code")
-        if not code:
-            print(f"    {brand}: corp_code 미확인 — 건너뜀")
-            continue
-        try:
-            rev = _fetch_revenue(code, year)
-            if rev:
-                rev["caution"] = info.get("caution", False)
-                rev["note"] = info.get("note", "")
-                revenues[brand] = rev
-                amount_b = rev["amount"] // 100_000_000
-                caution_mark = " ⚠" if rev["caution"] else ""
-                print(f"    {brand}: {amount_b}억원{caution_mark}")
-            else:
-                print(f"    {brand}: 매출액 항목 없음")
-        except ValueError as e:
-            print(f"    {brand}: {e}")
+        for brand, code in STOCK_CODES.items():
+            time.sleep(random.uniform(0.5, 1.0))
+            try:
+                amount, year = _get_revenue(page, code, brand)
+                if amount:
+                    caution = brand in CAUTION
+                    results[brand] = {
+                        "amount": amount,
+                        "year": year,
+                        "unit": "억원",
+                        "caution": caution,
+                        "note": NOTES.get(brand, ""),
+                        "source": "naver_finance",
+                    }
+                    mark = " ⚠" if caution else ""
+                    print(f"    {brand} ({code}): {amount:,}억원 ({year}){mark}")
+                else:
+                    print(f"    {brand} ({code}): 매출액 파싱 실패")
+            except Exception as e:
+                print(f"    {brand} ({code}): 오류 - {e}")
 
-    return revenues
+        browser.close()
+
+    if results:
+        cache.set("naver_revenue", cache_key, results, ttl_hours=24 * 7)
+    return results

@@ -178,8 +178,8 @@ def run():
     print("\n[4/6] 네이버 성별·연령 수집 중...")
     demographics = fetch_naver_demographics(run_id, collected_at)
 
-    # 5. DART 매출 수집 (§13)
-    print("\n[5/6] DART 매출 수집 중...")
+    # 5. 매출 수집 (네이버 증권 스크래핑)
+    print("\n[5/6] 매출 수집 중 (네이버 증권)...")
     dart_data = fetch_dart_revenues()
 
     # 6. 분석
