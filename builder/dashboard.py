@@ -1,5 +1,5 @@
 import json
-from brand_config import BRANDS
+from brand_config import BRANDS, TIER_LABELS
 from analyzer.validator import overall_confidence_score
 
 
@@ -18,6 +18,8 @@ def build_dashboard(data, report_month, collected_at, confidence_score):
     colors = _brand_colors()
     data_json = json.dumps(data, ensure_ascii=False)
     colors_json = json.dumps(colors, ensure_ascii=False)
+    brands_cfg_json = json.dumps(BRANDS, ensure_ascii=False)
+    tier_labels_json = json.dumps({str(k): v for k, v in TIER_LABELS.items()}, ensure_ascii=False)
 
     conf_color = "#2e7d32" if confidence_score >= 70 else "#e65100" if confidence_score >= 40 else "#c62828"
     conf_label = "안정" if confidence_score >= 70 else "주의" if confidence_score >= 40 else "불안정"
@@ -35,7 +37,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 /* 상단 헤더 */
 #top-header{{
   position:sticky;top:0;z-index:100;
-  background:#1a1a2e;color:#fff;
+  background:#0b0b0b;color:#fff;
   display:flex;align-items:center;justify-content:space-between;
   padding:0 24px;height:52px;
   border-bottom:2px solid #c8a96e;
@@ -58,19 +60,32 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 #sidebar h3{{font-size:12px;color:#888;text-transform:uppercase;
              letter-spacing:1px;margin:16px 0 8px;padding-bottom:4px;
              border-bottom:1px solid #eee;}}
+.tier-header{{
+  font-size:10px;color:#999;font-weight:600;letter-spacing:0.5px;
+  padding:8px 4px 4px;text-transform:uppercase;
+}}
 .brand-item{{
   display:flex;align-items:center;gap:8px;padding:5px 4px;
   border-radius:4px;cursor:pointer;font-size:13px;transition:background 0.15s;
 }}
 .brand-item:hover{{background:#f5f5f5;}}
 .brand-item.active{{background:#e8eaf6;font-weight:bold;}}
+.brand-item--baseline{{
+  background:#fafafa;border:1px solid #e0e0e0;
+  border-radius:6px;margin-bottom:6px;
+}}
 .brand-dot{{width:10px;height:10px;border-radius:50%;flex-shrink:0;}}
+.baseline-badge{{
+  margin-left:auto;font-size:9px;font-weight:700;
+  background:#0b0b0b;color:#c8a96e;
+  padding:2px 5px;border-radius:3px;letter-spacing:0.5px;
+}}
 .filter-btn{{
   display:block;width:100%;padding:6px 10px;margin-bottom:6px;
   border:1px solid #ddd;border-radius:4px;background:#fff;
   font-size:12px;cursor:pointer;text-align:left;transition:all 0.15s;
 }}
-.filter-btn:hover,.filter-btn.active{{background:#1a1a2e;color:#fff;border-color:#1a1a2e;}}
+.filter-btn:hover,.filter-btn.active{{background:#0b0b0b;color:#fff;border-color:#0b0b0b;}}
 
 /* 중앙 차트 영역 */
 #main{{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;}}
@@ -80,7 +95,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
   width:280px;min-width:280px;background:#fff;
   border-left:1px solid #e0e0e0;overflow-y:auto;padding:16px;
 }}
-#insight-panel h3{{font-size:13px;font-weight:bold;color:#1a1a2e;
+#insight-panel h3{{font-size:13px;font-weight:bold;color:#0b0b0b;
                    border-left:3px solid #c8a96e;padding-left:8px;margin-bottom:12px;}}
 
 /* 차트 카드 */
@@ -88,7 +103,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 .chart-row.col2{{grid-template-columns:1fr 1fr;}}
 .chart-row.col3{{grid-template-columns:1fr 1fr 1fr;}}
 .card{{background:#fff;border-radius:8px;border:1px solid #e0e0e0;padding:16px;}}
-.card-title{{font-size:13px;font-weight:bold;color:#1a1a2e;margin-bottom:4px;}}
+.card-title{{font-size:13px;font-weight:bold;color:#0b0b0b;margin-bottom:4px;}}
 .card-sub{{font-size:11px;color:#888;margin-bottom:12px;}}
 .source-badge{{
   display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;
@@ -110,15 +125,25 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 .cv-stable{{color:#2e7d32;font-weight:bold;}}
 .cv-warning{{color:#e65100;font-weight:bold;}}
 .cv-unstable{{color:#c62828;font-weight:bold;}}
+.cv-na{{color:#999;font-style:italic;}}
 
 /* 데이터 테이블 */
 .data-table{{width:100%;border-collapse:collapse;font-size:12px;}}
-.data-table th{{background:#1a1a2e;color:#fff;padding:7px 10px;text-align:left;}}
+.data-table th{{background:#0b0b0b;color:#fff;padding:7px 10px;text-align:left;}}
 .data-table td{{padding:7px 10px;border-bottom:1px solid #f0f0f0;}}
 .data-table tr:hover td{{background:#f9f9f9;}}
+.simmons-sticky td{{background:#fafafa;font-weight:bold;position:sticky;top:0;z-index:1;}}
 
 /* 인구통계 없음 */
 .no-data{{text-align:center;padding:30px;color:#aaa;font-size:13px;}}
+
+/* 인쇄 */
+@media print {{
+  #top-header,#sidebar,#insight-panel{{display:none;}}
+  #layout{{height:auto;}}
+  #main{{overflow:visible;}}
+  .card{{break-inside:avoid;}}
+}}
 </style>
 </head>
 <body>
@@ -159,14 +184,14 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       <div class="card-title">구글 검색 지수 순위
         <span class="source-badge badge-google">Google Trends</span>
       </div>
-      <div class="card-sub">시몬스=100 기준 · 최근 3개월 한국</div>
+      <div class="card-sub" id="sub-google-rank">시몬스=100 기준 · 최근 3개월 한국</div>
       <div id="chart-google-rank" style="height:420px;"></div>
     </div>
     <div class="card">
       <div class="card-title">네이버 관심도 순위
         <span class="source-badge badge-naver">Naver Search</span>
       </div>
-      <div class="card-sub">시몬스=100 기준 · 블로그+뉴스 건수</div>
+      <div class="card-sub" id="sub-naver-rank">시몬스=100 기준 · 블로그+뉴스 건수</div>
       <div id="chart-naver-rank" style="height:420px;"></div>
     </div>
   </div>
@@ -177,7 +202,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       <div class="card-title">월별 검색 트렌드 추이
         <span class="source-badge badge-google">Google Trends</span>
       </div>
-      <div class="card-sub">주요 5개 브랜드 · 음영은 신뢰구간(CV)</div>
+      <div class="card-sub">주요 브랜드 · 음영은 신뢰구간(CV)</div>
       <div id="chart-monthly" style="height:420px;"></div>
     </div>
   </div>
@@ -202,14 +227,14 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       <div class="card-title">성별 검색 관심도
         <span class="source-badge badge-naver">Naver DataLab</span>
       </div>
-      <div class="card-sub">주요 4개 브랜드 성별 비교</div>
+      <div class="card-sub">브랜드별 성별 비율 (브랜드 내 합계=100%)</div>
       <div id="chart-gender" style="height:320px;"></div>
     </div>
     <div class="card">
       <div class="card-title">연령대별 검색 관심도
         <span class="source-badge badge-naver">Naver DataLab</span>
       </div>
-      <div class="card-sub">주요 4개 브랜드 연령대 비교</div>
+      <div class="card-sub">브랜드별 연령대 비율 (브랜드 내 합계=100%)</div>
       <div id="chart-age" style="height:320px;"></div>
     </div>
   </div>
@@ -242,15 +267,39 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 <script>
 const RAW = {data_json};
 const COLORS = {colors_json};
+const BRANDS_CFG = {brands_cfg_json};
+const TIER_LABELS = {tier_labels_json};
 
-// 브랜드 목록 렌더
-const brandList = document.getElementById('brand-list');
-Object.entries(COLORS).forEach(([name, color]) => {{
-  const el = document.createElement('div');
-  el.className = 'brand-item';
-  el.innerHTML = `<div class="brand-dot" style="background:${{color}}"></div>${{name}}`;
-  brandList.appendChild(el);
-}});
+// 기준 브랜드 서브타이틀 생성
+function baselineCaption(source) {{
+  const base = BRANDS_CFG.find(b => b.baseline);
+  if (!base) return '';
+  return base.name + '=100 기준 · ' + source;
+}}
+
+// 사이드바: 티어별 그룹 렌더
+(function renderSidebar() {{
+  const list = document.getElementById('brand-list');
+  const tiers = [...new Set(BRANDS_CFG.map(b => b.tier))].sort();
+  tiers.forEach(tier => {{
+    const header = document.createElement('div');
+    header.className = 'tier-header';
+    header.textContent = TIER_LABELS[tier] || ('Tier ' + tier);
+    list.appendChild(header);
+    BRANDS_CFG.filter(b => b.tier === tier).forEach(b => {{
+      const el = document.createElement('div');
+      el.className = 'brand-item' + (b.baseline ? ' brand-item--baseline' : '');
+      el.innerHTML = `<div class="brand-dot" style="background:${{b.color}}"></div>
+        <span>${{b.name}}</span>
+        ${{b.baseline ? '<span class="baseline-badge">기준</span>' : ''}}`;
+      list.appendChild(el);
+    }});
+  }});
+}})();
+
+// 서브타이틀 업데이트
+document.getElementById('sub-google-rank').textContent = baselineCaption('최근 3개월 한국');
+document.getElementById('sub-naver-rank').textContent = baselineCaption('블로그+뉴스 건수');
 
 // 차트 초기화
 const gc = (id) => echarts.init(document.getElementById(id));
@@ -267,8 +316,16 @@ function renderGoogleRank() {{
     series:[{{
       type:'bar',
       data:sorted.map(x=>{{
-        return {{value:x[1],itemStyle:{{color:COLORS[x[0]]||'#888',
-          opacity: x[0]==='시몬스' ? 1 : 0.75}}}}
+        const isBase = x[0]==='시몬스';
+        return {{
+          value:x[1],
+          itemStyle:{{
+            color:COLORS[x[0]]||'#888',
+            opacity: isBase ? 1 : 0.75,
+            borderColor: isBase ? '#c8a96e' : 'transparent',
+            borderWidth: isBase ? 2 : 0
+          }}
+        }};
       }}),
       label:{{show:true,position:'right',fontSize:11,formatter:p=>p.value}}
     }}],
@@ -288,8 +345,16 @@ function renderNaverRank() {{
     series:[{{
       type:'bar',
       data:sorted.map(x=>{{
-        return {{value:x[1],itemStyle:{{color:COLORS[x[0]]||'#888',
-          opacity: x[0]==='시몬스' ? 1 : 0.75}}}}
+        const isBase = x[0]==='시몬스';
+        return {{
+          value:x[1],
+          itemStyle:{{
+            color:COLORS[x[0]]||'#888',
+            opacity: isBase ? 1 : 0.75,
+            borderColor: isBase ? '#c8a96e' : 'transparent',
+            borderWidth: isBase ? 2 : 0
+          }}
+        }};
       }}),
       label:{{show:true,position:'right',fontSize:11,formatter:p=>p.value}}
     }}],
@@ -297,27 +362,41 @@ function renderNaverRank() {{
   }});
 }}
 
-// 3. 월별 추이 (CV 밴드 포함)
+// 3. 월별 추이 (시몬스 마지막 렌더 = 최상단 레이어)
 function renderMonthly() {{
   const ms = RAW.google?.monthly_series || {{}};
   const periods = RAW.google?.periods || [];
   if(!Object.keys(ms).length) return;
   const series = [];
-  Object.entries(ms).forEach(([brand, pts]) => {{
-    const vals = pts.map(p=>p.value);
+  // 시몬스 제외한 브랜드 먼저
+  Object.entries(ms).filter(([b]) => b !== '시몬스').forEach(([brand, pts]) => {{
     const color = COLORS[brand] || '#888';
     series.push({{
-      name:brand, type:'line', data:vals,
-      lineStyle:{{color,width: brand==='시몬스'?3:1.5}},
+      name:brand, type:'line', data:pts.map(p=>p.value),
+      lineStyle:{{color,width:1.5}},
       itemStyle:{{color}},
-      symbol: brand==='시몬스'?'circle':'none',
-      symbolSize:5,
-      tooltip:{{formatter: (p) => {{
+      symbol:'none',
+      tooltip:{{formatter:(p)=>{{
         const pt = pts[p.dataIndex];
         return `${{brand}}<br>${{p.name}}: ${{pt.value}}<br>CV: ${{pt.cv}} (${{pt.confidence}})`;
       }}}}
     }});
   }});
+  // 시몬스 마지막 (z:10 최상단)
+  if(ms['시몬스']) {{
+    const pts = ms['시몬스'];
+    series.push({{
+      name:'시몬스', type:'line', data:pts.map(p=>p.value),
+      lineStyle:{{color:'#0b0b0b',width:3}},
+      itemStyle:{{color:'#0b0b0b'}},
+      symbol:'circle', symbolSize:5,
+      z:10,
+      tooltip:{{formatter:(p)=>{{
+        const pt = pts[p.dataIndex];
+        return `시몬스<br>${{p.name}}: ${{pt.value}}<br>CV: ${{pt.cv}} (${{pt.confidence}})`;
+      }}}}
+    }});
+  }}
   const pLabels = periods.map(p=>p.substring(0,7));
   gc('chart-monthly').setOption({{
     legend:{{data:Object.keys(ms),bottom:0,textStyle:{{fontSize:11}},type:'scroll'}},
@@ -329,12 +408,20 @@ function renderMonthly() {{
   }});
 }}
 
-// 4. Share of Search 파이차트
+// 4. Share of Search 파이차트 (시몬스 강조)
 function renderSoS() {{
   const sos = RAW.sos || {{}};
   const data = Object.entries(sos)
     .sort((a,b)=>b[1]-a[1])
-    .map(([name,val])=>({{name,value:val,itemStyle:{{color:COLORS[name]||'#888'}}}}));
+    .map(([name,val])=>{{
+      const isBase = name === '시몬스';
+      return {{
+        name, value: val,
+        itemStyle:{{color:COLORS[name]||'#888'}},
+        selected: isBase,
+        selectedOffset: isBase ? 12 : 0
+      }};
+    }});
   gc('chart-sos').setOption({{
     tooltip:{{trigger:'item',formatter:p=>`${{p.name}}: ${{p.value}}%`}},
     legend:{{orient:'vertical',right:0,top:'center',textStyle:{{fontSize:11}}}},
@@ -345,28 +432,38 @@ function renderSoS() {{
   }});
 }}
 
-// 5. 갭 분석 바차트
+// 5. 갭 분석 (시몬스 항상 포함, markLine 기준선)
 function renderGap() {{
   const gaps = RAW.gap || [];
-  const sorted = gaps.slice(0,8);
+  let items = gaps.slice(0, 8);
+  // 시몬스가 없으면 강제 추가 (gap=0)
+  if (!items.find(x => x.brand === '시몬스')) {{
+    items = [{{brand:'시몬스', gap:0}}, ...items];
+  }}
   gc('chart-gap').setOption({{
     grid:{{left:90,right:20,top:10,bottom:10}},
     xAxis:{{type:'value',axisLabel:{{fontSize:11}}}},
-    yAxis:{{type:'category',data:sorted.map(x=>x.brand),axisLabel:{{fontSize:11}}}},
+    yAxis:{{type:'category',data:items.map(x=>x.brand),axisLabel:{{fontSize:11}}}},
     series:[{{
       type:'bar',
-      data:sorted.map(x=>{{
-        const color = x.gap > 0 ? '#1565c0' : '#c62828';
+      data:items.map(x=>{{
+        const color = x.brand==='시몬스' ? '#0b0b0b' : x.gap > 0 ? '#1565c0' : '#c62828';
         return {{value:x.gap,itemStyle:{{color}}}};
       }}),
       label:{{show:true,position:'right',fontSize:11,
-              formatter:p=>p.value>0?`+${{p.value}}`:`${{p.value}}`}}
+              formatter:p=>p.value>0?`+${{p.value}}`:`${{p.value}}`}},
+      markLine:{{
+        silent:true,
+        lineStyle:{{type:'dashed',color:'#999',width:1}},
+        data:[{{xAxis:0}}],
+        label:{{show:false}}
+      }}
     }}],
     tooltip:{{formatter:p=>`${{p.name}}<br>네이버-구글: ${{p.value>0?'+':''}}${{p.value}}`}}
   }});
 }}
 
-// 6. 성별 차트
+// 6. 성별 차트 (브랜드별 100% 정규화)
 function renderGender() {{
   const demo = RAW.demographics || {{}};
   const brands = Object.keys(demo).filter(b=>demo[b].gender && Object.keys(demo[b].gender).length);
@@ -376,24 +473,37 @@ function renderGender() {{
     return;
   }}
   const genders = ['여성','남성'];
+  // 브랜드별 100% 정규화
+  const normalized = {{}};
+  brands.forEach(b => {{
+    const total = genders.reduce((s,g) => s + (demo[b].gender[g]||0), 0);
+    normalized[b] = {{}};
+    genders.forEach(g => {{
+      normalized[b][g] = total > 0 ? Math.round(demo[b].gender[g]/total*1000)/10 : 0;
+    }});
+  }});
   const series = genders.map(g=>{{
     return {{
-      name:g, type:'bar',
-      data:brands.map(b=>demo[b].gender[g]||0),
-      itemStyle:{{color: g==='여성'?'#e91e63':'#1565c0'}}
+      name:g, type:'bar', stack:'total',
+      data:brands.map(b=>normalized[b][g]),
+      itemStyle:{{color: g==='여성'?'#e91e63':'#1565c0'}},
+      label:{{show:true,formatter:p=>p.value>0?p.value+'%':'',fontSize:10}}
     }};
   }});
   gc('chart-gender').setOption({{
     legend:{{data:genders,bottom:0}},
     grid:{{left:80,right:20,top:10,bottom:40}},
-    xAxis:{{type:'value',axisLabel:{{fontSize:11}}}},
+    xAxis:{{type:'value',max:100,axisLabel:{{fontSize:11,formatter:v=>v+'%'}}}},
     yAxis:{{type:'category',data:brands,axisLabel:{{fontSize:11}}}},
     series,
-    tooltip:{{trigger:'axis'}}
+    tooltip:{{trigger:'axis',formatter:params=>{{
+      const brand = params[0].name;
+      return brand + '<br>' + params.map(p=>`${{p.seriesName}}: ${{p.value}}%`).join('<br>');
+    }}}}
   }});
 }}
 
-// 7. 연령대 차트
+// 7. 연령대 차트 (브랜드별 100% 정규화)
 function renderAge() {{
   const demo = RAW.demographics || {{}};
   const brands = Object.keys(demo).filter(b=>demo[b].age && Object.keys(demo[b].age).length);
@@ -404,34 +514,60 @@ function renderAge() {{
   }}
   const ages = ['10대','20대','30대','40대','50대','60대+'];
   const ageColors = ['#9c27b0','#3f51b5','#2196f3','#4caf50','#ff9800','#795548'];
+  // 브랜드별 100% 정규화
+  const normalized = {{}};
+  brands.forEach(b => {{
+    const total = ages.reduce((s,a) => s + (demo[b].age[a]||0), 0);
+    normalized[b] = {{}};
+    ages.forEach(a => {{
+      normalized[b][a] = total > 0 ? Math.round(demo[b].age[a]/total*1000)/10 : 0;
+    }});
+  }});
   const series = ages.map((age,i)=>{{
     return {{
       name:age, type:'bar', stack:'total',
-      data:brands.map(b=>demo[b].age[age]||0),
-      itemStyle:{{color:ageColors[i]}}
+      data:brands.map(b=>normalized[b][age]),
+      itemStyle:{{color:ageColors[i]}},
+      label:{{show:true,formatter:p=>p.value>0?p.value+'%':'',fontSize:10}}
     }};
   }});
   gc('chart-age').setOption({{
     legend:{{data:ages,bottom:0,textStyle:{{fontSize:10}}}},
     grid:{{left:80,right:20,top:10,bottom:40}},
-    xAxis:{{type:'value',axisLabel:{{fontSize:11}}}},
+    xAxis:{{type:'value',max:100,axisLabel:{{fontSize:11,formatter:v=>v+'%'}}}},
     yAxis:{{type:'category',data:brands,axisLabel:{{fontSize:11}}}},
     series,
-    tooltip:{{trigger:'axis'}}
+    tooltip:{{trigger:'axis',formatter:params=>{{
+      const brand = params[0].name;
+      return brand + '<br>' + params.map(p=>`${{p.seriesName}}: ${{p.value}}%`).join('<br>');
+    }}}}
   }});
 }}
 
-// 8. CV 신뢰도 테이블
+// 8. CV 신뢰도 테이블 (시몬스 sticky, std=0→측정불가)
 function renderCVTable() {{
   const stats = RAW.naver?.stats || {{}};
-  const rows = Object.entries(stats).map(([name,s])=>{{
-    const cls = s.confidence==='stable'?'cv-stable':s.confidence==='warning'?'cv-warning':'cv-unstable';
-    const label = s.confidence==='stable'?'안정':s.confidence==='warning'?'주의':'불안정';
-    return `<tr>
-      <td>${{name}}</td>
+  // 시몬스 먼저
+  const allNames = ['시몬스', ...Object.keys(stats).filter(n=>n!=='시몬스')];
+  const rows = allNames.filter(n=>stats[n]).map(name=>{{
+    const s = stats[name];
+    const isBase = name === '시몬스';
+    const isMeasurable = !(s.std === 0 && s.cv === 0);
+    let cvCell, confCell;
+    if (!isMeasurable) {{
+      cvCell = '<span class="cv-na">측정 불가</span>';
+      confCell = '<span class="cv-na">—</span>';
+    }} else {{
+      const cls = s.confidence==='stable'?'cv-stable':s.confidence==='warning'?'cv-warning':'cv-unstable';
+      const label = s.confidence==='stable'?'안정':s.confidence==='warning'?'주의':'불안정';
+      cvCell = `<span class="${{cls}}">${{(s.cv*100).toFixed(1)}}%</span>`;
+      confCell = `<span class="${{cls}}">${{label}}</span>`;
+    }}
+    return `<tr class="${{isBase?'simmons-sticky':''}}">
+      <td>${{name}}${{isBase?' <span style="font-size:9px;color:#c8a96e;">●기준</span>':''}}</td>
       <td>${{s.median}}</td>
-      <td class="${{cls}}">${{(s.cv*100).toFixed(1)}}%</td>
-      <td class="${{cls}}">${{label}}</td>
+      <td>${{cvCell}}</td>
+      <td>${{confCell}}</td>
       <td>${{s.outliers_removed}}개</td>
     </tr>`;
   }}).join('');
@@ -498,12 +634,19 @@ function setRange(btn, range) {{
   btn.classList.add('active');
 }}
 
+// CSV 내보내기 (시몬스 첫 행, 헤더 주석)
 function exportCSV() {{
   const norm_g = RAW.google?.normalized || {{}};
   const norm_n = RAW.naver?.normalized || {{}};
   const sos = RAW.sos || {{}};
-  const rows = [['브랜드','구글 지수','네이버 지수','SoS(%)']];
-  Object.keys({{...norm_g,...norm_n}}).forEach(name=>{{
+  const allNames = Object.keys({{...norm_g,...norm_n}});
+  const others = allNames.filter(n => n !== '시몬스');
+  const ordered = ['시몬스', ...others];
+  const rows = [
+    ['# 시몬스 브랜드 트렌드 리포트', '', '', ''],
+    ['브랜드','구글 지수(시몬스=100)','네이버 지수(시몬스=100)','SoS(%)']
+  ];
+  ordered.forEach(name=>{{
     rows.push([name, norm_g[name]||0, norm_n[name]||0, sos[name]||0]);
   }});
   const csv = rows.map(r=>r.join(',')).join('\\n');
@@ -527,7 +670,7 @@ renderInsights();
 window.addEventListener('resize', ()=>{{
   ['chart-google-rank','chart-naver-rank','chart-monthly',
    'chart-sos','chart-gap','chart-gender','chart-age']
-  .forEach(id=>{{const el=document.getElementById(id);if(el&&el._echarts_instance_)echarts.getInstanceByDom(el)?.resize();}});
+  .forEach(id=>{{const el=document.getElementById(id);if(el){{const inst=echarts.getInstanceByDom(el);if(inst)inst.resize();}}}});
 }});
 </script>
 </body>

@@ -11,7 +11,7 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
 /* 상단 헤더 */
 #top-header{
   position:sticky;top:0;z-index:100;
-  background:#1a1a2e;color:#fff;
+  background:#0b0b0b;color:#fff;
   display:flex;align-items:center;justify-content:space-between;
   padding:0 24px;height:52px;
   border-bottom:2px solid #c8a96e;
@@ -34,19 +34,32 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
 #sidebar h3{font-size:12px;color:#888;text-transform:uppercase;
              letter-spacing:1px;margin:16px 0 8px;padding-bottom:4px;
              border-bottom:1px solid #eee;}
+.tier-header{
+  font-size:10px;color:#999;font-weight:600;letter-spacing:0.5px;
+  padding:8px 4px 4px;text-transform:uppercase;
+}
 .brand-item{
   display:flex;align-items:center;gap:8px;padding:5px 4px;
   border-radius:4px;cursor:pointer;font-size:13px;transition:background 0.15s;
 }
 .brand-item:hover{background:#f5f5f5;}
 .brand-item.active{background:#e8eaf6;font-weight:bold;}
+.brand-item--baseline{
+  background:#fafafa;border:1px solid #e0e0e0;
+  border-radius:6px;margin-bottom:6px;
+}
 .brand-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.baseline-badge{
+  margin-left:auto;font-size:9px;font-weight:700;
+  background:#0b0b0b;color:#c8a96e;
+  padding:2px 5px;border-radius:3px;letter-spacing:0.5px;
+}
 .filter-btn{
   display:block;width:100%;padding:6px 10px;margin-bottom:6px;
   border:1px solid #ddd;border-radius:4px;background:#fff;
   font-size:12px;cursor:pointer;text-align:left;transition:all 0.15s;
 }
-.filter-btn:hover,.filter-btn.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e;}
+.filter-btn:hover,.filter-btn.active{background:#0b0b0b;color:#fff;border-color:#0b0b0b;}
 
 /* 중앙 차트 영역 */
 #main{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;}
@@ -56,7 +69,7 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
   width:280px;min-width:280px;background:#fff;
   border-left:1px solid #e0e0e0;overflow-y:auto;padding:16px;
 }
-#insight-panel h3{font-size:13px;font-weight:bold;color:#1a1a2e;
+#insight-panel h3{font-size:13px;font-weight:bold;color:#0b0b0b;
                    border-left:3px solid #c8a96e;padding-left:8px;margin-bottom:12px;}
 
 /* 차트 카드 */
@@ -64,7 +77,7 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
 .chart-row.col2{grid-template-columns:1fr 1fr;}
 .chart-row.col3{grid-template-columns:1fr 1fr 1fr;}
 .card{background:#fff;border-radius:8px;border:1px solid #e0e0e0;padding:16px;}
-.card-title{font-size:13px;font-weight:bold;color:#1a1a2e;margin-bottom:4px;}
+.card-title{font-size:13px;font-weight:bold;color:#0b0b0b;margin-bottom:4px;}
 .card-sub{font-size:11px;color:#888;margin-bottom:12px;}
 .source-badge{
   display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;
@@ -86,15 +99,25 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
 .cv-stable{color:#2e7d32;font-weight:bold;}
 .cv-warning{color:#e65100;font-weight:bold;}
 .cv-unstable{color:#c62828;font-weight:bold;}
+.cv-na{color:#999;font-style:italic;}
 
 /* 데이터 테이블 */
 .data-table{width:100%;border-collapse:collapse;font-size:12px;}
-.data-table th{background:#1a1a2e;color:#fff;padding:7px 10px;text-align:left;}
+.data-table th{background:#0b0b0b;color:#fff;padding:7px 10px;text-align:left;}
 .data-table td{padding:7px 10px;border-bottom:1px solid #f0f0f0;}
 .data-table tr:hover td{background:#f9f9f9;}
+.simmons-sticky td{background:#fafafa;font-weight:bold;position:sticky;top:0;z-index:1;}
 
 /* 인구통계 없음 */
 .no-data{text-align:center;padding:30px;color:#aaa;font-size:13px;}
+
+/* 인쇄 */
+@media print {
+  #top-header,#sidebar,#insight-panel{display:none;}
+  #layout{height:auto;}
+  #main{overflow:visible;}
+  .card{break-inside:avoid;}
+}
 </style>
 </head>
 <body>
@@ -103,7 +126,7 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
 <div id="top-header">
   <div class="title">시몬스 브랜드 트렌드 대시보드 · 2026년 08월</div>
   <div class="meta">
-    <span>수집: 2026.08.14 12:02</span>
+    <span>수집: 2026.08.14 12:10</span>
     <span>대상: 11개 브랜드</span>
     <span class="conf-badge">안정 100점</span>
   </div>
@@ -135,14 +158,14 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
       <div class="card-title">구글 검색 지수 순위
         <span class="source-badge badge-google">Google Trends</span>
       </div>
-      <div class="card-sub">시몬스=100 기준 · 최근 3개월 한국</div>
+      <div class="card-sub" id="sub-google-rank">시몬스=100 기준 · 최근 3개월 한국</div>
       <div id="chart-google-rank" style="height:420px;"></div>
     </div>
     <div class="card">
       <div class="card-title">네이버 관심도 순위
         <span class="source-badge badge-naver">Naver Search</span>
       </div>
-      <div class="card-sub">시몬스=100 기준 · 블로그+뉴스 건수</div>
+      <div class="card-sub" id="sub-naver-rank">시몬스=100 기준 · 블로그+뉴스 건수</div>
       <div id="chart-naver-rank" style="height:420px;"></div>
     </div>
   </div>
@@ -153,7 +176,7 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
       <div class="card-title">월별 검색 트렌드 추이
         <span class="source-badge badge-google">Google Trends</span>
       </div>
-      <div class="card-sub">주요 5개 브랜드 · 음영은 신뢰구간(CV)</div>
+      <div class="card-sub">주요 브랜드 · 음영은 신뢰구간(CV)</div>
       <div id="chart-monthly" style="height:420px;"></div>
     </div>
   </div>
@@ -178,14 +201,14 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
       <div class="card-title">성별 검색 관심도
         <span class="source-badge badge-naver">Naver DataLab</span>
       </div>
-      <div class="card-sub">주요 4개 브랜드 성별 비교</div>
+      <div class="card-sub">브랜드별 성별 비율 (브랜드 내 합계=100%)</div>
       <div id="chart-gender" style="height:320px;"></div>
     </div>
     <div class="card">
       <div class="card-title">연령대별 검색 관심도
         <span class="source-badge badge-naver">Naver DataLab</span>
       </div>
-      <div class="card-sub">주요 4개 브랜드 연령대 비교</div>
+      <div class="card-sub">브랜드별 연령대 비율 (브랜드 내 합계=100%)</div>
       <div id="chart-age" style="height:320px;"></div>
     </div>
   </div>
@@ -216,17 +239,41 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
 </div><!-- /layout -->
 
 <script>
-const RAW = {"google": {"normalized": {"시몬스": 100.0, "에이스침대": 34.4, "코웨이 비렉스": 0.4, "한샘": 224.2, "현대리바트": 15.0, "까사미아": 40.6, "지누스": 39.9, "에몬스": 14.3, "일룸": 63.3, "이케아": 354.1, "씰리침대": 1.5}, "monthly_series": {"시몬스": [{"period": "2025-08", "value": 44.5, "cv": 0.3047, "confidence": "unstable"}, {"period": "2025-09", "value": 22.5, "cv": 0.3085, "confidence": "unstable"}, {"period": "2025-10", "value": 21.25, "cv": 0.3137, "confidence": "unstable"}, {"period": "2025-11", "value": 24.2, "cv": 0.3015, "confidence": "unstable"}, {"period": "2025-12", "value": 22.75, "cv": 0.3044, "confidence": "unstable"}, {"period": "2026-01", "value": 19.25, "cv": 0.3159, "confidence": "unstable"}, {"period": "2026-02", "value": 19.75, "cv": 0.3062, "confidence": "unstable"}, {"period": "2026-03", "value": 18.6, "cv": 0.3119, "confidence": "unstable"}, {"period": "2026-04", "value": 26.0, "cv": 0.3133, "confidence": "unstable"}, {"period": "2026-05", "value": 20.4, "cv": 0.3137, "confidence": "unstable"}, {"period": "2026-06", "value": 16.0, "cv": 0.315, "confidence": "unstable"}, {"period": "2026-07", "value": 16.75, "cv": 0.3086, "confidence": "unstable"}, {"period": "2026-08", "value": 13.0, "cv": 0.2928, "confidence": "unstable"}], "에이스침대": [{"period": "2025-08", "value": 6.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 6.25, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 8.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 8.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 8.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 7.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 9.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 9.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 7.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 8.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 7.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 6.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 5.0, "cv": 0.0, "confidence": "stable"}], "한샘": [{"period": "2025-08", "value": 48.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 47.25, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 46.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 53.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 52.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 54.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 51.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 58.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 45.75, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 51.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 45.75, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 44.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 41.0, "cv": 0.0, "confidence": "stable"}], "이케아": [{"period": "2025-08", "value": 83.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 74.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 78.75, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 82.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 92.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 84.75, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 84.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 79.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 68.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 68.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 67.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 77.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 69.5, "cv": 0.0, "confidence": "stable"}], "씰리침대": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 0.75, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-12", "value": 0.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-02", "value": 0.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 0.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 0.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 0.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-07", "value": 0.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 1.0, "cv": 0.0, "confidence": "stable"}]}, "periods": ["2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08"], "raw_stats": {"시몬스": {"2025-08": {"median": 44.5, "mean": 36.83, "std": 11.22, "cv": 0.3047, "confidence": "unstable", "outliers_removed": 0}, "2025-09": {"median": 22.5, "mean": 18.58, "std": 5.73, "cv": 0.3085, "confidence": "unstable", "outliers_removed": 0}, "2025-10": {"median": 21.25, "mean": 17.5, "std": 5.49, "cv": 0.3137, "confidence": "unstable", "outliers_removed": 0}, "2025-11": {"median": 24.2, "mean": 20.07, "std": 6.05, "cv": 0.3015, "confidence": "unstable", "outliers_removed": 0}, "2025-12": {"median": 22.75, "mean": 18.83, "std": 5.73, "cv": 0.3044, "confidence": "unstable", "outliers_removed": 0}, "2026-01": {"median": 19.25, "mean": 15.83, "std": 5.0, "cv": 0.3159, "confidence": "unstable", "outliers_removed": 0}, "2026-02": {"median": 19.75, "mean": 16.33, "std": 5.0, "cv": 0.3062, "confidence": "unstable", "outliers_removed": 0}, "2026-03": {"median": 18.6, "mean": 15.33, "std": 4.78, "cv": 0.3119, "confidence": "unstable", "outliers_removed": 0}, "2026-04": {"median": 26.0, "mean": 21.42, "std": 6.71, "cv": 0.3133, "confidence": "unstable", "outliers_removed": 0}, "2026-05": {"median": 20.4, "mean": 16.8, "std": 5.27, "cv": 0.3137, "confidence": "unstable", "outliers_removed": 0}, "2026-06": {"median": 16.0, "mean": 13.17, "std": 4.15, "cv": 0.315, "confidence": "unstable", "outliers_removed": 0}, "2026-07": {"median": 16.75, "mean": 13.83, "std": 4.27, "cv": 0.3086, "confidence": "unstable", "outliers_removed": 0}, "2026-08": {"median": 13.0, "mean": 10.83, "std": 3.17, "cv": 0.2928, "confidence": "unstable", "outliers_removed": 0}}, "에이스침대": {"2025-08": {"median": 6.5, "mean": 6.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 6.25, "mean": 6.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 8.0, "mean": 8.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 8.4, "mean": 8.4, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 8.25, "mean": 8.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 7.5, "mean": 7.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 9.25, "mean": 9.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 9.4, "mean": 9.4, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 7.25, "mean": 7.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 8.6, "mean": 8.6, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 7.25, "mean": 7.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 6.25, "mean": 6.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 5.0, "mean": 5.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "코웨이 비렉스": {"2025-08": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 1.0, "mean": 1.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "한샘": {"2025-08": {"median": 48.0, "mean": 48.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 47.25, "mean": 47.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 46.0, "mean": 46.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 53.2, "mean": 53.2, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 52.5, "mean": 52.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 54.0, "mean": 54.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 51.25, "mean": 51.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 58.0, "mean": 58.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 45.75, "mean": 45.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 51.8, "mean": 51.8, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 45.75, "mean": 45.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 44.25, "mean": 44.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 41.0, "mean": 41.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "현대리바트": {"2025-08": {"median": 3.5, "mean": 3.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 3.25, "mean": 3.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 3.0, "mean": 3.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 2.8, "mean": 2.8, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 0.75, "mean": 0.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 6.25, "mean": 6.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 5.75, "mean": 5.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 3.2, "mean": 3.2, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 3.5, "mean": 3.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 4.0, "mean": 4.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 3.25, "mean": 3.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 1.0, "mean": 1.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 2.5, "mean": 2.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "까사미아": {"2025-08": {"median": 8.25, "mean": 8.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 7.0, "mean": 7.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 8.75, "mean": 8.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 10.0, "mean": 10.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 11.25, "mean": 11.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 12.5, "mean": 12.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 8.5, "mean": 8.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 9.2, "mean": 9.2, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 7.5, "mean": 7.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 9.0, "mean": 9.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 8.75, "mean": 8.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 8.0, "mean": 8.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 7.0, "mean": 7.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "지누스": {"2025-08": {"median": 9.0, "mean": 9.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 8.25, "mean": 8.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 10.5, "mean": 10.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 7.8, "mean": 7.8, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 9.0, "mean": 9.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 10.0, "mean": 10.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 8.75, "mean": 8.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 10.4, "mean": 10.4, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 8.25, "mean": 8.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 8.6, "mean": 8.6, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 8.75, "mean": 8.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 7.5, "mean": 7.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 7.0, "mean": 7.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "에몬스": {"2025-08": {"median": 2.0, "mean": 2.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 2.25, "mean": 2.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 2.25, "mean": 2.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 7.4, "mean": 7.4, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 3.75, "mean": 3.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 2.75, "mean": 2.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 2.75, "mean": 2.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 2.8, "mean": 2.8, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 3.0, "mean": 3.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 4.6, "mean": 4.6, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 3.0, "mean": 3.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 2.25, "mean": 2.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 2.0, "mean": 2.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "일룸": {"2025-08": {"median": 13.75, "mean": 13.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 12.25, "mean": 12.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 13.0, "mean": 13.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 14.0, "mean": 14.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 16.5, "mean": 16.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 17.75, "mean": 17.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 17.25, "mean": 17.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 15.2, "mean": 15.2, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 13.75, "mean": 13.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 12.2, "mean": 12.2, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 11.5, "mean": 11.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 13.25, "mean": 13.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 10.0, "mean": 10.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "이케아": {"2025-08": {"median": 83.5, "mean": 83.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 74.0, "mean": 74.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 78.75, "mean": 78.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 82.0, "mean": 82.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 92.0, "mean": 92.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 84.75, "mean": 84.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 84.0, "mean": 84.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 79.4, "mean": 79.4, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 68.5, "mean": 68.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 68.6, "mean": 68.6, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 67.0, "mean": 67.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 77.0, "mean": 77.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 69.5, "mean": 69.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "씰리침대": {"2025-08": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 0.75, "mean": 0.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 0.25, "mean": 0.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 0.5, "mean": 0.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 0.4, "mean": 0.4, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 0.5, "mean": 0.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 0.6, "mean": 0.6, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 0.25, "mean": 0.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 1.0, "mean": 1.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}}}, "naver": {"normalized": {"시몬스": 100.0, "에이스침대": 115.7, "코웨이 비렉스": 15.5, "한샘": 50.3, "현대리바트": 25.7, "까사미아": 32.3, "지누스": 16.6, "에몬스": 52.8, "일룸": 42.1, "이케아": 133.2, "씰리침대": 74.1}, "stats": {"시몬스": {"median": 156624, "mean": 156624, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "에이스침대": {"median": 181288, "mean": 181288, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "코웨이 비렉스": {"median": 24234, "mean": 24234, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "한샘": {"median": 78736, "mean": 78736, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "현대리바트": {"median": 40279, "mean": 40279, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "까사미아": {"median": 50611, "mean": 50611, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "지누스": {"median": 25933, "mean": 25933, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "에몬스": {"median": 82751, "mean": 82751, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "일룸": {"median": 65881, "mean": 65881, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "이케아": {"median": 208569, "mean": 208569, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "씰리침대": {"median": 116114, "mean": 116114, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}}, "demographics": {"시몬스": {"gender": {"여성": 40.7, "남성": 7.0}, "age": {"10대": 2.1, "20대": 5.2, "30대": 19.0, "40대": 29.2, "50대": 31.2, "60대+": 21.2}}, "에이스침대": {"gender": {"여성": 54.9, "남성": 56.2}, "age": {"10대": 32.0, "20대": 52.5, "30대": 56.3, "40대": 50.0, "50대": 55.8, "60대+": 59.2}}, "한샘": {"gender": {"여성": 59.6, "남성": 20.8}, "age": {"10대": 38.9, "20대": 52.5, "30대": 46.2, "40대": 33.0, "50대": 24.2, "60대+": 17.9}}, "씰리침대": {"gender": {"여성": 47.6, "남성": 46.1}, "age": {"10대": 13.9, "20대": 45.8, "30대": 48.5, "40대": 45.8, "50대": 36.3, "60대+": 34.9}}}, "sos": {"시몬스": 11.3, "에이스침대": 3.9, "코웨이 비렉스": 0.0, "한샘": 25.3, "현대리바트": 1.7, "까사미아": 4.6, "지누스": 4.5, "에몬스": 1.6, "일룸": 7.1, "이케아": 39.9, "씰리침대": 0.2}, "gap": [{"brand": "이케아", "naver": 133.2, "google": 354.1, "gap": -220.9}, {"brand": "한샘", "naver": 50.3, "google": 224.2, "gap": -173.9}, {"brand": "에이스침대", "naver": 115.7, "google": 34.4, "gap": 81.3}, {"brand": "씰리침대", "naver": 74.1, "google": 1.5, "gap": 72.6}, {"brand": "에몬스", "naver": 52.8, "google": 14.3, "gap": 38.5}, {"brand": "지누스", "naver": 16.6, "google": 39.9, "gap": -23.3}, {"brand": "일룸", "naver": 42.1, "google": 63.3, "gap": -21.2}, {"brand": "코웨이 비렉스", "naver": 15.5, "google": 0.4, "gap": 15.1}, {"brand": "현대리바트", "naver": 25.7, "google": 15.0, "gap": 10.7}, {"brand": "까사미아", "naver": 32.3, "google": 40.6, "gap": -8.3}, {"brand": "시몬스", "naver": 100.0, "google": 100.0, "gap": 0.0}], "change_points": [{"brand": "시몬스", "period": "2025-09", "pct_change": -49.4, "direction": "급락"}, {"brand": "시몬스", "period": "2026-04", "pct_change": 39.8, "direction": "급등"}, {"brand": "시몬스", "period": "2026-05", "pct_change": -21.5, "direction": "급락"}, {"brand": "시몬스", "period": "2026-06", "pct_change": -21.6, "direction": "급락"}, {"brand": "시몬스", "period": "2026-08", "pct_change": -22.4, "direction": "급락"}, {"brand": "에이스침대", "period": "2025-10", "pct_change": 28.0, "direction": "급등"}, {"brand": "에이스침대", "period": "2026-02", "pct_change": 23.3, "direction": "급등"}, {"brand": "에이스침대", "period": "2026-04", "pct_change": -22.9, "direction": "급락"}, {"brand": "에이스침대", "period": "2026-08", "pct_change": -20.0, "direction": "급락"}, {"brand": "한샘", "period": "2026-04", "pct_change": -21.1, "direction": "급락"}, {"brand": "씰리침대", "period": "2025-10", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-01", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-04", "pct_change": 25.0, "direction": "급등"}, {"brand": "씰리침대", "period": "2026-06", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-08", "pct_change": 300.0, "direction": "급등"}], "meta": {"run_id": "20260814_120219", "collected_at": "2026.08.14 12:02", "confidence_score": 100}};
-const COLORS = {"시몬스": "#1a1a2e", "에이스침대": "#c62828", "코웨이 비렉스": "#1565c0", "한샘": "#2e7d32", "현대리바트": "#6a1b9a", "까사미아": "#e65100", "지누스": "#00695c", "에몬스": "#4527a0", "일룸": "#bf360c", "이케아": "#0277bd", "씰리침대": "#558b2f"};
+const RAW = {"google": {"normalized": {"시몬스": 100.0, "에이스침대": 34.4, "씰리침대": 2.4, "지누스": 39.8, "코웨이 비렉스": 0.4, "한샘": 224.0, "현대리바트": 15.0, "까사미아": 40.6, "일룸": 63.3, "에몬스": 6.9, "이케아": 354.1}, "monthly_series": {"시몬스": [{"period": "2025-08", "value": 44.5, "cv": 0.3152, "confidence": "unstable"}, {"period": "2025-09", "value": 22.5, "cv": 0.3192, "confidence": "unstable"}, {"period": "2025-10", "value": 21.25, "cv": 0.3246, "confidence": "unstable"}, {"period": "2025-11", "value": 24.2, "cv": 0.3119, "confidence": "unstable"}, {"period": "2025-12", "value": 22.75, "cv": 0.3149, "confidence": "unstable"}, {"period": "2026-01", "value": 19.25, "cv": 0.3269, "confidence": "unstable"}, {"period": "2026-02", "value": 19.75, "cv": 0.3168, "confidence": "unstable"}, {"period": "2026-03", "value": 18.6, "cv": 0.3227, "confidence": "unstable"}, {"period": "2026-04", "value": 26.0, "cv": 0.3242, "confidence": "unstable"}, {"period": "2026-05", "value": 20.4, "cv": 0.3246, "confidence": "unstable"}, {"period": "2026-06", "value": 16.0, "cv": 0.326, "confidence": "unstable"}, {"period": "2026-07", "value": 16.75, "cv": 0.3193, "confidence": "unstable"}, {"period": "2026-08", "value": 13.0, "cv": 0.3027, "confidence": "unstable"}], "에이스침대": [{"period": "2025-08", "value": 6.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 6.25, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 8.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 8.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 8.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 7.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 9.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 9.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 7.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 8.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 7.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 6.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 5.0, "cv": 0.0, "confidence": "stable"}], "한샘": [{"period": "2025-08", "value": 48.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 47.25, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 46.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 53.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 52.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 54.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 51.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 58.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 45.75, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 51.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 45.75, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 44.25, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 40.5, "cv": 0.0, "confidence": "stable"}], "이케아": [{"period": "2025-08", "value": 83.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 74.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 78.75, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 82.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 92.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 84.75, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 84.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 79.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 68.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 68.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 67.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 77.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 69.5, "cv": 0.0, "confidence": "stable"}], "씰리침대": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 1.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-12", "value": 0.75, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-02", "value": 0.75, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 0.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 0.75, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 1.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-07", "value": 0.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 1.0, "cv": 0.0, "confidence": "stable"}]}, "periods": ["2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08"], "raw_stats": {"시몬스": {"2025-08": {"median": 44.5, "mean": 36.29, "std": 11.44, "cv": 0.3152, "confidence": "unstable", "outliers_removed": 0}, "2025-09": {"median": 22.5, "mean": 18.3, "std": 5.84, "cv": 0.3192, "confidence": "unstable", "outliers_removed": 0}, "2025-10": {"median": 21.25, "mean": 17.23, "std": 5.59, "cv": 0.3246, "confidence": "unstable", "outliers_removed": 0}, "2025-11": {"median": 24.2, "mean": 19.77, "std": 6.17, "cv": 0.3119, "confidence": "unstable", "outliers_removed": 0}, "2025-12": {"median": 22.75, "mean": 18.55, "std": 5.84, "cv": 0.3149, "confidence": "unstable", "outliers_removed": 0}, "2026-01": {"median": 19.25, "mean": 15.59, "std": 5.1, "cv": 0.3269, "confidence": "unstable", "outliers_removed": 0}, "2026-02": {"median": 19.75, "mean": 16.09, "std": 5.1, "cv": 0.3168, "confidence": "unstable", "outliers_removed": 0}, "2026-03": {"median": 18.6, "mean": 15.1, "std": 4.87, "cv": 0.3227, "confidence": "unstable", "outliers_removed": 0}, "2026-04": {"median": 26.0, "mean": 21.09, "std": 6.84, "cv": 0.3242, "confidence": "unstable", "outliers_removed": 0}, "2026-05": {"median": 20.4, "mean": 16.54, "std": 5.37, "cv": 0.3246, "confidence": "unstable", "outliers_removed": 0}, "2026-06": {"median": 16.0, "mean": 12.96, "std": 4.23, "cv": 0.326, "confidence": "unstable", "outliers_removed": 0}, "2026-07": {"median": 16.75, "mean": 13.62, "std": 4.35, "cv": 0.3193, "confidence": "unstable", "outliers_removed": 0}, "2026-08": {"median": 13.0, "mean": 10.68, "std": 3.23, "cv": 0.3027, "confidence": "unstable", "outliers_removed": 0}}, "한샘": {"2025-08": {"median": 48.0, "mean": 48.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 47.25, "mean": 47.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 46.0, "mean": 46.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 53.2, "mean": 53.2, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 52.5, "mean": 52.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 54.0, "mean": 54.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 51.25, "mean": 51.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 58.0, "mean": 58.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 45.75, "mean": 45.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 51.8, "mean": 51.8, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 45.75, "mean": 45.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 44.25, "mean": 44.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 40.5, "mean": 40.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "현대리바트": {"2025-08": {"median": 3.5, "mean": 3.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 3.25, "mean": 3.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 3.0, "mean": 3.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 2.8, "mean": 2.8, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 0.75, "mean": 0.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 6.25, "mean": 6.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 5.75, "mean": 5.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 3.2, "mean": 3.2, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 3.5, "mean": 3.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 4.0, "mean": 4.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 3.25, "mean": 3.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 1.0, "mean": 1.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 2.5, "mean": 2.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "까사미아": {"2025-08": {"median": 8.25, "mean": 8.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 7.0, "mean": 7.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 8.75, "mean": 8.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 10.0, "mean": 10.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 11.25, "mean": 11.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 12.5, "mean": 12.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 8.5, "mean": 8.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 9.2, "mean": 9.2, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 7.5, "mean": 7.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 9.0, "mean": 9.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 8.75, "mean": 8.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 8.0, "mean": 8.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 7.0, "mean": 7.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "일룸": {"2025-08": {"median": 13.75, "mean": 13.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 12.25, "mean": 12.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 13.0, "mean": 13.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 14.0, "mean": 14.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 16.5, "mean": 16.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 17.75, "mean": 17.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 17.25, "mean": 17.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 15.2, "mean": 15.2, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 13.75, "mean": 13.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 12.2, "mean": 12.2, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 11.5, "mean": 11.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 13.25, "mean": 13.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 10.0, "mean": 10.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "에몬스": {"2025-08": {"median": 1.0, "mean": 1.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 1.0, "mean": 1.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 1.0, "mean": 1.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 3.6, "mean": 3.6, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 1.75, "mean": 1.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 1.5, "mean": 1.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 1.5, "mean": 1.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 1.2, "mean": 1.2, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 1.25, "mean": 1.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 2.2, "mean": 2.2, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 1.75, "mean": 1.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 1.0, "mean": 1.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 1.0, "mean": 1.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "이케아": {"2025-08": {"median": 83.5, "mean": 83.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 74.0, "mean": 74.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 78.75, "mean": 78.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 82.0, "mean": 82.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 92.0, "mean": 92.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 84.75, "mean": 84.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 84.0, "mean": 84.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 79.4, "mean": 79.4, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 68.5, "mean": 68.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 68.6, "mean": 68.6, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 67.0, "mean": 67.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 77.0, "mean": 77.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 69.5, "mean": 69.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "에이스침대": {"2025-08": {"median": 6.5, "mean": 6.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 6.25, "mean": 6.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 8.0, "mean": 8.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 8.4, "mean": 8.4, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 8.25, "mean": 8.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 7.5, "mean": 7.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 9.25, "mean": 9.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 9.4, "mean": 9.4, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 7.25, "mean": 7.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 8.6, "mean": 8.6, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 7.25, "mean": 7.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 6.25, "mean": 6.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 5.0, "mean": 5.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "씰리침대": {"2025-08": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 1.5, "mean": 1.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 0.75, "mean": 0.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 0.75, "mean": 0.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 0.6, "mean": 0.6, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 0.75, "mean": 0.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 1.0, "mean": 1.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 0.5, "mean": 0.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 1.0, "mean": 1.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "지누스": {"2025-08": {"median": 9.0, "mean": 9.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 8.25, "mean": 8.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 10.5, "mean": 10.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 7.8, "mean": 7.8, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 9.0, "mean": 9.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 10.0, "mean": 10.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 8.75, "mean": 8.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 10.4, "mean": 10.4, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 8.25, "mean": 8.25, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 8.6, "mean": 8.6, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 8.75, "mean": 8.75, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 7.5, "mean": 7.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 6.5, "mean": 6.5, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "코웨이 비렉스": {"2025-08": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-09": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-10": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-11": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2025-12": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-01": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-02": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-03": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-04": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-05": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-06": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-07": {"median": 0.0, "mean": 0.0, "std": 0.0, "cv": 0, "confidence": "stable", "outliers_removed": 0}, "2026-08": {"median": 1.0, "mean": 1.0, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}}}, "naver": {"normalized": {"시몬스": 100.0, "에이스침대": 115.7, "씰리침대": 74.1, "지누스": 16.6, "코웨이 비렉스": 15.5, "한샘": 50.3, "현대리바트": 25.7, "까사미아": 32.3, "일룸": 42.1, "에몬스": 52.8, "이케아": 133.2}, "stats": {"시몬스": {"median": 156629, "mean": 156629, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "에이스침대": {"median": 181291, "mean": 181291, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "씰리침대": {"median": 116117, "mean": 116117, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "지누스": {"median": 25937, "mean": 25937, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "코웨이 비렉스": {"median": 24237, "mean": 24237, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "한샘": {"median": 78738, "mean": 78738, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "현대리바트": {"median": 40280, "mean": 40280, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "까사미아": {"median": 50612, "mean": 50612, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "일룸": {"median": 65884, "mean": 65884, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "에몬스": {"median": 82754, "mean": 82754, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "이케아": {"median": 208574, "mean": 208574, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}}, "demographics": {"시몬스": {"gender": {"여성": 40.7, "남성": 7.0}, "age": {"10대": 2.1, "20대": 5.2, "30대": 19.0, "40대": 29.2, "50대": 31.2, "60대+": 21.2}}, "에이스침대": {"gender": {"여성": 54.9, "남성": 56.2}, "age": {"10대": 32.0, "20대": 52.5, "30대": 56.3, "40대": 50.0, "50대": 55.8, "60대+": 59.2}}, "한샘": {"gender": {"여성": 59.6, "남성": 20.8}, "age": {"10대": 38.9, "20대": 52.5, "30대": 46.2, "40대": 33.0, "50대": 24.2, "60대+": 17.9}}, "씰리침대": {"gender": {"여성": 47.6, "남성": 46.1}, "age": {"10대": 13.9, "20대": 45.8, "30대": 48.5, "40대": 45.8, "50대": 36.3, "60대+": 34.9}}}, "sos": {"시몬스": 11.4, "에이스침대": 3.9, "씰리침대": 0.3, "지누스": 4.5, "코웨이 비렉스": 0.0, "한샘": 25.4, "현대리바트": 1.7, "까사미아": 4.6, "일룸": 7.2, "에몬스": 0.8, "이케아": 40.2}, "gap": [{"brand": "이케아", "naver": 133.2, "google": 354.1, "gap": -220.9}, {"brand": "한샘", "naver": 50.3, "google": 224.0, "gap": -173.7}, {"brand": "에이스침대", "naver": 115.7, "google": 34.4, "gap": 81.3}, {"brand": "씰리침대", "naver": 74.1, "google": 2.4, "gap": 71.7}, {"brand": "에몬스", "naver": 52.8, "google": 6.9, "gap": 45.9}, {"brand": "지누스", "naver": 16.6, "google": 39.8, "gap": -23.2}, {"brand": "일룸", "naver": 42.1, "google": 63.3, "gap": -21.2}, {"brand": "코웨이 비렉스", "naver": 15.5, "google": 0.4, "gap": 15.1}, {"brand": "현대리바트", "naver": 25.7, "google": 15.0, "gap": 10.7}, {"brand": "까사미아", "naver": 32.3, "google": 40.6, "gap": -8.3}, {"brand": "시몬스", "naver": 100.0, "google": 100.0, "gap": 0.0}], "change_points": [{"brand": "시몬스", "period": "2025-09", "pct_change": -49.4, "direction": "급락"}, {"brand": "시몬스", "period": "2026-04", "pct_change": 39.8, "direction": "급등"}, {"brand": "시몬스", "period": "2026-05", "pct_change": -21.5, "direction": "급락"}, {"brand": "시몬스", "period": "2026-06", "pct_change": -21.6, "direction": "급락"}, {"brand": "시몬스", "period": "2026-08", "pct_change": -22.4, "direction": "급락"}, {"brand": "에이스침대", "period": "2025-10", "pct_change": 28.0, "direction": "급등"}, {"brand": "에이스침대", "period": "2026-02", "pct_change": 23.3, "direction": "급등"}, {"brand": "에이스침대", "period": "2026-04", "pct_change": -22.9, "direction": "급락"}, {"brand": "에이스침대", "period": "2026-08", "pct_change": -20.0, "direction": "급락"}, {"brand": "한샘", "period": "2026-04", "pct_change": -21.1, "direction": "급락"}, {"brand": "씰리침대", "period": "2025-10", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-01", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-03", "pct_change": -20.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-04", "pct_change": 25.0, "direction": "급등"}, {"brand": "씰리침대", "period": "2026-05", "pct_change": 33.3, "direction": "급등"}, {"brand": "씰리침대", "period": "2026-06", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-08", "pct_change": 100.0, "direction": "급등"}], "meta": {"run_id": "20260814_121047", "collected_at": "2026.08.14 12:10", "confidence_score": 100}};
+const COLORS = {"시몬스": "#0b0b0b", "에이스침대": "#e34948", "씰리침대": "#1baf7a", "지누스": "#008300", "코웨이 비렉스": "#2a78d6", "한샘": "#199e70", "현대리바트": "#4a3aa7", "까사미아": "#eb6834", "일룸": "#d95926", "에몬스": "#534ab7", "이케아": "#378add"};
+const BRANDS_CFG = [{"name": "시몬스", "tier": 0, "baseline": true, "trend_kw": "시몬스", "naver_kw": "시몬스 침대", "color": "#0b0b0b"}, {"name": "에이스침대", "tier": 1, "baseline": false, "trend_kw": "에이스침대", "naver_kw": "에이스침대", "color": "#e34948"}, {"name": "씰리침대", "tier": 1, "baseline": false, "trend_kw": "씰리침대", "naver_kw": "씰리침대", "color": "#1baf7a"}, {"name": "지누스", "tier": 2, "baseline": false, "trend_kw": "지누스", "naver_kw": "지누스 매트리스", "color": "#008300"}, {"name": "코웨이 비렉스", "tier": 2, "baseline": false, "trend_kw": "코웨이 비렉스", "naver_kw": "코웨이 비렉스", "color": "#2a78d6"}, {"name": "한샘", "tier": 3, "baseline": false, "trend_kw": "한샘", "naver_kw": "한샘 매트리스", "color": "#199e70"}, {"name": "현대리바트", "tier": 3, "baseline": false, "trend_kw": "현대리바트", "naver_kw": "현대리바트 침대", "color": "#4a3aa7"}, {"name": "까사미아", "tier": 3, "baseline": false, "trend_kw": "까사미아", "naver_kw": "까사미아 침대", "color": "#eb6834"}, {"name": "일룸", "tier": 3, "baseline": false, "trend_kw": "일룸", "naver_kw": "일룸 침대", "color": "#d95926"}, {"name": "에몬스", "tier": 3, "baseline": false, "trend_kw": "에몬스", "naver_kw": "에몬스 가구", "color": "#534ab7"}, {"name": "이케아", "tier": 3, "baseline": false, "trend_kw": "이케아", "naver_kw": "이케아 침대", "color": "#378add"}];
+const TIER_LABELS = {"0": "기준", "1": "1군 · 직접 경쟁", "2": "2군 · 대체 채널", "3": "3군 · 종합 가구"};
 
-// 브랜드 목록 렌더
-const brandList = document.getElementById('brand-list');
-Object.entries(COLORS).forEach(([name, color]) => {
-  const el = document.createElement('div');
-  el.className = 'brand-item';
-  el.innerHTML = `<div class="brand-dot" style="background:${color}"></div>${name}`;
-  brandList.appendChild(el);
-});
+// 기준 브랜드 서브타이틀 생성
+function baselineCaption(source) {
+  const base = BRANDS_CFG.find(b => b.baseline);
+  if (!base) return '';
+  return base.name + '=100 기준 · ' + source;
+}
+
+// 사이드바: 티어별 그룹 렌더
+(function renderSidebar() {
+  const list = document.getElementById('brand-list');
+  const tiers = [...new Set(BRANDS_CFG.map(b => b.tier))].sort();
+  tiers.forEach(tier => {
+    const header = document.createElement('div');
+    header.className = 'tier-header';
+    header.textContent = TIER_LABELS[tier] || ('Tier ' + tier);
+    list.appendChild(header);
+    BRANDS_CFG.filter(b => b.tier === tier).forEach(b => {
+      const el = document.createElement('div');
+      el.className = 'brand-item' + (b.baseline ? ' brand-item--baseline' : '');
+      el.innerHTML = `<div class="brand-dot" style="background:${b.color}"></div>
+        <span>${b.name}</span>
+        ${b.baseline ? '<span class="baseline-badge">기준</span>' : ''}`;
+      list.appendChild(el);
+    });
+  });
+})();
+
+// 서브타이틀 업데이트
+document.getElementById('sub-google-rank').textContent = baselineCaption('최근 3개월 한국');
+document.getElementById('sub-naver-rank').textContent = baselineCaption('블로그+뉴스 건수');
 
 // 차트 초기화
 const gc = (id) => echarts.init(document.getElementById(id));
@@ -243,8 +290,16 @@ function renderGoogleRank() {
     series:[{
       type:'bar',
       data:sorted.map(x=>{
-        return {value:x[1],itemStyle:{color:COLORS[x[0]]||'#888',
-          opacity: x[0]==='시몬스' ? 1 : 0.75}}
+        const isBase = x[0]==='시몬스';
+        return {
+          value:x[1],
+          itemStyle:{
+            color:COLORS[x[0]]||'#888',
+            opacity: isBase ? 1 : 0.75,
+            borderColor: isBase ? '#c8a96e' : 'transparent',
+            borderWidth: isBase ? 2 : 0
+          }
+        };
       }),
       label:{show:true,position:'right',fontSize:11,formatter:p=>p.value}
     }],
@@ -264,8 +319,16 @@ function renderNaverRank() {
     series:[{
       type:'bar',
       data:sorted.map(x=>{
-        return {value:x[1],itemStyle:{color:COLORS[x[0]]||'#888',
-          opacity: x[0]==='시몬스' ? 1 : 0.75}}
+        const isBase = x[0]==='시몬스';
+        return {
+          value:x[1],
+          itemStyle:{
+            color:COLORS[x[0]]||'#888',
+            opacity: isBase ? 1 : 0.75,
+            borderColor: isBase ? '#c8a96e' : 'transparent',
+            borderWidth: isBase ? 2 : 0
+          }
+        };
       }),
       label:{show:true,position:'right',fontSize:11,formatter:p=>p.value}
     }],
@@ -273,27 +336,41 @@ function renderNaverRank() {
   });
 }
 
-// 3. 월별 추이 (CV 밴드 포함)
+// 3. 월별 추이 (시몬스 마지막 렌더 = 최상단 레이어)
 function renderMonthly() {
   const ms = RAW.google?.monthly_series || {};
   const periods = RAW.google?.periods || [];
   if(!Object.keys(ms).length) return;
   const series = [];
-  Object.entries(ms).forEach(([brand, pts]) => {
-    const vals = pts.map(p=>p.value);
+  // 시몬스 제외한 브랜드 먼저
+  Object.entries(ms).filter(([b]) => b !== '시몬스').forEach(([brand, pts]) => {
     const color = COLORS[brand] || '#888';
     series.push({
-      name:brand, type:'line', data:vals,
-      lineStyle:{color,width: brand==='시몬스'?3:1.5},
+      name:brand, type:'line', data:pts.map(p=>p.value),
+      lineStyle:{color,width:1.5},
       itemStyle:{color},
-      symbol: brand==='시몬스'?'circle':'none',
-      symbolSize:5,
-      tooltip:{formatter: (p) => {
+      symbol:'none',
+      tooltip:{formatter:(p)=>{
         const pt = pts[p.dataIndex];
         return `${brand}<br>${p.name}: ${pt.value}<br>CV: ${pt.cv} (${pt.confidence})`;
       }}
     });
   });
+  // 시몬스 마지막 (z:10 최상단)
+  if(ms['시몬스']) {
+    const pts = ms['시몬스'];
+    series.push({
+      name:'시몬스', type:'line', data:pts.map(p=>p.value),
+      lineStyle:{color:'#0b0b0b',width:3},
+      itemStyle:{color:'#0b0b0b'},
+      symbol:'circle', symbolSize:5,
+      z:10,
+      tooltip:{formatter:(p)=>{
+        const pt = pts[p.dataIndex];
+        return `시몬스<br>${p.name}: ${pt.value}<br>CV: ${pt.cv} (${pt.confidence})`;
+      }}
+    });
+  }
   const pLabels = periods.map(p=>p.substring(0,7));
   gc('chart-monthly').setOption({
     legend:{data:Object.keys(ms),bottom:0,textStyle:{fontSize:11},type:'scroll'},
@@ -305,12 +382,20 @@ function renderMonthly() {
   });
 }
 
-// 4. Share of Search 파이차트
+// 4. Share of Search 파이차트 (시몬스 강조)
 function renderSoS() {
   const sos = RAW.sos || {};
   const data = Object.entries(sos)
     .sort((a,b)=>b[1]-a[1])
-    .map(([name,val])=>({name,value:val,itemStyle:{color:COLORS[name]||'#888'}}));
+    .map(([name,val])=>{
+      const isBase = name === '시몬스';
+      return {
+        name, value: val,
+        itemStyle:{color:COLORS[name]||'#888'},
+        selected: isBase,
+        selectedOffset: isBase ? 12 : 0
+      };
+    });
   gc('chart-sos').setOption({
     tooltip:{trigger:'item',formatter:p=>`${p.name}: ${p.value}%`},
     legend:{orient:'vertical',right:0,top:'center',textStyle:{fontSize:11}},
@@ -321,28 +406,38 @@ function renderSoS() {
   });
 }
 
-// 5. 갭 분석 바차트
+// 5. 갭 분석 (시몬스 항상 포함, markLine 기준선)
 function renderGap() {
   const gaps = RAW.gap || [];
-  const sorted = gaps.slice(0,8);
+  let items = gaps.slice(0, 8);
+  // 시몬스가 없으면 강제 추가 (gap=0)
+  if (!items.find(x => x.brand === '시몬스')) {
+    items = [{brand:'시몬스', gap:0}, ...items];
+  }
   gc('chart-gap').setOption({
     grid:{left:90,right:20,top:10,bottom:10},
     xAxis:{type:'value',axisLabel:{fontSize:11}},
-    yAxis:{type:'category',data:sorted.map(x=>x.brand),axisLabel:{fontSize:11}},
+    yAxis:{type:'category',data:items.map(x=>x.brand),axisLabel:{fontSize:11}},
     series:[{
       type:'bar',
-      data:sorted.map(x=>{
-        const color = x.gap > 0 ? '#1565c0' : '#c62828';
+      data:items.map(x=>{
+        const color = x.brand==='시몬스' ? '#0b0b0b' : x.gap > 0 ? '#1565c0' : '#c62828';
         return {value:x.gap,itemStyle:{color}};
       }),
       label:{show:true,position:'right',fontSize:11,
-              formatter:p=>p.value>0?`+${p.value}`:`${p.value}`}
+              formatter:p=>p.value>0?`+${p.value}`:`${p.value}`},
+      markLine:{
+        silent:true,
+        lineStyle:{type:'dashed',color:'#999',width:1},
+        data:[{xAxis:0}],
+        label:{show:false}
+      }
     }],
     tooltip:{formatter:p=>`${p.name}<br>네이버-구글: ${p.value>0?'+':''}${p.value}`}
   });
 }
 
-// 6. 성별 차트
+// 6. 성별 차트 (브랜드별 100% 정규화)
 function renderGender() {
   const demo = RAW.demographics || {};
   const brands = Object.keys(demo).filter(b=>demo[b].gender && Object.keys(demo[b].gender).length);
@@ -352,24 +447,37 @@ function renderGender() {
     return;
   }
   const genders = ['여성','남성'];
+  // 브랜드별 100% 정규화
+  const normalized = {};
+  brands.forEach(b => {
+    const total = genders.reduce((s,g) => s + (demo[b].gender[g]||0), 0);
+    normalized[b] = {};
+    genders.forEach(g => {
+      normalized[b][g] = total > 0 ? Math.round(demo[b].gender[g]/total*1000)/10 : 0;
+    });
+  });
   const series = genders.map(g=>{
     return {
-      name:g, type:'bar',
-      data:brands.map(b=>demo[b].gender[g]||0),
-      itemStyle:{color: g==='여성'?'#e91e63':'#1565c0'}
+      name:g, type:'bar', stack:'total',
+      data:brands.map(b=>normalized[b][g]),
+      itemStyle:{color: g==='여성'?'#e91e63':'#1565c0'},
+      label:{show:true,formatter:p=>p.value>0?p.value+'%':'',fontSize:10}
     };
   });
   gc('chart-gender').setOption({
     legend:{data:genders,bottom:0},
     grid:{left:80,right:20,top:10,bottom:40},
-    xAxis:{type:'value',axisLabel:{fontSize:11}},
+    xAxis:{type:'value',max:100,axisLabel:{fontSize:11,formatter:v=>v+'%'}},
     yAxis:{type:'category',data:brands,axisLabel:{fontSize:11}},
     series,
-    tooltip:{trigger:'axis'}
+    tooltip:{trigger:'axis',formatter:params=>{
+      const brand = params[0].name;
+      return brand + '<br>' + params.map(p=>`${p.seriesName}: ${p.value}%`).join('<br>');
+    }}
   });
 }
 
-// 7. 연령대 차트
+// 7. 연령대 차트 (브랜드별 100% 정규화)
 function renderAge() {
   const demo = RAW.demographics || {};
   const brands = Object.keys(demo).filter(b=>demo[b].age && Object.keys(demo[b].age).length);
@@ -380,34 +488,60 @@ function renderAge() {
   }
   const ages = ['10대','20대','30대','40대','50대','60대+'];
   const ageColors = ['#9c27b0','#3f51b5','#2196f3','#4caf50','#ff9800','#795548'];
+  // 브랜드별 100% 정규화
+  const normalized = {};
+  brands.forEach(b => {
+    const total = ages.reduce((s,a) => s + (demo[b].age[a]||0), 0);
+    normalized[b] = {};
+    ages.forEach(a => {
+      normalized[b][a] = total > 0 ? Math.round(demo[b].age[a]/total*1000)/10 : 0;
+    });
+  });
   const series = ages.map((age,i)=>{
     return {
       name:age, type:'bar', stack:'total',
-      data:brands.map(b=>demo[b].age[age]||0),
-      itemStyle:{color:ageColors[i]}
+      data:brands.map(b=>normalized[b][age]),
+      itemStyle:{color:ageColors[i]},
+      label:{show:true,formatter:p=>p.value>0?p.value+'%':'',fontSize:10}
     };
   });
   gc('chart-age').setOption({
     legend:{data:ages,bottom:0,textStyle:{fontSize:10}},
     grid:{left:80,right:20,top:10,bottom:40},
-    xAxis:{type:'value',axisLabel:{fontSize:11}},
+    xAxis:{type:'value',max:100,axisLabel:{fontSize:11,formatter:v=>v+'%'}},
     yAxis:{type:'category',data:brands,axisLabel:{fontSize:11}},
     series,
-    tooltip:{trigger:'axis'}
+    tooltip:{trigger:'axis',formatter:params=>{
+      const brand = params[0].name;
+      return brand + '<br>' + params.map(p=>`${p.seriesName}: ${p.value}%`).join('<br>');
+    }}
   });
 }
 
-// 8. CV 신뢰도 테이블
+// 8. CV 신뢰도 테이블 (시몬스 sticky, std=0→측정불가)
 function renderCVTable() {
   const stats = RAW.naver?.stats || {};
-  const rows = Object.entries(stats).map(([name,s])=>{
-    const cls = s.confidence==='stable'?'cv-stable':s.confidence==='warning'?'cv-warning':'cv-unstable';
-    const label = s.confidence==='stable'?'안정':s.confidence==='warning'?'주의':'불안정';
-    return `<tr>
-      <td>${name}</td>
+  // 시몬스 먼저
+  const allNames = ['시몬스', ...Object.keys(stats).filter(n=>n!=='시몬스')];
+  const rows = allNames.filter(n=>stats[n]).map(name=>{
+    const s = stats[name];
+    const isBase = name === '시몬스';
+    const isMeasurable = !(s.std === 0 && s.cv === 0);
+    let cvCell, confCell;
+    if (!isMeasurable) {
+      cvCell = '<span class="cv-na">측정 불가</span>';
+      confCell = '<span class="cv-na">—</span>';
+    } else {
+      const cls = s.confidence==='stable'?'cv-stable':s.confidence==='warning'?'cv-warning':'cv-unstable';
+      const label = s.confidence==='stable'?'안정':s.confidence==='warning'?'주의':'불안정';
+      cvCell = `<span class="${cls}">${(s.cv*100).toFixed(1)}%</span>`;
+      confCell = `<span class="${cls}">${label}</span>`;
+    }
+    return `<tr class="${isBase?'simmons-sticky':''}">
+      <td>${name}${isBase?' <span style="font-size:9px;color:#c8a96e;">●기준</span>':''}</td>
       <td>${s.median}</td>
-      <td class="${cls}">${(s.cv*100).toFixed(1)}%</td>
-      <td class="${cls}">${label}</td>
+      <td>${cvCell}</td>
+      <td>${confCell}</td>
       <td>${s.outliers_removed}개</td>
     </tr>`;
   }).join('');
@@ -474,12 +608,19 @@ function setRange(btn, range) {
   btn.classList.add('active');
 }
 
+// CSV 내보내기 (시몬스 첫 행, 헤더 주석)
 function exportCSV() {
   const norm_g = RAW.google?.normalized || {};
   const norm_n = RAW.naver?.normalized || {};
   const sos = RAW.sos || {};
-  const rows = [['브랜드','구글 지수','네이버 지수','SoS(%)']];
-  Object.keys({...norm_g,...norm_n}).forEach(name=>{
+  const allNames = Object.keys({...norm_g,...norm_n});
+  const others = allNames.filter(n => n !== '시몬스');
+  const ordered = ['시몬스', ...others];
+  const rows = [
+    ['# 시몬스 브랜드 트렌드 리포트', '', '', ''],
+    ['브랜드','구글 지수(시몬스=100)','네이버 지수(시몬스=100)','SoS(%)']
+  ];
+  ordered.forEach(name=>{
     rows.push([name, norm_g[name]||0, norm_n[name]||0, sos[name]||0]);
   });
   const csv = rows.map(r=>r.join(',')).join('\n');
@@ -503,7 +644,7 @@ renderInsights();
 window.addEventListener('resize', ()=>{
   ['chart-google-rank','chart-naver-rank','chart-monthly',
    'chart-sos','chart-gap','chart-gender','chart-age']
-  .forEach(id=>{const el=document.getElementById(id);if(el&&el._echarts_instance_)echarts.getInstanceByDom(el)?.resize();});
+  .forEach(id=>{const el=document.getElementById(id);if(el){const inst=echarts.getInstanceByDom(el);if(inst)inst.resize();}});
 });
 </script>
 </body>
