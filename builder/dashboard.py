@@ -268,6 +268,88 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
     </div>
   </div>
 
+  <!-- Row 7: 전략 시사점 -->
+  <div class="chart-row">
+    <div class="card" style="border-top:3px solid #c8a96e;">
+      <div class="card-title" style="font-size:15px;margin-bottom:2px;">전략 시사점 — {report_month}</div>
+      <div class="card-sub" style="margin-bottom:20px;">Google Trends · Naver DataLab · 블로그/뉴스 언급량 기반 종합 분석</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+        <div>
+          <div style="font-size:13px;font-weight:bold;color:#0b0b0b;border-left:4px solid #c8a96e;padding-left:10px;margin-bottom:12px;">
+            시몬스 현재 포지셔닝
+          </div>
+          <div style="background:#fafafa;border-radius:6px;padding:14px;margin-bottom:10px;font-size:12px;line-height:1.8;">
+            <b>구글-네이버 갭 0</b> — 조사 대상 11개 브랜드 중 유일하게 두 플랫폼 지수가 완벽히 일치.
+            검색 관심이 실제 구매 고려로 전환되는 효율적 구조를 갖춘 유일한 브랜드.
+          </div>
+          <div style="background:#fafafa;border-radius:6px;padding:14px;margin-bottom:10px;font-size:12px;line-height:1.8;">
+            <b>주력 고객층: 40~50대 여성</b><br>
+            40대 29.2% · 50대 31.2% → 합산 60.4%가 중장년층.<br>
+            여성 관심도 40.7% vs 남성 7.0% — 여성 주도 구매 결정 구조.
+          </div>
+          <div style="background:#fafafa;border-radius:6px;padding:14px;font-size:12px;line-height:1.8;">
+            <b>네이버 블로그/뉴스 약 15.6만 건</b> — 이케아·에이스침대에 이어 3위권 유지.
+            매트리스 전업 브랜드 중 콘텐츠 볼륨 1위.
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:13px;font-weight:bold;color:#0b0b0b;border-left:4px solid #e65100;padding-left:10px;margin-bottom:12px;">
+            주요 발견 · 변환점
+          </div>
+          <div style="background:#fff3e0;border-left:3px solid #e65100;border-radius:0 6px 6px 0;padding:14px;margin-bottom:10px;font-size:12px;line-height:1.8;">
+            <b>젊은층 이탈 신호</b><br>
+            시몬스 20대 5.2% · 30대 19.0% → 합산 24.2%.<br>
+            에이스침대 동일 연령대(20대 52.5% · 30대 56.3%)와 큰 격차.<br>
+            현재 주구매층(40~50대) 고령화 시 10년 내 수요 공백 발생 가능.
+          </div>
+          <div style="background:#fff3e0;border-left:3px solid #e65100;border-radius:0 6px 6px 0;padding:14px;margin-bottom:10px;font-size:12px;line-height:1.8;">
+            <b>에이스침대 전 연령 균형 확보 중</b><br>
+            10대~60대+ 전 연령대에서 50% 내외 점유율 유지.<br>
+            시몬스의 가장 직접적인 매트리스 경쟁 위협.
+          </div>
+          <div style="background:#e8f5e9;border-left:3px solid #2e7d32;border-radius:0 6px 6px 0;padding:14px;font-size:12px;line-height:1.8;">
+            <b>프리미엄 포지션 유지</b><br>
+            구글 지수 100으로 에이스침대(34.2)·씰리침대(2.6) 대비 압도적 인지도.<br>
+            브랜드 희소성 전략이 검색량에 정상 반영.
+          </div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:20px;">
+        <div style="font-size:13px;font-weight:bold;color:#0b0b0b;border-left:4px solid #888;padding-left:10px;margin-bottom:12px;">
+          타사 동향 요약
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;font-size:11px;line-height:1.7;">
+          <div style="background:#f5f5f5;border-radius:6px;padding:12px;">
+            <b>이케아</b><br>
+            구글 735.7 · 네이버 갭 –602.5<br>
+            인지도는 압도적이나 구매 전환 콘텐츠 취약. 국내 침대 카테고리 직접 경쟁 구도 제한적.
+          </div>
+          <div style="background:#f5f5f5;border-radius:6px;padding:12px;">
+            <b>에이스침대</b><br>
+            구글 34.2 · 네이버 갭 +81.5 · 매출 3,173억<br>
+            온라인 마케팅 강화 중. 전 연령 고른 검색 점유 — 시몬스와 가장 직접 경쟁.
+          </div>
+          <div style="background:#f5f5f5;border-radius:6px;padding:12px;">
+            <b>한샘</b><br>
+            구글 224.1 · 여성·젊은층 중심<br>
+            20~30대 여성 인테리어 연관 검색 강세. 종합 가구 브랜드로 포지셔닝.
+          </div>
+          <div style="background:#f5f5f5;border-radius:6px;padding:12px;">
+            <b>지누스</b><br>
+            구글 39.5 · 매출 9,132억<br>
+            국내 브랜드 인지는 낮으나 글로벌 온라인 중심 성장. 가성비 매트리스 시장 주도.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </div><!-- /main -->
 
 <!-- 우측 인사이트 패널 -->
