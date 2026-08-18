@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime, timedelta
-from brand_config import BRANDS, TIER_LABELS
+from brand_config import BRANDS, TIER_LABELS, TIER_NEW, BRAND_TO_TIER_NEW
 from analyzer.validator import overall_confidence_score
 
 _SNAP_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "snapshots")
@@ -205,12 +205,46 @@ def _brand_colors():
     return {b["name"]: b["color"] for b in BRANDS}
 
 
+def _compute_sos_som(data):
+    """SoS vs SoM 산점도용 계산. caution=False 브랜드만 SoM 계산."""
+    sos = data.get("sos", {})
+    dart = data.get("dart", {})
+
+    # caution=False 브랜드만 SoM 계산
+    valid_dart = {b: d for b, d in dart.items() if not d.get("caution", True)}
+    total_sales = sum(d["amount"] for d in valid_dart.values())
+
+    result = []
+    for brand, sos_val in sos.items():
+        if brand == "시몬스":
+            continue  # 비상장 — SoM 없음
+        brand_dart = dart.get(brand, {})
+        caution = brand_dart.get("caution", True)
+        tier = BRAND_TO_TIER_NEW.get(brand, "?")
+        in_dart = brand in dart
+        som_val = None
+        if not caution and total_sales > 0 and in_dart:
+            som_val = round(dart[brand]["amount"] / total_sales * 100, 1)
+        result.append({
+            "brand": brand,
+            "sos": round(sos_val, 1),
+            "som": som_val,
+            "caution": caution,
+            "tier": tier,
+            "in_dart": in_dart,
+        })
+    return result
+
+
 def build_dashboard(data, report_month, collected_at, confidence_score):
     colors = _brand_colors()
     data_json = json.dumps(data, ensure_ascii=False)
     colors_json = json.dumps(colors, ensure_ascii=False)
     brands_cfg_json = json.dumps(BRANDS, ensure_ascii=False)
     tier_labels_json = json.dumps({str(k): v for k, v in TIER_LABELS.items()}, ensure_ascii=False)
+    tier_new_json = json.dumps(TIER_NEW, ensure_ascii=False)
+    brand_to_tier_json = json.dumps(BRAND_TO_TIER_NEW, ensure_ascii=False)
+    sos_som_json = json.dumps(_compute_sos_som(data), ensure_ascii=False)
 
     conf_color = "#2e7d32" if confidence_score >= 70 else "#e65100" if confidence_score >= 40 else "#c62828"
     conf_label = "안정" if confidence_score >= 70 else "주의" if confidence_score >= 40 else "불안정"
@@ -362,6 +396,16 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 /* 인구통계 없음 */
 .no-data{{text-align:center;padding:30px;color:#aaa;font-size:13px;}}
 
+/* 인구통계 인덱스 토글 버튼 */
+.demo-toggle {{
+  padding:4px 10px;border:1px solid #ddd;border-radius:4px;
+  background:#fff;font-size:11px;cursor:pointer;transition:all 0.15s;
+  font-family:'Malgun Gothic',Arial,sans-serif;
+}}
+.demo-toggle:hover,.demo-toggle.active {{
+  background:#0b0b0b;color:#fff;border-color:#0b0b0b;
+}}
+
 /* 인쇄 */
 @media print {{
   #top-header,#sidebar{{display:none;}}
@@ -394,6 +438,13 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
   <button class="filter-btn active" onclick="setRange(this,'today 3-m')">최근 3개월</button>
   <button class="filter-btn" onclick="setRange(this,'today 6-m')">최근 6개월</button>
   <button class="filter-btn" onclick="setRange(this,'today 12-m')">최근 12개월</button>
+
+  <h3>티어 필터</h3>
+  <button class="filter-btn tier-filter active" data-tier="ALL" onclick="setTierFilter(this,'ALL')">전체</button>
+  <button class="filter-btn tier-filter" data-tier="A" onclick="setTierFilter(this,'A')">Tier A — 프리미엄</button>
+  <button class="filter-btn tier-filter" data-tier="B" onclick="setTierFilter(this,'B')">Tier B — 매스 침대</button>
+  <button class="filter-btn tier-filter" data-tier="C" onclick="setTierFilter(this,'C')">Tier C — 종합가구</button>
+  <button class="filter-btn tier-filter" data-tier="D" onclick="setTierFilter(this,'D')">Tier D — 렌탈</button>
 
   <h3>브랜드</h3>
   <div id="brand-list"></div>
@@ -481,6 +532,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
     <div class="card">
       <div class="card-title">구글 검색 지수 순위
         <span class="source-badge badge-google">Google Trends</span>
+        <span class="source-badge" style="background:#fff3e0;color:#e65100;" title="Tier C(종합가구)·D(렌탈) 브랜드는 가구·렌탈 수요 혼재로 직접 비교 주의">⚠ Tier C·D 비교 주의</span>
       </div>
       <div class="card-sub" id="sub-google-rank">시몬스=100 기준 · 최근 3개월 한국</div>
       <div id="chart-google-rank" style="height:420px;"></div>
@@ -488,6 +540,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
     <div class="card" id="section-naver-rank">
       <div class="card-title">네이버 콘텐츠 노출량
         <span class="source-badge badge-naver">Naver Search</span>
+        <span class="source-badge" style="background:#fff3e0;color:#e65100;" title="Tier C(종합가구)·D(렌탈) 브랜드는 가구·렌탈 수요 혼재로 직접 비교 주의">⚠ Tier C·D 비교 주의</span>
       </div>
       <div class="card-sub" id="sub-naver-rank">시몬스=100 기준 · 블로그+뉴스 건수</div>
       <div id="chart-naver-rank" style="height:380px;"></div>
@@ -519,20 +572,28 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
     </div>
   </div>
 
-  <!-- ⑧ 성별 / 연령대 (T1-3 MoM 컬럼은 데이터 축적 후 추가) -->
+  <!-- ⑧ 성별 / 연령대 (T2-6: 인덱스화 토글) -->
   <div class="chart-row col2" id="section-demo">
     <div class="card">
       <div class="card-title">성별 검색 관심도
         <span class="source-badge badge-naver">Naver DataLab</span>
       </div>
-      <div class="card-sub">브랜드별 성별 비율 (브랜드 내 합계=100%)</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;">
+        <button class="demo-toggle active" id="gender-toggle-norm" onclick="setGenderMode('norm')">브랜드 내 비율</button>
+        <button class="demo-toggle" id="gender-toggle-idx" onclick="setGenderMode('idx')">카테고리 인덱스</button>
+      </div>
+      <div class="card-sub" id="gender-sub">브랜드별 성별 비율 (브랜드 내 합계=100%)</div>
       <div id="chart-gender" style="height:320px;"></div>
     </div>
     <div class="card">
       <div class="card-title">연령대별 검색 관심도
         <span class="source-badge badge-naver">Naver DataLab</span>
       </div>
-      <div class="card-sub">브랜드별 연령대 비율 (브랜드 내 합계=100%)</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;">
+        <button class="demo-toggle active" id="age-toggle-norm" onclick="setAgeMode('norm')">브랜드 내 비율</button>
+        <button class="demo-toggle" id="age-toggle-idx" onclick="setAgeMode('idx')">카테고리 인덱스</button>
+      </div>
+      <div class="card-sub" id="age-sub">브랜드별 연령대 비율 (브랜드 내 합계=100%)</div>
       <div id="chart-age" style="height:320px;"></div>
     </div>
   </div>
@@ -545,6 +606,18 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       </div>
       <div class="card-sub">⚠ 종합가구(한샘·현대리바트·일룸)·렌탈(코웨이) 브랜드는 침대 외 사업 포함 — 직접 비교 주의</div>
       <div id="dart-table"></div>
+    </div>
+  </div>
+
+  <!-- T2-3: SoS vs SoM 산점도 -->
+  <div class="chart-row" id="section-sos-som" style="display:none;">
+    <div class="card">
+      <div class="card-title">Share of Search vs Share of Market (ESOV 분석)</div>
+      <div class="card-sub">시몬스 비상장으로 제외 · 한샘·현대리바트·코웨이는 침대 외 사업 포함 (참고용)</div>
+      <div id="chart-sos-som" style="height:400px;"></div>
+      <div style="font-size:10px;color:#999;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0;">
+        ※ SoM = DART 공시 매출 기준 (caution=false 브랜드만). 대각선 위 = 검색 과소 → 검색 투자 여력. 대각선 아래 = 검색 과잉.
+      </div>
     </div>
   </div>
 
@@ -568,6 +641,12 @@ const RAW = {data_json};
 const COLORS = {colors_json};
 const BRANDS_CFG = {brands_cfg_json};
 const TIER_LABELS = {tier_labels_json};
+const TIER_NEW = {tier_new_json};
+const BRAND_TO_TIER = {brand_to_tier_json};
+const SOS_SOM_DATA = {sos_som_json};
+
+// 현재 티어 필터 상태
+let _activeTier = 'ALL';
 
 // 기준 브랜드 서브타이틀 생성
 function baselineCaption(source) {{
@@ -603,24 +682,49 @@ document.getElementById('sub-naver-rank').textContent = baselineCaption('블로�
 // 차트 초기화
 const gc = (id) => echarts.init(document.getElementById(id));
 
+// 티어 필터: 브랜드 목록을 현재 활성 티어로 필터링 (시몬스 항상 포함)
+function _filterByTier(entries) {{
+  if (_activeTier === 'ALL') return entries;
+  return entries.filter(([brand]) => brand === '시몬스' || BRAND_TO_TIER[brand] === _activeTier);
+}}
+
+// 티어 필터 버튼 클릭
+function setTierFilter(btn, tier) {{
+  document.querySelectorAll('.tier-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _activeTier = tier;
+  renderGoogleRank();
+  renderNaverRank();
+  renderSoS();
+  renderGap();
+  renderMonthly();
+}}
+
 // 1. 구글 순위 바차트
 function renderGoogleRank() {{
   const norm = RAW.google?.normalized || {{}};
-  const sorted = Object.entries(norm).sort((a,b)=>b[1]-a[1]);
+  let entries = Object.entries(norm);
+  entries = _filterByTier(entries);
+  const sorted = entries.sort((a,b)=>b[1]-a[1]);
+  if (!sorted.length) return;
   const chart = gc('chart-google-rank');
+  const vals = sorted.map(x=>x[1]).filter(v=>v!=null);
+  const maxVal = vals.length ? Math.max(...vals) + 10 : 110;
   chart.setOption({{
     grid:{{left:90,right:20,top:10,bottom:10}},
-    xAxis:{{type:'value',max:Math.max(...Object.values(norm))+10,axisLabel:{{fontSize:11}}}},
+    xAxis:{{type:'value',max:maxVal,axisLabel:{{fontSize:11}}}},
     yAxis:{{type:'category',data:sorted.map(x=>x[0]),axisLabel:{{fontSize:11}}}},
     series:[{{
       type:'bar',
       data:sorted.map(x=>{{
         const isBase = x[0]==='시몬스';
+        const tier = BRAND_TO_TIER[x[0]];
+        const isCautionTier = tier === 'C' || tier === 'D';
         return {{
           value:x[1],
           itemStyle:{{
             color:COLORS[x[0]]||'#888',
-            opacity: isBase ? 1 : 0.75,
+            opacity: isBase ? 1 : (isCautionTier ? 0.45 : 0.75),
             borderColor: isBase ? '#c8a96e' : 'transparent',
             borderWidth: isBase ? 2 : 0
           }}
@@ -628,28 +732,38 @@ function renderGoogleRank() {{
       }}),
       label:{{show:true,position:'right',fontSize:11,formatter:p=>p.value}}
     }}],
-    tooltip:{{trigger:'axis',formatter:p=>`${{p[0].name}}: ${{p[0].value}} (시몬스=100)`}}
+    tooltip:{{trigger:'axis',formatter:p=>{{
+      const t = BRAND_TO_TIER[p[0].name] || '?';
+      return `${{p[0].name}} [Tier ${{t}}]<br>${{p[0].value}} (시몬스=100)`;
+    }}}}
   }});
 }}
 
 // 2. 네이버 순위 바차트
 function renderNaverRank() {{
   const norm = RAW.naver?.normalized || {{}};
-  const sorted = Object.entries(norm).sort((a,b)=>b[1]-a[1]);
+  let entries = Object.entries(norm);
+  entries = _filterByTier(entries);
+  const sorted = entries.sort((a,b)=>b[1]-a[1]);
+  if (!sorted.length) return;
   const chart = gc('chart-naver-rank');
+  const vals = sorted.map(x=>x[1]).filter(v=>v!=null);
+  const maxVal = vals.length ? Math.max(...vals) + 10 : 110;
   chart.setOption({{
     grid:{{left:90,right:20,top:10,bottom:10}},
-    xAxis:{{type:'value',max:Math.max(...Object.values(norm))+10,axisLabel:{{fontSize:11}}}},
+    xAxis:{{type:'value',max:maxVal,axisLabel:{{fontSize:11}}}},
     yAxis:{{type:'category',data:sorted.map(x=>x[0]),axisLabel:{{fontSize:11}}}},
     series:[{{
       type:'bar',
       data:sorted.map(x=>{{
         const isBase = x[0]==='시몬스';
+        const tier = BRAND_TO_TIER[x[0]];
+        const isCautionTier = tier === 'C' || tier === 'D';
         return {{
           value:x[1],
           itemStyle:{{
             color:COLORS[x[0]]||'#888',
-            opacity: isBase ? 1 : 0.75,
+            opacity: isBase ? 1 : (isCautionTier ? 0.45 : 0.75),
             borderColor: isBase ? '#c8a96e' : 'transparent',
             borderWidth: isBase ? 2 : 0
           }}
@@ -657,27 +771,48 @@ function renderNaverRank() {{
       }}),
       label:{{show:true,position:'right',fontSize:11,formatter:p=>p.value}}
     }}],
-    tooltip:{{trigger:'axis',formatter:p=>`${{p[0].name}}: ${{p[0].value}} (시몬스=100)`}}
+    tooltip:{{trigger:'axis',formatter:p=>{{
+      const t = BRAND_TO_TIER[p[0].name] || '?';
+      return `${{p[0].name}} [Tier ${{t}}]<br>${{p[0].value}} (시몬스=100)`;
+    }}}}
   }});
 }}
 
-// 3. 월별 추이 (시몬스 마지막 렌더 = 최상단 레이어)
+// 이벤트 타입별 색상
+const EVENT_COLORS = {{
+  campaign: '#2196f3',
+  product: '#4caf50',
+  issue: '#f44336',
+  competitor: '#ff9800',
+  auto_detected: '#9e9e9e',
+}};
+
+// 3. 월별 추이 (시몬스 마지막 렌더 = 최상단 레이어) + 이벤트 마커 (T2-1)
 function renderMonthly() {{
   const ms = RAW.google?.monthly_series || {{}};
   const periods = RAW.google?.periods || [];
   if(!Object.keys(ms).length) return;
   const series = [];
+
+  // 티어 필터 적용
+  const allowedBrands = _activeTier === 'ALL'
+    ? null
+    : Object.entries(ms).filter(([b]) => b === '시몬스' || BRAND_TO_TIER[b] === _activeTier).map(([b])=>b);
+
   // 시몬스 제외한 브랜드 먼저
   Object.entries(ms).filter(([b]) => b !== '시몬스').forEach(([brand, pts]) => {{
+    if (allowedBrands && !allowedBrands.includes(brand)) return;
     const color = COLORS[brand] || '#888';
+    const tier = BRAND_TO_TIER[brand];
+    const isCautionTier = tier === 'C' || tier === 'D';
     series.push({{
       name:brand, type:'line', data:pts.map(p=>p.value),
-      lineStyle:{{color,width:1.5}},
-      itemStyle:{{color}},
+      lineStyle:{{color,width:1.5,opacity: isCautionTier ? 0.45 : 1}},
+      itemStyle:{{color,opacity: isCautionTier ? 0.45 : 1}},
       symbol:'none',
       tooltip:{{formatter:(p)=>{{
         const pt = pts[p.dataIndex];
-        return `${{brand}}<br>${{p.name}}: ${{pt.value}}<br>CV: ${{pt.cv}} (${{pt.confidence}})`;
+        return `${{brand}} [Tier ${{BRAND_TO_TIER[brand]||'?'}}]<br>${{p.name}}: ${{pt.value}}<br>CV: ${{pt.cv}} (${{pt.confidence}})`;
       }}}}
     }});
   }});
@@ -697,8 +832,50 @@ function renderMonthly() {{
     }});
   }}
   const pLabels = periods.map(p=>p.substring(0,7));
+
+  // 이벤트 마커 (T2-1) — RAW.events 배열 기반 markLine
+  const events = RAW.events || [];
+  const markLineData = [];
+  events.forEach(ev => {{
+    const evPeriod = (ev.date || '').substring(0, 7);
+    const xIdx = pLabels.indexOf(evPeriod);
+    if (xIdx < 0) return;
+    const color = EVENT_COLORS[ev.type] || '#9e9e9e';
+    const isDashed = ev.type === 'auto_detected';
+    markLineData.push({{
+      xAxis: evPeriod,
+      lineStyle: {{color, type: isDashed ? 'dashed' : 'solid', width: 1.5}},
+      label: {{
+        show: true,
+        formatter: `${{ev.brand}} ${{ev.label}}`,
+        fontSize: 9,
+        color,
+        position: 'insideEndTop',
+        rotate: 90,
+      }},
+      tooltip: {{
+        formatter: `${{ev.brand}}<br>${{ev.type}}<br>${{ev.label}}<br>출처: ${{ev.source}}`
+      }}
+    }});
+  }});
+
+  // markLine을 시몬스 시리즈 또는 별도 더미 시리즈에 추가
+  const markLineSeries = {{
+    type: 'line',
+    name: '__events__',
+    data: [],
+    silent: false,
+    markLine: {{
+      symbol: ['none','none'],
+      silent: false,
+      data: markLineData,
+    }}
+  }};
+  if (markLineData.length > 0) series.push(markLineSeries);
+
+  const visibleBrands = series.filter(s=>s.name !== '__events__').map(s=>s.name);
   gc('chart-monthly').setOption({{
-    legend:{{data:Object.keys(ms),bottom:0,textStyle:{{fontSize:11}},type:'scroll'}},
+    legend:{{data:visibleBrands,bottom:0,textStyle:{{fontSize:11}},type:'scroll'}},
     grid:{{left:45,right:20,top:10,bottom:90}},
     xAxis:{{type:'category',data:pLabels,axisLabel:{{fontSize:10,rotate:45,interval:0}}}},
     yAxis:{{type:'value',axisLabel:{{fontSize:11}}}},
@@ -710,7 +887,11 @@ function renderMonthly() {{
 // 4. Share of Search 파이차트 (시몬스 강조)
 function renderSoS() {{
   const sos = RAW.sos || {{}};
-  const data = Object.entries(sos)
+  let entries = Object.entries(sos);
+  if (_activeTier !== 'ALL') {{
+    entries = entries.filter(([name]) => name === '시몬스' || BRAND_TO_TIER[name] === _activeTier);
+  }}
+  const data = entries
     .sort((a,b)=>b[1]-a[1])
     .map(([name,val])=>{{
       const isBase = name === '시몬스';
@@ -722,7 +903,7 @@ function renderSoS() {{
       }};
     }});
   gc('chart-sos').setOption({{
-    tooltip:{{trigger:'item',formatter:p=>`${{p.name}}: ${{p.value}}%`}},
+    tooltip:{{trigger:'item',formatter:p=>`${{p.name}} [Tier ${{BRAND_TO_TIER[p.name]||'기준'}}]: ${{p.value}}%`}},
     legend:{{orient:'vertical',right:0,top:'center',textStyle:{{fontSize:11}}}},
     series:[{{
       type:'pie',radius:['40%','70%'],center:['40%','50%'],
@@ -762,7 +943,48 @@ function renderGap() {{
   }});
 }}
 
-// 6. 성별 차트 (브랜드별 100% 정규화)
+// T2-6: 성별 차트 — 정규화 / 인덱스 모드 토글
+let _genderMode = 'norm';  // 'norm' | 'idx'
+let _ageMode = 'norm';
+
+function setGenderMode(mode) {{
+  _genderMode = mode;
+  document.getElementById('gender-toggle-norm').classList.toggle('active', mode === 'norm');
+  document.getElementById('gender-toggle-idx').classList.toggle('active', mode === 'idx');
+  document.getElementById('gender-sub').textContent = mode === 'norm'
+    ? '브랜드별 성별 비율 (브랜드 내 합계=100%)'
+    : '카테고리 평균=100 기준 인덱스 (138 = 카테고리 평균 대비 38% 과대색인)';
+  renderGender();
+}}
+
+function setAgeMode(mode) {{
+  _ageMode = mode;
+  document.getElementById('age-toggle-norm').classList.toggle('active', mode === 'norm');
+  document.getElementById('age-toggle-idx').classList.toggle('active', mode === 'idx');
+  document.getElementById('age-sub').textContent = mode === 'norm'
+    ? '브랜드별 연령대 비율 (브랜드 내 합계=100%)'
+    : '카테고리 평균=100 기준 인덱스 (138 = 카테고리 평균 대비 38% 과대색인)';
+  renderAge();
+}}
+
+// 인덱스 계산 헬퍼: normalized[brand][dim] → index[brand][dim] (카테고리 평균=100)
+function _toIndex(brands, dims, normalized) {{
+  const catAvg = {{}};
+  dims.forEach(d => {{
+    const vals = brands.map(b => normalized[b][d] || 0);
+    catAvg[d] = vals.reduce((s,v)=>s+v, 0) / (vals.length || 1);
+  }});
+  const idx = {{}};
+  brands.forEach(b => {{
+    idx[b] = {{}};
+    dims.forEach(d => {{
+      idx[b][d] = catAvg[d] > 0 ? Math.round(normalized[b][d] / catAvg[d] * 100) : 0;
+    }});
+  }});
+  return {{idx, catAvg}};
+}}
+
+// 6. 성별 차트
 function renderGender() {{
   const demo = RAW.demographics || {{}};
   const brands = Object.keys(demo).filter(b=>demo[b].gender && Object.keys(demo[b].gender).length);
@@ -781,28 +1003,52 @@ function renderGender() {{
       normalized[b][g] = total > 0 ? Math.round(demo[b].gender[g]/total*1000)/10 : 0;
     }});
   }});
+
+  let displayData = normalized;
+  let xMax = 100;
+  let xFmt = v => v + '%';
+  let stackMode = 'total';
+  let labelFmt = p => p.value > 0 ? p.value + '%' : '';
+  let tooltipFmt = params => {{
+    const brand = params[0].name;
+    return brand + '<br>' + params.map(p=>`${{p.seriesName}}: ${{p.value}}%`).join('<br>');
+  }};
+
+  if (_genderMode === 'idx') {{
+    const {{idx}} = _toIndex(brands, genders, normalized);
+    displayData = idx;
+    xMax = null;
+    xFmt = v => v;
+    stackMode = null;  // 인덱스 모드는 스택 해제
+    labelFmt = p => p.value > 0 ? p.value : '';
+    tooltipFmt = params => {{
+      const brand = params[0].name;
+      return brand + '<br>' + params.map(p=>`${{p.seriesName}}: ${{p.value}} (평균=100)`).join('<br>');
+    }};
+  }}
+
   const series = genders.map(g=>{{
     return {{
-      name:g, type:'bar', stack:'total',
-      data:brands.map(b=>normalized[b][g]),
+      name:g, type:'bar',
+      ...(stackMode ? {{stack: stackMode}} : {{}}),
+      data:brands.map(b=>displayData[b][g]),
       itemStyle:{{color: g==='여성'?'#e91e63':'#1565c0'}},
-      label:{{show:true,formatter:p=>p.value>0?p.value+'%':'',fontSize:10}}
+      label:{{show:true,formatter:labelFmt,fontSize:10}}
     }};
   }});
-  gc('chart-gender').setOption({{
+  const chartOpt = {{
     legend:{{data:genders,bottom:0}},
     grid:{{left:80,right:20,top:10,bottom:40}},
-    xAxis:{{type:'value',max:100,axisLabel:{{fontSize:11,formatter:v=>v+'%'}}}},
+    xAxis:{{type:'value',axisLabel:{{fontSize:11,formatter:xFmt}}}},
     yAxis:{{type:'category',data:brands,axisLabel:{{fontSize:11}}}},
     series,
-    tooltip:{{trigger:'axis',formatter:params=>{{
-      const brand = params[0].name;
-      return brand + '<br>' + params.map(p=>`${{p.seriesName}}: ${{p.value}}%`).join('<br>');
-    }}}}
-  }});
+    tooltip:{{trigger:'axis',formatter:tooltipFmt}}
+  }};
+  if (xMax) chartOpt.xAxis.max = xMax;
+  gc('chart-gender').setOption(chartOpt);
 }}
 
-// 7. 연령대 차트 (브랜드별 100% 정규화)
+// 7. 연령대 차트
 function renderAge() {{
   const demo = RAW.demographics || {{}};
   const brands = Object.keys(demo).filter(b=>demo[b].age && Object.keys(demo[b].age).length);
@@ -822,25 +1068,49 @@ function renderAge() {{
       normalized[b][a] = total > 0 ? Math.round(demo[b].age[a]/total*1000)/10 : 0;
     }});
   }});
+
+  let displayData = normalized;
+  let xMax = 100;
+  let xFmt = v => v + '%';
+  let stackMode = 'total';
+  let labelFmt = p => p.value > 0 ? p.value + '%' : '';
+  let tooltipFmt = params => {{
+    const brand = params[0].name;
+    return brand + '<br>' + params.map(p=>`${{p.seriesName}}: ${{p.value}}%`).join('<br>');
+  }};
+
+  if (_ageMode === 'idx') {{
+    const {{idx}} = _toIndex(brands, ages, normalized);
+    displayData = idx;
+    xMax = null;
+    xFmt = v => v;
+    stackMode = null;
+    labelFmt = p => p.value > 0 ? p.value : '';
+    tooltipFmt = params => {{
+      const brand = params[0].name;
+      return brand + '<br>' + params.map(p=>`${{p.seriesName}}: ${{p.value}} (평균=100)`).join('<br>');
+    }};
+  }}
+
   const series = ages.map((age,i)=>{{
     return {{
-      name:age, type:'bar', stack:'total',
-      data:brands.map(b=>normalized[b][age]),
+      name:age, type:'bar',
+      ...(stackMode ? {{stack: stackMode}} : {{}}),
+      data:brands.map(b=>displayData[b][age]),
       itemStyle:{{color:ageColors[i]}},
-      label:{{show:true,formatter:p=>p.value>0?p.value+'%':'',fontSize:10}}
+      label:{{show:true,formatter:labelFmt,fontSize:10}}
     }};
   }});
-  gc('chart-age').setOption({{
+  const chartOpt = {{
     legend:{{data:ages,bottom:0,textStyle:{{fontSize:10}}}},
     grid:{{left:80,right:20,top:10,bottom:40}},
-    xAxis:{{type:'value',max:100,axisLabel:{{fontSize:11,formatter:v=>v+'%'}}}},
+    xAxis:{{type:'value',axisLabel:{{fontSize:11,formatter:xFmt}}}},
     yAxis:{{type:'category',data:brands,axisLabel:{{fontSize:11}}}},
     series,
-    tooltip:{{trigger:'axis',formatter:params=>{{
-      const brand = params[0].name;
-      return brand + '<br>' + params.map(p=>`${{p.seriesName}}: ${{p.value}}%`).join('<br>');
-    }}}}
-  }});
+    tooltip:{{trigger:'axis',formatter:tooltipFmt}}
+  }};
+  if (xMax) chartOpt.xAxis.max = xMax;
+  gc('chart-age').setOption(chartOpt);
 }}
 
 // 8. CV 신뢰도 테이블 (시몬스 sticky, std=0→측정불가)
@@ -937,6 +1207,85 @@ function renderDart() {{
       <thead><tr><th>브랜드</th><th>매출액</th><th>기준연도</th><th>비고</th></tr></thead>
       <tbody>${{rows}}</tbody>
     </table>`;
+}}
+
+// T2-3: SoS vs SoM 산점도
+function renderSoSSoM() {{
+  const data = SOS_SOM_DATA;
+  const validData = data.filter(d => d.som !== null && d.som !== undefined);
+  if (!validData.length) return;
+
+  document.getElementById('section-sos-som').style.display = '';
+
+  // 대각선 기준선 (SoS = SoM)
+  const allVals = validData.map(d => Math.max(d.sos, d.som || 0));
+  const maxVal = Math.max(...allVals) * 1.2;
+
+  const scatterData = validData.map(d => {{
+    const isCautionTier = d.tier === 'C' || d.tier === 'D';
+    return {{
+      name: d.brand,
+      value: [d.sos, d.som],
+      itemStyle: {{
+        color: COLORS[d.brand] || '#888',
+        opacity: isCautionTier ? 0.45 : 0.9,
+      }},
+      symbol: isCautionTier ? 'triangle' : 'circle',
+      symbolSize: 14,
+      label: {{
+        show: true,
+        formatter: d.brand,
+        position: 'top',
+        fontSize: 10,
+        color: COLORS[d.brand] || '#333',
+      }},
+    }};
+  }});
+
+  gc('chart-sos-som').setOption({{
+    grid: {{left: 60, right: 30, top: 30, bottom: 50}},
+    xAxis: {{
+      type: 'value',
+      name: 'SoS (%)',
+      nameLocation: 'middle',
+      nameGap: 30,
+      axisLabel: {{fontSize: 11, formatter: v => v + '%'}},
+      min: 0,
+    }},
+    yAxis: {{
+      type: 'value',
+      name: 'SoM (%)',
+      nameLocation: 'middle',
+      nameGap: 40,
+      axisLabel: {{fontSize: 11, formatter: v => v + '%'}},
+      min: 0,
+    }},
+    series: [
+      {{
+        type: 'scatter',
+        data: scatterData,
+        label: {{show: true}},
+        markLine: {{
+          silent: true,
+          symbol: ['none', 'none'],
+          lineStyle: {{type: 'dashed', color: '#aaa', width: 1}},
+          data: [
+            [
+              {{coord: [0, 0], label: {{show: false}}}},
+              {{coord: [maxVal, maxVal], label: {{show: true, formatter: 'SoS = SoM', fontSize: 10, color: '#aaa'}}}},
+            ]
+          ],
+        }},
+      }}
+    ],
+    tooltip: {{
+      formatter: p => {{
+        const d = validData.find(x => x.brand === p.name);
+        if (!d) return p.name;
+        return `${{p.name}} [Tier ${{d.tier}}]<br>SoS: ${{d.sos}}%<br>SoM: ${{d.som}}%<br>${{d.caution ? '⚠ 침대 외 사업 포함' : ''}}`;
+      }}
+    }},
+  }});
 }}
 
 // 11. AI 코멘터리
@@ -1039,12 +1388,13 @@ renderGender();
 renderAge();
 renderCVTable();
 renderDart();
+renderSoSSoM();
 renderCommentary();
 renderInsights();
 
 window.addEventListener('resize', ()=>{{
   ['chart-google-rank','chart-naver-rank','chart-monthly','chart-datalab',
-   'chart-sos','chart-gap','chart-gender','chart-age']
+   'chart-sos','chart-gap','chart-gender','chart-age','chart-sos-som']
   .forEach(id=>{{const el=document.getElementById(id);if(el){{const inst=echarts.getInstanceByDom(el);if(inst)inst.resize();}}}});
 }});
 </script>

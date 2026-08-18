@@ -3,6 +3,15 @@ import sys
 import glob
 import json
 
+# events.json 로드 함수
+def _load_events():
+    events_path = os.path.join(os.path.dirname(__file__), "config", "events.json")
+    try:
+        with open(events_path, encoding="utf-8") as f:
+            return json.load(f).get("events", [])
+    except Exception:
+        return []
+
 # Windows 콘솔 UTF-8 강제
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -227,6 +236,9 @@ def run():
     print("\n[AI] 임원 브리핑 생성 중...")
     commentary = generate_commentary(snapshot)
 
+    # ── 이벤트 로드 ────────────────────────────────────────────────
+    events = _load_events()
+
     # ── 대시보드 데이터 조립 ───────────────────────────────────────
     payload = {
         "google": google_data,
@@ -238,6 +250,7 @@ def run():
         "sos": sos,
         "gap": gap,
         "change_points": change_points,
+        "events": events,
         "meta": {
             "run_id": run_id,
             "collected_at": collected_display,

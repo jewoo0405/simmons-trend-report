@@ -1,3 +1,11 @@
+TIER_NEW = {
+    "A": {"label": "Tier A — 프리미엄 매트리스", "warning": None, "brands": ["시몬스", "씰리침대"]},
+    "B": {"label": "Tier B — 매스 침대", "warning": None, "brands": ["에이스침대", "에몬스", "지누스"]},
+    "C": {"label": "Tier C — 종합가구", "warning": "검색 지수에 가구·인테리어 수요 혼재. 직접 비교 주의.", "brands": ["한샘", "현대리바트", "까사미아", "일룸", "이케아"]},
+    "D": {"label": "Tier D — 렌탈", "warning": "렌탈 사업 모델로 직접 비교 주의.", "brands": ["코웨이 비렉스"]},
+}
+BRAND_TO_TIER_NEW = {brand: k for k, v in TIER_NEW.items() for brand in v["brands"]}
+
 BRANDS = [
     {"name": "시몬스",       "tier": 0, "baseline": True,  "trend_kw": "시몬스",        "naver_kw": "시몬스 침대",       "color": "#0b0b0b"},
     {"name": "에이스침대",   "tier": 1, "baseline": False, "trend_kw": "에이스침대",    "naver_kw": "에이스침대",         "color": "#e34948"},
