@@ -307,10 +307,6 @@ def _build_appendix(collected_at):
           <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">Naver 콘텐츠 노출량</div>
           <div style="font-size:11px;color:#555;line-height:1.6;">검색 수요가 아닌 콘텐츠 발행량. 브랜드 마케팅 활동량 반영. 블로그+뉴스 건수 합산.</div>
         </div>
-        <div style="background:#f9f9f9;border-radius:6px;padding:12px;border-left:3px solid #6a1b9a;">
-          <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">DART 매출</div>
-          <div style="font-size:11px;color:#555;line-height:1.6;">분기 공시 시차 존재. 종합가구·렌탈 브랜드는 침대 외 사업 포함. 직접 비교 주의.</div>
-        </div>
         <div style="background:#fff3e0;border-radius:6px;padding:12px;border-left:3px solid #e65100;">
           <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">Google Trends 배치 체인 링킹</div>
           <div style="font-size:11px;color:#555;line-height:1.6;">배치C max/min비율이 20배 초과 시 WARNING 수준 경고 발생 가능. 수집 로그에서 확인 필요.</div>
@@ -775,18 +771,6 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
     </div>
   </div>
 
-  <!-- ⑨ DART 매출 (§13, 수집 시 표시) -->
-  <div class="chart-row" id="dart-row" style="display:none;">
-    <div class="card">
-      <div class="card-title">공시 매출 현황
-        <span class="source-badge" style="background:#f3e5f5;color:#6a1b9a;">네이버 증권</span>
-      </div>
-      <div class="card-sub">⚠ 종합가구(한샘·현대리바트·일룸)·렌탈(코웨이) 브랜드는 침대 외 사업 포함 — 직접 비교 주의</div>
-      <div id="dart-table"></div>
-      {_caption("네이버 증권 스크래핑", collected_at, "연간 공시 기준")}
-    </div>
-  </div>
-
   <!-- T2-3: SoS vs SoM 산점도 -->
   <div class="chart-row" id="section-sos-som" style="display:none;">
     <div class="card">
@@ -819,6 +803,69 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 </div><!-- /layout -->
 
 <script>
+/* ── 공통 축 유틸리티 ─────────────────────────────── */
+
+// 사람이 읽기 좋은 눈금 간격 계산
+// 허용 배수: 1, 2, 5, 10, 20, 25, 50, 100 의 배수
+function niceInterval(range, targetCount) {{
+  const rough = range / targetCount;
+  const mag = Math.pow(10, Math.floor(Math.log10(rough)));
+  const steps = [1, 2, 5, 10, 20, 25, 50, 100];
+  let best = steps[steps.length - 1] * mag;
+  for (const s of steps) {{
+    const candidate = s * mag;
+    if (candidate >= rough) {{ best = candidate; break; }}
+  }}
+  return best;
+}}
+
+// 축 최댓값: 데이터 최댓값의 1.1배를 niceInterval 배수로 올림
+function niceMax(dataMax, interval) {{
+  return Math.ceil(dataMax * 1.1 / interval) * interval;
+}}
+
+// 전체 축 옵션 반환 (value 축용)
+// unit: '' | '%' | '억'
+function axisOption(dataMax, unit, targetCount) {{
+  targetCount = targetCount || 5;
+  if (!dataMax || dataMax <= 0) dataMax = 100;
+  const interval = niceInterval(dataMax * 1.1, targetCount);
+  const max = niceMax(dataMax, interval);
+  const formatter = v => {{
+    if (unit === '%') return v.toFixed(1) + '%';
+    if (unit === '억') return (v >= 1000 ? (v/1000).toFixed(1)+'천억' : v+'억');
+    // 지수: 소수점 1자리, 천단위 쉼표
+    return v >= 1000 ? v.toLocaleString('ko-KR', {{maximumFractionDigits:0}})
+                     : v % 1 === 0 ? v.toString() : v.toFixed(1);
+  }};
+  return {{ type:'value', min:0, max, interval, axisLabel:{{ fontSize:12, formatter }} }};
+}}
+
+// 가장 긴 Y축 레이블 길이 기준으로 left 마진 계산
+function leftMargin(labels) {{
+  const maxLen = Math.max(...labels.map(l => String(l).length));
+  return Math.max(60, maxLen * 8);
+}}
+
+// 날짜 축 포맷: "2026-03" → "26.03"
+function dateAxisOption(periods) {{
+  return {{
+    type: 'category',
+    data: periods,
+    axisLabel: {{
+      fontSize: 12,
+      rotate: 0,
+      interval: 'auto',
+      formatter: v => {{
+        const p = String(v);
+        if (p.length >= 7) return p.substring(2,4) + '.' + p.substring(5,7);
+        return p;
+      }}
+    }}
+  }};
+}}
+/* ── 공통 축 유틸리티 끝 ────────────────────────────── */
+
 const RAW = {data_json};
 const COLORS = {colors_json};
 const BRANDS_CFG = {brands_cfg_json};
@@ -892,11 +939,14 @@ function renderGoogleRank() {{
   if (!sorted.length) return;
   const chart = gc('chart-google-rank');
   const vals = sorted.map(x=>x[1]).filter(v=>v!=null);
-  const maxVal = vals.length ? Math.max(...vals) + 10 : 110;
+  const brandNames = sorted.map(x=>x[0]);
+  const dataMax = vals.length ? Math.max(...vals) : 100;
+  const xOpt = axisOption(dataMax, '', 5);
+  const lm = leftMargin(brandNames);
   chart.setOption({{
-    grid:{{left:90,right:20,top:10,bottom:10}},
-    xAxis:{{type:'value',max:maxVal,axisLabel:{{fontSize:11}}}},
-    yAxis:{{type:'category',data:sorted.map(x=>x[0]),axisLabel:{{fontSize:11}}}},
+    grid:{{left:lm,right:80,top:10,bottom:10}},
+    xAxis:xOpt,
+    yAxis:{{type:'category',data:brandNames,axisLabel:{{fontSize:12}}}},
     series:[{{
       type:'bar',
       data:sorted.map(x=>{{
@@ -931,11 +981,14 @@ function renderNaverRank() {{
   if (!sorted.length) return;
   const chart = gc('chart-naver-rank');
   const vals = sorted.map(x=>x[1]).filter(v=>v!=null);
-  const maxVal = vals.length ? Math.max(...vals) + 10 : 110;
+  const brandNames = sorted.map(x=>x[0]);
+  const dataMax = vals.length ? Math.max(...vals) : 100;
+  const xOpt = axisOption(dataMax, '', 5);
+  const lm = leftMargin(brandNames);
   chart.setOption({{
-    grid:{{left:90,right:20,top:10,bottom:10}},
-    xAxis:{{type:'value',max:maxVal,axisLabel:{{fontSize:11}}}},
-    yAxis:{{type:'category',data:sorted.map(x=>x[0]),axisLabel:{{fontSize:11}}}},
+    grid:{{left:lm,right:80,top:10,bottom:10}},
+    xAxis:xOpt,
+    yAxis:{{type:'category',data:brandNames,axisLabel:{{fontSize:12}}}},
     series:[{{
       type:'bar',
       data:sorted.map(x=>{{
@@ -1057,11 +1110,14 @@ function renderMonthly() {{
   if (markLineData.length > 0) series.push(markLineSeries);
 
   const visibleBrands = series.filter(s=>s.name !== '__events__').map(s=>s.name);
+  // y축 최댓값 계산
+  const allMonthlyVals = Object.values(ms).flatMap(pts => pts.map(p => p.value || 0));
+  const monthlyMax = allMonthlyVals.length ? Math.max(...allMonthlyVals) : 100;
   gc('chart-monthly').setOption({{
     legend:{{data:visibleBrands,bottom:0,textStyle:{{fontSize:11}},type:'scroll'}},
-    grid:{{left:45,right:20,top:10,bottom:90}},
-    xAxis:{{type:'category',data:pLabels,axisLabel:{{fontSize:10,rotate:45,interval:0}}}},
-    yAxis:{{type:'value',axisLabel:{{fontSize:11}}}},
+    grid:{{left:55,right:20,top:10,bottom:40}},
+    xAxis:dateAxisOption(pLabels),
+    yAxis:axisOption(monthlyMax, '', 5),
     series,
     tooltip:{{trigger:'axis'}}
   }});
@@ -1087,7 +1143,7 @@ function renderSoS() {{
     }});
   gc('chart-sos').setOption({{
     tooltip:{{trigger:'item',formatter:p=>`${{p.name}} [Tier ${{BRAND_TO_TIER[p.name]||'기준'}}]: ${{p.value}}%`}},
-    legend:{{orient:'vertical',right:0,top:'center',textStyle:{{fontSize:11}}}},
+    legend:{{orient:'vertical',right:0,top:'center',textStyle:{{fontSize:12}}}},
     series:[{{
       type:'pie',radius:['40%','70%'],center:['40%','50%'],
       label:{{show:false}},data
@@ -1103,10 +1159,15 @@ function renderGap() {{
   if (!items.find(x => x.brand === '시몬스')) {{
     items = [{{brand:'시몬스', gap:0}}, ...items];
   }}
+  const brandNames = items.map(x=>x.brand);
+  const lm = leftMargin(brandNames);
+  const absMax = Math.max(...items.map(x => Math.abs(x.gap)), 1);
+  const gapInterval = niceInterval(absMax * 2 * 1.1, 5);
+  const halfMax = niceMax(absMax, gapInterval);
   gc('chart-gap').setOption({{
-    grid:{{left:90,right:20,top:10,bottom:10}},
-    xAxis:{{type:'value',axisLabel:{{fontSize:11}}}},
-    yAxis:{{type:'category',data:items.map(x=>x.brand),axisLabel:{{fontSize:11}}}},
+    grid:{{left:lm,right:70,top:10,bottom:10}},
+    xAxis:{{type:'value',min:-halfMax,max:halfMax,interval:gapInterval,axisLabel:{{fontSize:12,formatter:v=>v>0?'+'+v:String(v)}}}},
+    yAxis:{{type:'category',data:brandNames,axisLabel:{{fontSize:12}}}},
     series:[{{
       type:'bar',
       data:items.map(x=>{{
@@ -1219,15 +1280,15 @@ function renderGender() {{
       label:{{show:true,formatter:labelFmt,fontSize:10}}
     }};
   }});
+  const lmGender = leftMargin(brands);
   const chartOpt = {{
-    legend:{{data:genders,bottom:0}},
-    grid:{{left:80,right:20,top:10,bottom:40}},
-    xAxis:{{type:'value',axisLabel:{{fontSize:11,formatter:xFmt}}}},
-    yAxis:{{type:'category',data:brands,axisLabel:{{fontSize:11}}}},
+    legend:{{data:genders,bottom:0,textStyle:{{fontSize:12}}}},
+    grid:{{left:lmGender,right:20,top:10,bottom:40}},
+    xAxis:{{type:'value',max:xMax||undefined,interval:xMax===100?25:undefined,axisLabel:{{fontSize:12,formatter:xFmt}}}},
+    yAxis:{{type:'category',data:brands,axisLabel:{{fontSize:12}}}},
     series,
     tooltip:{{trigger:'axis',formatter:tooltipFmt}}
   }};
-  if (xMax) chartOpt.xAxis.max = xMax;
   gc('chart-gender').setOption(chartOpt);
 }}
 
@@ -1284,15 +1345,15 @@ function renderAge() {{
       label:{{show:true,formatter:labelFmt,fontSize:10}}
     }};
   }});
+  const lmAge = leftMargin(brands);
   const chartOpt = {{
-    legend:{{data:ages,bottom:0,textStyle:{{fontSize:10}}}},
-    grid:{{left:80,right:20,top:10,bottom:40}},
-    xAxis:{{type:'value',axisLabel:{{fontSize:11,formatter:xFmt}}}},
-    yAxis:{{type:'category',data:brands,axisLabel:{{fontSize:11}}}},
+    legend:{{data:ages,bottom:0,textStyle:{{fontSize:12}}}},
+    grid:{{left:lmAge,right:20,top:10,bottom:40}},
+    xAxis:{{type:'value',max:xMax||undefined,interval:xMax===100?25:undefined,axisLabel:{{fontSize:12,formatter:xFmt}}}},
+    yAxis:{{type:'category',data:brands,axisLabel:{{fontSize:12}}}},
     series,
     tooltip:{{trigger:'axis',formatter:tooltipFmt}}
   }};
-  if (xMax) chartOpt.xAxis.max = xMax;
   gc('chart-age').setOption(chartOpt);
 }}
 
@@ -1358,38 +1419,16 @@ function renderDatalab() {{
     }});
   }}
   const pLabels = periods.map(p => p.substring(0, 7));
+  const allDlVals = Object.values(ms).flatMap(pts => pts.map(p => p.value || 0));
+  const dlMax = allDlVals.length ? Math.max(...allDlVals) : 100;
   gc('chart-datalab').setOption({{
     legend: {{data: Object.keys(ms), bottom: 0, textStyle: {{fontSize: 11}}, type: 'scroll'}},
-    grid: {{left: 45, right: 20, top: 10, bottom: 90}},
-    xAxis: {{type: 'category', data: pLabels, axisLabel: {{fontSize: 10, rotate: 45, interval: 0}}}},
-    yAxis: {{type: 'value', axisLabel: {{fontSize: 11}}}},
+    grid: {{left: 55, right: 20, top: 10, bottom: 40}},
+    xAxis: dateAxisOption(pLabels),
+    yAxis: axisOption(dlMax, '', 5),
     series,
     tooltip: {{trigger: 'axis'}}
   }});
-}}
-
-// 10. DART 매출 테이블 (§13)
-function renderDart() {{
-  const dart = RAW.dart || {{}};
-  if (!Object.keys(dart).length) return;
-
-  document.getElementById('dart-row').style.display = '';
-  const sorted = Object.entries(dart).sort((a, b) => b[1].amount - a[1].amount);
-  const rows = sorted.map(([brand, d]) => {{
-    const amountB = Math.round(d.amount / 100_000_000).toLocaleString();
-    const caution = d.caution ? ' <span style="color:#e65100;font-size:10px;">⚠</span>' : '';
-    return `<tr>
-      <td>${{brand}}${{caution}}</td>
-      <td style="text-align:right;">${{amountB}}억원</td>
-      <td>${{d.year}}년</td>
-      <td style="color:#888;font-size:11px;">${{d.note || ''}}</td>
-    </tr>`;
-  }}).join('');
-  document.getElementById('dart-table').innerHTML = `
-    <table class="data-table">
-      <thead><tr><th>브랜드</th><th>매출액</th><th>기준연도</th><th>비고</th></tr></thead>
-      <tbody>${{rows}}</tbody>
-    </table>`;
 }}
 
 // T2-3: SoS vs SoM 산점도
@@ -1425,24 +1464,14 @@ function renderSoSSoM() {{
     }};
   }});
 
+  const sosSomMaxX = Math.max(...validData.map(d => d.sos), 1);
+  const sosSomMaxY = Math.max(...validData.map(d => d.som || 0), 1);
+  const xOptSoSSoM = Object.assign(axisOption(sosSomMaxX, '%', 5), {{name:'SoS (%)',nameLocation:'middle',nameGap:30}});
+  const yOptSoSSoM = Object.assign(axisOption(sosSomMaxY, '%', 5), {{name:'SoM (%)',nameLocation:'middle',nameGap:40}});
   gc('chart-sos-som').setOption({{
     grid: {{left: 60, right: 30, top: 30, bottom: 50}},
-    xAxis: {{
-      type: 'value',
-      name: 'SoS (%)',
-      nameLocation: 'middle',
-      nameGap: 30,
-      axisLabel: {{fontSize: 11, formatter: v => v + '%'}},
-      min: 0,
-    }},
-    yAxis: {{
-      type: 'value',
-      name: 'SoM (%)',
-      nameLocation: 'middle',
-      nameGap: 40,
-      axisLabel: {{fontSize: 11, formatter: v => v + '%'}},
-      min: 0,
-    }},
+    xAxis: xOptSoSSoM,
+    yAxis: yOptSoSSoM,
     series: [
       {{
         type: 'scatter',
@@ -1597,7 +1626,6 @@ renderGap();
 renderGender();
 renderAge();
 renderCVTable();
-renderDart();
 renderSoSSoM();
 renderCommentary();
 renderInsights();
