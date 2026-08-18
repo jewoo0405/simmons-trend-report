@@ -151,10 +151,13 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
 .chart-caption {
   font-size: 11px;
   color: #767676;
-  margin-top: 6px;
+  margin-top: 12px;
   padding: 6px 8px;
   border-top: 1px solid #eee;
-  line-height: 1.6;
+  line-height: 1.7;
+  word-break: keep-all;
+  white-space: normal;
+  position: static;
 }
 .chart-caption .cap-formula { font-style: italic; }
 .chart-caption .cap-source { }
@@ -191,9 +194,6 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
   /* 표지 표시 */
   .print-only { display: block !important; }
   #cover-page { page-break-after: always; }
-
-  /* 목차 페이지 */
-  #toc { page-break-after: always; }
 
   /* 인터랙티브 요소 숨김 */
   .no-print,
@@ -271,29 +271,6 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
   line-height: 1.8;
   margin-top: 20px;
 }
-.toc-nav {
-  background: #f8f9fa;
-  border-left: 4px solid #2c3e50;
-  padding: 20px 28px;
-  margin: 16px 0 24px;
-  border-radius: 4px;
-}
-.toc-title {
-  font-size: 15px;
-  font-weight: 700;
-  margin: 0 0 12px;
-  color: #2c3e50;
-}
-.toc-list {
-  margin: 0;
-  padding-left: 20px;
-  line-height: 2;
-}
-.toc-list a {
-  color: #2c3e50;
-  text-decoration: none;
-}
-.toc-list a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -354,22 +331,6 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
 
 <!-- 메인 콘텐츠 (결론 우선 → 근거 데이터) -->
 <div id="main">
-
-  <!-- PHASE 4 목차 (T4-1) -->
-  <nav id="toc" class="toc-nav">
-    <h3 class="toc-title">목차</h3>
-    <ol class="toc-list">
-      <li><a href="#section-kpi">1. KPI 요약</a></li>
-      <li><a href="#section-summary">2. 포지셔닝 &amp; 주요 발견</a></li>
-      <li><a href="#section-action">3. 권고 액션</a></li>
-      <li><a href="#section-sos">4. Share of Search</a></li>
-      <li><a href="#section-rank">5. 검색 순위</a></li>
-      <li><a href="#section-trend">6. 월별 추이</a></li>
-      <li><a href="#section-gap">7. 구글 vs 네이버 갭</a></li>
-      <li><a href="#section-demo">8. 성별·연령 인덱스</a></li>
-      <li><a href="#section-appendix">9. 부록</a></li>
-    </ol>
-  </nav>
 
   <!-- ① KPI 요약 스트립 (T1-2) -->
   <div class="chart-row" id="section-kpi">
@@ -506,7 +467,7 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
         <span class="source-badge" style="background:#fff3e0;color:#e65100;" title="Tier C(종합가구)·D(렌탈) 브랜드는 가구·렌탈 수요 혼재로 직접 비교 주의">⚠ Tier C·D 비교 주의</span>
       </div>
       <div class="card-sub" id="sub-google-rank">시몬스=100 기준 · 최근 3개월 한국</div>
-      <div id="chart-google-rank" style="height:420px;"></div>
+      <div id="chart-google-rank" style="min-height:200px;"></div>
       <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends · 수집: 2026-08-18T02:54:53+09:00 · 기준: 시몬스=100 · N=3회 수집</div>
     </div>
     <div class="card" id="section-naver-rank">
@@ -515,7 +476,7 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
         <span class="source-badge" style="background:#fff3e0;color:#e65100;" title="Tier C(종합가구)·D(렌탈) 브랜드는 가구·렌탈 수요 혼재로 직접 비교 주의">⚠ Tier C·D 비교 주의</span>
       </div>
       <div class="card-sub" id="sub-naver-rank">시몬스=100 기준 · 블로그+뉴스 건수</div>
-      <div id="chart-naver-rank" style="height:380px;"></div>
+      <div id="chart-naver-rank" style="min-height:200px;"></div>
       <div style="font-size:10px;color:#999;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0;">
         ※ 검색 수요가 아닌 콘텐츠 발행량 지표. 브랜드 자체 마케팅 활동량이 반영됨.
       </div>
@@ -921,6 +882,24 @@ document.getElementById('sub-naver-rank').textContent = baselineCaption('블로�
 // 차트 초기화
 const gc = (id) => echarts.init(document.getElementById(id));
 
+// B-4: 겹침 검증 루틴 (window.__devMode = true 로 활성화)
+function checkOverlap(chartDom, label) {
+  if (!window.__devMode) return;
+  const rects = [];
+  chartDom.querySelectorAll('.chart-caption, text').forEach(el => {
+    rects.push({ el, r: el.getBoundingClientRect(), name: el.className || el.tagName });
+  });
+  for (let i = 0; i < rects.length; i++) {
+    for (let j = i + 1; j < rects.length; j++) {
+      const a = rects[i].r, b = rects[j].r;
+      if (a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top) {
+        console.warn(`[겹침 경고] ${label}: ${rects[i].name} ↔ ${rects[j].name}`);
+      }
+    }
+  }
+}
+// window.__devMode = true;  // 개발 시 활성화
+
 // 티어 필터: 브랜드 목록을 현재 활성 티어로 필터링 (시몬스 항상 포함)
 function _filterByTier(entries) {
   if (_activeTier === 'ALL') return entries;
@@ -940,6 +919,16 @@ function setTierFilter(btn, tier) {
   _updateFilterBanner();
 }
 
+/* ── 막대 차트 높이 동적 계산 ───────────────────────── */
+const BAR_HEIGHT = 28;
+const BAR_GAP = 10;
+const AXIS_AREA = 40;
+const TOP_PAD = 10;
+function calcBarChartHeight(n) {
+  return n * BAR_HEIGHT + (n - 1) * BAR_GAP + AXIS_AREA + TOP_PAD;
+}
+/* ── 막대 차트 높이 동적 계산 끝 ──────────────────────── */
+
 // 1. 구글 순위 바차트
 function renderGoogleRank() {
   const norm = RAW.google?.normalized || {};
@@ -947,18 +936,22 @@ function renderGoogleRank() {
   entries = _filterByTier(entries);
   const sorted = entries.sort((a,b)=>b[1]-a[1]);
   if (!sorted.length) return;
-  const chart = gc('chart-google-rank');
+  const chartDom = document.getElementById('chart-google-rank');
+  const h = calcBarChartHeight(sorted.length);
+  chartDom.style.height = h + 'px';
+  const chart = echarts.init(chartDom);
   const vals = sorted.map(x=>x[1]).filter(v=>v!=null);
   const brandNames = sorted.map(x=>x[0]);
   const dataMax = vals.length ? Math.max(...vals) : 100;
   const xOpt = axisOption(dataMax, '', 5);
   const lm = leftMargin(brandNames);
   chart.setOption({
-    grid:{left:lm,right:80,top:10,bottom:10},
+    grid:{left:lm,right:100,top:TOP_PAD,bottom:AXIS_AREA,containLabel:false},
     xAxis:xOpt,
-    yAxis:{type:'category',data:brandNames,axisLabel:{fontSize:12}},
+    yAxis:{type:'category',data:brandNames,axisLabel:{fontSize:12,margin:8},axisTick:{alignWithLabel:true},boundaryGap:true},
     series:[{
       type:'bar',
+      barMaxWidth:BAR_HEIGHT,
       data:sorted.map(x=>{
         const isBase = x[0]==='시몬스';
         const tier = BRAND_TO_TIER[x[0]];
@@ -980,6 +973,7 @@ function renderGoogleRank() {
       return `${p[0].name} [Tier ${t}]<br>${p[0].value} (시몬스=100)`;
     }}
   });
+  setTimeout(() => checkOverlap(chartDom, 'GoogleRank'), 300);
 }
 
 // 2. 네이버 순위 바차트
@@ -989,18 +983,22 @@ function renderNaverRank() {
   entries = _filterByTier(entries);
   const sorted = entries.sort((a,b)=>b[1]-a[1]);
   if (!sorted.length) return;
-  const chart = gc('chart-naver-rank');
+  const chartDom = document.getElementById('chart-naver-rank');
+  const h = calcBarChartHeight(sorted.length);
+  chartDom.style.height = h + 'px';
+  const chart = echarts.init(chartDom);
   const vals = sorted.map(x=>x[1]).filter(v=>v!=null);
   const brandNames = sorted.map(x=>x[0]);
   const dataMax = vals.length ? Math.max(...vals) : 100;
   const xOpt = axisOption(dataMax, '', 5);
   const lm = leftMargin(brandNames);
   chart.setOption({
-    grid:{left:lm,right:80,top:10,bottom:10},
+    grid:{left:lm,right:100,top:TOP_PAD,bottom:AXIS_AREA,containLabel:false},
     xAxis:xOpt,
-    yAxis:{type:'category',data:brandNames,axisLabel:{fontSize:12}},
+    yAxis:{type:'category',data:brandNames,axisLabel:{fontSize:12,margin:8},axisTick:{alignWithLabel:true},boundaryGap:true},
     series:[{
       type:'bar',
+      barMaxWidth:BAR_HEIGHT,
       data:sorted.map(x=>{
         const isBase = x[0]==='시몬스';
         const tier = BRAND_TO_TIER[x[0]];
@@ -1022,6 +1020,7 @@ function renderNaverRank() {
       return `${p[0].name} [Tier ${t}]<br>${p[0].value} (시몬스=100)`;
     }}
   });
+  setTimeout(() => checkOverlap(chartDom, 'NaverRank'), 300);
 }
 
 // 이벤트 타입별 색상
