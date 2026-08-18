@@ -118,7 +118,7 @@ def _build_kpi_strip(kpi, prev_kpi, total_brands):
       </div>"""
 
     footnote = "" if prev_kpi else \
-        '<div style="font-size:10px;color:#999;margin-top:8px;text-align:right;">※ 전월 스냅샷 없음 — 비교 기준월 데이터 축적 후 전월비 표시</div>'
+        '<div style="font-size:10px;color:#767676;margin-top:8px;text-align:right;">※ 전월 스냅샷 없음 — 비교 기준월 데이터 축적 후 전월비 표시</div>'
 
     return f'<div class="kpi-strip">{items}</div>{footnote}'
 
@@ -239,7 +239,7 @@ def _compute_sos_som(data):
 def _caption(source, collected_at, n=""):
     """통일 캡션 HTML 생성. source, collected_at, n 을 받아 표준 포맷 반환."""
     n_part = f" · N={n}" if n else ""
-    return (f'<div style="font-size:10px;color:#999;margin-top:6px;padding-top:6px;'
+    return (f'<div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;'
             f'border-top:1px solid #f0f0f0;">출처: {source} · 수집: {collected_at}'
             f' · 기준: 시몬스=100{n_part}</div>')
 
@@ -467,7 +467,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
             letter-spacing:0.5px;margin-bottom:6px;}}
 .kpi-value{{font-size:22px;font-weight:bold;color:#0b0b0b;margin-bottom:4px;}}
 .kpi-delta{{font-size:13px;margin-bottom:4px;}}
-.kpi-note{{font-size:10px;color:#aaa;}}
+.kpi-note{{font-size:10px;color:#767676;}}
 
 /* 섹션 구분선 */
 .section-divider{{
@@ -537,46 +537,133 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
   background:#0b0b0b;color:#fff;border-color:#0b0b0b;
 }}
 
-/* 인쇄 */
+/* ── 인쇄 전용 ─────────────────────────────── */
+.print-only {{ display: none; }}          /* 화면: 숨김 */
+.no-print {{ }}                           /* 화면: 정상 */
+
 @media print {{
-  #top-header,#sidebar,#filter-changed-banner{{display:none;}}
-  #layout{{height:auto;}}
-  #main{{overflow:visible;padding:0;}}
-  .card{{break-inside:avoid;}}
-  .kpi-strip{{break-inside:avoid;}}
-  .no-print{{display:none;}}
-  h2{{break-after:avoid;}}
-  #print-cover{{display:block !important;}}
+  /* 표지 표시 */
+  .print-only {{ display: block !important; }}
+  #cover-page {{ page-break-after: always; }}
+
+  /* 목차 페이지 */
+  #toc {{ page-break-after: always; }}
+
+  /* 인터랙티브 요소 숨김 */
+  .no-print,
+  #filter-banner,
+  .tier-filter,
+  .toggle-btn,
+  button,
+  .export-btn {{ display: none !important; }}
+
+  /* 페이지 분할 제어 */
+  .chart-block,
+  .kpi-strip,
+  table,
+  .section-card {{ page-break-inside: avoid; }}
+
+  h2, h3 {{ page-break-after: avoid; }}
+
+  /* 여백 */
+  @page {{ margin: 20mm 15mm; }}
+
+  /* 링크 URL 숨김 */
+  a[href]::after {{ content: none; }}
+
+  /* 흑백 출력 보조: 색상 정보 보완 */
+  .delta-up::before {{ content: "▲ "; }}
+  .delta-down::before {{ content: "▼ "; }}
+
+  /* 사이드바 숨김, 메인 전체폭 */
+  .sidebar {{ display: none !important; }}
+  #sidebar {{ display: none !important; }}
+  #top-header {{ display: none !important; }}
+  #filter-changed-banner {{ display: none !important; }}
+  #layout {{ height: auto; }}
+  #main {{ overflow: visible; padding: 0; width: 100% !important; margin-left: 0 !important; }}
+
+  /* 폰트 크기 최소 10pt */
+  body {{ font-size: 10pt; }}
+
+  .card {{ break-inside: avoid; }}
+  h2 {{ break-after: avoid; }}
 }}
 
-/* 인쇄 표지 (평소 숨김) */
-#print-cover{{
-  display:none;
-  page-break-after:always;
-  padding:80px 60px;
-  font-family:'Malgun Gothic',Arial,sans-serif;
+/* 표지 스타일 (화면·인쇄 공통) */
+.cover-inner {{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  gap: 20px;
 }}
-#print-cover h1{{font-size:28px;color:#0b0b0b;margin-bottom:16px;}}
-#print-cover .cover-meta{{font-size:14px;color:#444;line-height:2;}}
-#print-cover .cover-confidential{{
-  margin-top:40px;display:inline-block;
-  border:2px solid #c62828;color:#c62828;
-  font-size:14px;font-weight:bold;padding:4px 16px;border-radius:4px;
+.cover-confidential {{
+  color: #c0392b;
+  font-weight: 700;
+  font-size: 14px;
+  border: 2px solid #c0392b;
+  padding: 4px 16px;
+  border-radius: 4px;
 }}
+.cover-title {{
+  font-size: 32px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0;
+}}
+.cover-month {{
+  font-size: 22px;
+  color: #2c3e50;
+  font-weight: 600;
+}}
+.cover-meta {{
+  font-size: 13px;
+  color: #555;
+  line-height: 1.8;
+  margin-top: 20px;
+}}
+.toc-nav {{
+  background: #f8f9fa;
+  border-left: 4px solid #2c3e50;
+  padding: 20px 28px;
+  margin: 16px 0 24px;
+  border-radius: 4px;
+}}
+.toc-title {{
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: #2c3e50;
+}}
+.toc-list {{
+  margin: 0;
+  padding-left: 20px;
+  line-height: 2;
+}}
+.toc-list a {{
+  color: #2c3e50;
+  text-decoration: none;
+}}
+.toc-list a:hover {{ text-decoration: underline; }}
 </style>
 </head>
 <body>
 
-<!-- 인쇄 표지 (T3-3) -->
-<div id="print-cover">
-  <h1>시몬스 브랜드 트렌드 대시보드</h1>
-  <div class="cover-meta">
-    <div>{report_month}</div>
-    <div>작성부서: 고객서비스(CS)팀</div>
-    <div>작성일: {collected_at}</div>
-    <div id="print-filter-state">보고 기준: 최근 3개월 · 전체</div>
+<!-- PHASE 4 표지 (T4-1) -->
+<div id="cover-page" class="print-only">
+  <div class="cover-inner">
+    <p class="cover-confidential">대외비 (CONFIDENTIAL)</p>
+    <h1 class="cover-title">시몬스 브랜드 트렌드 월간 리포트</h1>
+    <p class="cover-month">{report_month}</p>
+    <div class="cover-meta">
+      <p>작성부서: 고객서비스(CS) 전략팀</p>
+      <p>수집일시: {collected_at}</p>
+      <p>작성: 자동 생성 시스템 · 검수: ___________</p>
+    </div>
   </div>
-  <div class="cover-confidential">[대외비]</div>
 </div>
 
 <!-- 기본값 변경 배너 (T3-3) -->
@@ -622,13 +709,29 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 <!-- 메인 콘텐츠 (결론 우선 → 근거 데이터) -->
 <div id="main">
 
+  <!-- PHASE 4 목차 (T4-1) -->
+  <nav id="toc" class="toc-nav">
+    <h3 class="toc-title">목차</h3>
+    <ol class="toc-list">
+      <li><a href="#section-kpi">1. KPI 요약</a></li>
+      <li><a href="#section-summary">2. 핵심 시사점</a></li>
+      <li><a href="#section-action">3. 권고 액션</a></li>
+      <li><a href="#section-sos">4. Share of Search</a></li>
+      <li><a href="#section-rank">5. 검색 순위</a></li>
+      <li><a href="#section-trend">6. 월별 추이</a></li>
+      <li><a href="#section-gap">7. 구글 vs 네이버 갭</a></li>
+      <li><a href="#section-demo">8. 성별·연령 인덱스</a></li>
+      <li><a href="#section-appendix">9. 부록</a></li>
+    </ol>
+  </nav>
+
   <!-- ① KPI 요약 스트립 (T1-2) -->
-  <div class="chart-row">
+  <div class="chart-row" id="section-kpi">
     {kpi_strip_html}
   </div>
 
   <!-- ② 핵심 시사점 + 시몬스 포지셔닝 + 주요 발견 (T1-1, T1-4) -->
-  <div class="chart-row">
+  <div class="chart-row" id="section-summary">
     <div class="summary-grid">
       <div class="card">
         <div class="section-title">주요 시사점</div>
@@ -686,7 +789,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       <div id="chart-sos" style="height:320px;"></div>
       {_caption("Google Trends 파생", collected_at)}
     </div>
-    <div class="card">
+    <div class="card" id="section-gap">
       <div class="card-title">구글 vs 네이버 갭 분석</div>
       <div class="card-sub">네이버 지수 − 구글 지수 (양수=네이버 강세 / 음수=구글 강세)</div>
       <div id="chart-gap" style="height:320px;"></div>
@@ -720,7 +823,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
   </div>
 
   <!-- ⑦ 월별 추이 -->
-  <div class="chart-row">
+  <div class="chart-row" id="section-trend">
     <div class="card">
       <div class="card-title">월별 검색 트렌드 추이
         <span class="source-badge badge-google">Google Trends</span>
@@ -1582,7 +1685,7 @@ function setRange(btn, range) {{
 
 // T3-3: PDF 인쇄 표지 자동 기록
 function exportPrint() {{
-  const cover = document.getElementById('print-cover');
+  const cover = document.getElementById('cover-page');
   const rangeBtn = document.querySelector('.filter-btn.active[data-range]');
   const tierBtn = document.querySelector('.tier-filter.active');
   const rangeLabel = rangeBtn?.textContent || '최근 3개월';

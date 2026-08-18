@@ -1,0 +1,28 @@
+# 시몬스 브랜드 트렌드 대시보드 — 색상 팔레트
+# 모든 차트의 티어 색상은 이 파일에서 단일 관리
+
+tiers:
+  A:
+    primary: "#1a237e"    # 딥 네이비 — 프리미엄
+    light: "#3949ab"
+  B:
+    primary: "#1565c0"    # 블루
+    light: "#42a5f5"
+  C:
+    primary: "#6a1b9a"    # 퍼플 — 종합가구
+    light: "#ab47bc"
+  D:
+    primary: "#4e342e"    # 브라운 — 렌탈
+    light: "#8d6e63"
+
+simmons_highlight: "#e53935"  # 시몬스 강조색 (레드)
+
+text:
+  primary: "#1a1a2e"
+  secondary: "#555555"
+  muted: "#999999"
+
+background:
+  card: "#ffffff"
+  section: "#f8f9fa"
+  border: "#e0e0e0"
