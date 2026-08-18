@@ -857,6 +857,17 @@ const SOS_SOM_DATA = [{"brand": "이케아", "sos": 57.9, "som": null, "caution"
 
 // 현재 티어 필터 상태
 let _activeTier = 'ALL';
+// 현재 기간 필터 상태 ('3M' | '6M' | '12M' | 'ALL')
+let _activePeriod = '3M';
+
+// dispose 후 재초기화 헬퍼
+function reInitChart(domId) {
+  const dom = document.getElementById(domId);
+  if (!dom) return null;
+  const existing = echarts.getInstanceByDom(dom);
+  if (existing) existing.dispose();
+  return dom;
+}
 
 // 기준 브랜드 서브타이틀 생성
 function baselineCaption(source) {
@@ -958,7 +969,8 @@ function renderGoogleRank() {
   const simonVal = norm['시몬스'] || 100;
 
   // ── 메인 차트 (이케아 제외) ──────────────────────────
-  const mainDom = document.getElementById('chart-google-rank');
+  const mainDomRaw = reInitChart('chart-google-rank');
+  const mainDom = mainDomRaw || document.getElementById('chart-google-rank');
   if (mainDom && mainEntries.length) {
     const brands = mainEntries.map(([b]) => b);
     const vals   = mainEntries.map(([,v]) => v);
@@ -966,7 +978,7 @@ function renderGoogleRank() {
 
     const h = calcBarChartHeight(brands.length);
     mainDom.style.height = h + 'px';
-    const mainChart = echarts.getInstanceByDom(mainDom) || echarts.init(mainDom);
+    const mainChart = echarts.init(mainDom);
 
     const lm = leftMargin(brands);
     mainChart.setOption({
@@ -1004,15 +1016,17 @@ function renderGoogleRank() {
         return `${p[0].name} [Tier ${t}]<br>${p[0].value} (시몬스=100)`;
       } }
     });
+    mainChart.resize();
     setTimeout(() => checkOverlap(mainDom, 'GoogleRank'), 300);
   }
 
   // ── 이케아 별도 패널 ─────────────────────────────────
-  const ikeaDom = document.getElementById('chart-google-rank-ikea');
+  const ikeaDomRaw = reInitChart('chart-google-rank-ikea');
+  const ikeaDom = ikeaDomRaw || document.getElementById('chart-google-rank-ikea');
   if (!ikeaDom || !IKEA_KEY || !ikeaVal) return;
 
   ikeaDom.style.height = '100px';
-  const ikeaChart = echarts.getInstanceByDom(ikeaDom) || echarts.init(ikeaDom);
+  const ikeaChart = echarts.init(ikeaDom);
 
   ikeaChart.setOption({
     grid: { left: leftMargin(['이케아', '시몬스(기준)']), right: 110, top: 8, bottom: 30, containLabel: false },
@@ -1042,7 +1056,8 @@ function renderNaverRank() {
   entries = _filterByTier(entries);
   const sorted = entries.sort((a,b)=>b[1]-a[1]);
   if (!sorted.length) return;
-  const chartDom = document.getElementById('chart-naver-rank');
+  const chartDomRaw = reInitChart('chart-naver-rank');
+  const chartDom = chartDomRaw || document.getElementById('chart-naver-rank');
   const h = calcBarChartHeight(sorted.length);
   chartDom.style.height = h + 'px';
   const chart = echarts.init(chartDom);
@@ -1079,6 +1094,7 @@ function renderNaverRank() {
       return `${p[0].name} [Tier ${t}]<br>${p[0].value} (시몬스=100)`;
     }}
   });
+  chart.resize();
   setTimeout(() => checkOverlap(chartDom, 'NaverRank'), 300);
 }
 
@@ -1093,9 +1109,9 @@ const EVENT_COLORS = {
 
 // 3. 월별 추이 (시몬스 마지막 렌더 = 최상단 레이어) + 이벤트 마커 (T2-1)
 function renderMonthly() {
-  const ms = RAW.google?.monthly_series || {};
-  const periods = RAW.google?.periods || [];
-  if(!Object.keys(ms).length) {
+  const msAll = RAW.google?.monthly_series || {};
+  const periodsAll = RAW.google?.periods || [];
+  if(!Object.keys(msAll).length) {
     const chart = gc('chart-monthly');
     chart.setOption({
       title: {
@@ -1108,6 +1124,19 @@ function renderMonthly() {
     });
     return;
   }
+
+  // 기간 필터 적용 (_activePeriod 기준으로 슬라이싱)
+  const periodMap = { '3M': 3, '6M': 6, '12M': 12, 'ALL': 9999 };
+  const limit = periodMap[_activePeriod] || 12;
+  const periods = periodsAll.slice(-limit);
+  const periodSet = new Set(periods);
+  // monthly_series 도 같은 기간으로 슬라이싱
+  const ms = {};
+  Object.entries(msAll).forEach(([brand, pts]) => {
+    // pts 배열이 periods 배열과 동일 길이라고 가정 (인덱스 기반)
+    ms[brand] = pts.slice(-limit);
+  });
+
   const series = [];
 
   // 티어 필터 적용
@@ -1509,11 +1538,20 @@ function renderCVTable() {
 // 9. DataLab 트렌드 차트 (§12)
 function renderDatalab() {
   const dl = RAW.datalab || {};
-  const ms = dl.monthly_series || {};
-  const periods = dl.periods || [];
-  if (!Object.keys(ms).length) return;
+  const msAll = dl.monthly_series || {};
+  const periodsAll = dl.periods || [];
+  if (!Object.keys(msAll).length) return;
 
   document.getElementById('datalab-row').style.display = '';
+
+  // 기간 필터 적용
+  const periodMap = { '3M': 3, '6M': 6, '12M': 12, 'ALL': 9999 };
+  const limit = periodMap[_activePeriod] || 12;
+  const periods = periodsAll.slice(-limit);
+  const ms = {};
+  Object.entries(msAll).forEach(([brand, pts]) => {
+    ms[brand] = pts.slice(-limit);
+  });
 
   const series = [];
   Object.entries(ms).filter(([b]) => b !== '시몬스').forEach(([brand, pts]) => {
@@ -1702,6 +1740,23 @@ function setRange(btn, range) {
   document.querySelectorAll('.filter-btn[data-range]').forEach(b=>b.classList.remove('active'));
   btn.dataset.range = range;
   btn.classList.add('active');
+  // range 문자열 → _activePeriod 매핑
+  const rangeMap = {
+    'today 3-m': '3M',
+    'today 6-m': '6M',
+    'today 12-m': '12M',
+    'all': 'ALL'
+  };
+  _activePeriod = rangeMap[range] || '3M';
+  // 기간에 영향받는 차트 재렌더링
+  const hasMonthlySeries = Object.keys(RAW.google?.monthly_series || {}).length > 0;
+  const hasDatalabSeries = Object.keys((RAW.datalab || {}).monthly_series || {}).length > 0;
+  if (hasMonthlySeries) {
+    renderMonthly();
+  }
+  if (hasDatalabSeries) {
+    renderDatalab();
+  }
   _updateFilterBanner();
 }
 
@@ -1753,6 +1808,20 @@ renderAge();
 renderCVTable();
 renderSoSSoM();
 renderInsights();
+
+// 기간 필터: monthly_series 없으면 버튼 비활성화 + 툴팁
+(function initPeriodFilter() {
+  const hasMonthlySeries = Object.keys(RAW.google?.monthly_series || {}).length > 0;
+  const hasDatalabSeries = Object.keys((RAW.datalab || {}).monthly_series || {}).length > 0;
+  if (!hasMonthlySeries && !hasDatalabSeries) {
+    document.querySelectorAll('.filter-btn[data-range]').forEach(btn => {
+      btn.disabled = true;
+      btn.style.opacity = '0.4';
+      btn.style.cursor = 'not-allowed';
+      btn.title = '데이터 수집 후 활성화 (monthly_series 없음)';
+    });
+  }
+})();
 
 // ── C-2: 섹션별 산출 근거 캡션 삽입 ──────────────────
 (function insertCaptions() {
