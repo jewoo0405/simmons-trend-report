@@ -547,7 +547,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 .chart-row{{display:grid;gap:16px;}}
 .chart-row.col2{{grid-template-columns:1fr 1fr;}}
 .chart-row.col3{{grid-template-columns:1fr 1fr 1fr;}}
-.card{{background:#fff;border-radius:8px;border:1px solid #e0e0e0;padding:16px;}}
+.card{{background:#fff;border-radius:8px;border:1px solid #e0e0e0;padding:16px;height:auto !important;padding-bottom:16px;overflow:visible;}}
 .card-title{{font-size:13px;font-weight:bold;color:#0b0b0b;margin-bottom:4px;}}
 .card-sub{{font-size:11px;color:#888;margin-bottom:12px;}}
 .source-badge{{
@@ -594,6 +594,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
   line-height: 1.7;
   word-break: keep-all;
   white-space: normal;
+  overflow: visible;
   position: static;
 }}
 .chart-caption .cap-formula {{ font-style: italic; }}
@@ -604,6 +605,11 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
   text-decoration: underline;
   font-size: 10px;
   margin-left: 6px;
+}}
+.cap-note {{
+  display: block;
+  margin-top: 4px;
+  color: #856404;
 }}
 .drill-detail {{
   display: none;
@@ -821,13 +827,11 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       </div>
       <div class="card-sub">브랜드별 구글 검색 점유율 (%) · SoS = 브랜드 지수 ÷ 전체 합계 × 100</div>
       <div id="chart-sos" style="height:320px;"></div>
-      {_caption("Google Trends 파생", collected_at)}
     </div>
     <div class="card" id="section-gap">
       <div class="card-title">구글 vs 네이버 갭 분석</div>
       <div class="card-sub">네이버 지수 − 구글 지수 (양수=네이버 강세 / 음수=구글 강세)</div>
       <div id="chart-gap" style="height:320px;"></div>
-      {_caption("Google+Naver 파생", collected_at)}
     </div>
   </div>
 
@@ -847,7 +851,6 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
         </p>
         <div id="chart-google-rank-ikea" style="min-height:80px;"></div>
       </div>
-      {_caption("Google Trends", collected_at, sample_count_label)}
     </div>
     <div class="card" id="section-naver-rank">
       <div class="card-title">네이버 콘텐츠 노출량
@@ -856,10 +859,6 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       </div>
       <div class="card-sub" id="sub-naver-rank">시몬스=100 기준 · 블로그+뉴스 건수</div>
       <div id="chart-naver-rank" style="min-height:200px;"></div>
-      <div style="font-size:10px;color:#999;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0;">
-        ※ 검색 수요가 아닌 콘텐츠 발행량 지표. 브랜드 자체 마케팅 활동량이 반영됨.
-      </div>
-      {_caption("Naver Search API", collected_at, "블로그+뉴스 3회 수집 중앙값")}
     </div>
   </div>
 
@@ -871,7 +870,6 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       </div>
       <div class="card-sub">주요 브랜드 · 음영은 신뢰구간(CV) · 출처: Google Trends · 기준: 시몬스=100</div>
       <div id="chart-monthly" style="height:420px;"></div>
-      {_caption("Google Trends", collected_at, sample_count_label)}
     </div>
   </div>
 
@@ -899,7 +897,6 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       </div>
       <div class="card-sub" id="gender-sub">브랜드별 성별 비율 (브랜드 내 합계=100%)</div>
       <div id="chart-gender" style="height:320px;"></div>
-      {_caption("Naver DataLab (Playwright)", collected_at, "단회 수집")}
     </div>
     <div class="card">
       <div class="card-title">연령대별 검색 관심도
@@ -911,7 +908,6 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       </div>
       <div class="card-sub" id="age-sub">브랜드별 연령대 비율 (브랜드 내 합계=100%)</div>
       <div id="chart-age" style="height:320px;"></div>
-      {_caption("Naver DataLab (Playwright)", collected_at, "단회 수집")}
     </div>
   </div>
 
@@ -989,9 +985,29 @@ function axisOption(dataMax, unit, targetCount) {{
 }}
 
 // 가장 긴 Y축 레이블 길이 기준으로 left 마진 계산
+// canvas 인스턴스 재사용 (매번 생성 비용 방지)
+const _measureCtx = (function() {{
+  try {{
+    const c = document.createElement('canvas');
+    const ctx = c.getContext('2d');
+    ctx.font = '12px "Noto Sans KR", "Malgun Gothic", sans-serif';
+    return ctx;
+  }} catch(e) {{ return null; }}
+}})();
+
+function measureTextWidth(text) {{
+  if (_measureCtx) {{
+    return _measureCtx.measureText(String(text)).width;
+  }}
+  // fallback: 한글은 약 13px, ASCII는 약 7px
+  return Array.from(String(text)).reduce((w, ch) => {{
+    return w + (ch.charCodeAt(0) > 127 ? 13 : 7);
+  }}, 0);
+}}
+
 function leftMargin(labels) {{
-  const maxLen = Math.max(...labels.map(l => String(l).length));
-  return Math.max(60, maxLen * 8);
+  const maxW = Math.max(...labels.map(l => measureTextWidth(String(l))));
+  return Math.ceil(maxW) + 16;  // 눈금 여백 8px + 여유 8px
 }}
 
 // 날짜 축 포맷: "2026-03" → "26.03"
@@ -1015,21 +1031,20 @@ function dateAxisOption(periods) {{
 
 /* ── 산출 근거 캡션 유틸리티 ────────────────────────── */
 function buildCaption(opts) {{
-  // opts: {{ formula, source, collected, n, note, drillId, drillContent }}
   const parts = [];
   if (opts.formula)   parts.push(`<span class="cap-formula">산출식: ${{opts.formula}}</span>`);
   if (opts.source)    parts.push(`출처: ${{opts.source}}`);
   if (opts.collected) parts.push(`수집: ${{opts.collected}}`);
-  if (opts.n)         parts.push(`표본: n=${{opts.n}}`);
+  if (opts.n)         parts.push(`n=${{opts.n}}`);
 
-  let drillHtml = '';
+  let html = `<div class="chart-caption">${{parts.join(' · ')}}`;
+  if (opts.note) html += `<br><span class="cap-note">⚠ ${{opts.note}}</span>`;
   if (opts.drillId && opts.drillContent) {{
-    drillHtml = `
-      <span class="cap-drill" onclick="toggleDrill('${{opts.drillId}}')">계산 내역 ▾</span>
-      <div id="${{opts.drillId}}" class="drill-detail">${{opts.drillContent}}</div>`;
+    html += `<span class="cap-drill" onclick="toggleDrill('${{opts.drillId}}')"> 계산 내역 ▾</span>
+             <div id="${{opts.drillId}}" class="drill-detail">${{opts.drillContent}}</div>`;
   }}
-
-  return `<div class="chart-caption">${{parts.join(' · ')}}${{opts.note ? '<br>' + opts.note : ''}}${{drillHtml}}</div>`;
+  html += `</div>`;
+  return html;
 }}
 
 function toggleDrill(id) {{
@@ -1097,16 +1112,40 @@ const gc = (id) => echarts.init(document.getElementById(id));
 // B-4: 겹침 검증 루틴 (window.__devMode = true 로 활성화)
 function checkOverlap(chartDom, label) {{
   if (!window.__devMode) return;
+  const cardEl = chartDom.closest('.card');
+  const cardRect = cardEl ? cardEl.getBoundingClientRect() : null;
+
+  // 1) 카드 밖으로 나간 요소
+  if (cardRect) {{
+    chartDom.querySelectorAll('.chart-caption, text').forEach(el => {{
+      const r = el.getBoundingClientRect();
+      if (r.bottom > cardRect.bottom + 2)
+        console.warn(`[카드 하단 넘침] ${{label}}: ${{el.className || el.tagName}}`);
+      if (r.left < cardRect.left - 2)
+        console.warn(`[카드 좌측 넘침] ${{label}}: ${{el.className || el.tagName}}`);
+    }});
+  }}
+
+  // 2) 동일 텍스트 중복 검출
+  if (cardEl) {{
+    const texts = {{}};
+    cardEl.querySelectorAll('.chart-caption').forEach(el => {{
+      const t = el.innerText.slice(0, 30);
+      texts[t] = (texts[t] || 0) + 1;
+      if (texts[t] > 1) console.warn(`[캡션 중복] ${{label}}: "${{t}}..."`);
+    }});
+  }}
+
+  // 3) 기존 bounding box 교차 검사
   const rects = [];
-  chartDom.querySelectorAll('.chart-caption, text').forEach(el => {{
-    rects.push({{ el, r: el.getBoundingClientRect(), name: el.className || el.tagName }});
+  chartDom.querySelectorAll('.chart-caption').forEach(el => {{
+    rects.push({{ el, r: el.getBoundingClientRect(), name: 'caption' }});
   }});
   for (let i = 0; i < rects.length; i++) {{
     for (let j = i + 1; j < rects.length; j++) {{
       const a = rects[i].r, b = rects[j].r;
-      if (a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top) {{
-        console.warn(`[겹침 경고] ${{label}}: ${{rects[i].name}} ↔ ${{rects[j].name}}`);
-      }}
+      if (a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top)
+        console.warn(`[겹침] ${{label}}: caption ↔ caption`);
     }}
   }}
 }}
@@ -1123,8 +1162,7 @@ function setTierFilter(btn, tier) {{
   document.querySelectorAll('.tier-filter').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   _activeTier = tier;
-  renderGoogleRank();
-  renderNaverRank();
+  renderRankCharts();
   renderSoS();
   renderGap();
   renderMonthly();
@@ -1141,8 +1179,18 @@ function calcBarChartHeight(n) {{
 }}
 /* ── 막대 차트 높이 동적 계산 끝 ──────────────────────── */
 
+// renderGoogleRank() 와 renderNaverRank() 를 모두 호출하는 공통 진입점
+function renderRankCharts() {{
+  const gNorm = RAW.google?.normalized || {{}};
+  const nNorm = RAW.naver?.normalized || {{}};
+  const allBrands = Array.from(new Set([...Object.keys(gNorm), ...Object.keys(nNorm)]));
+  const sharedLeft = leftMargin(allBrands);
+  renderGoogleRank(sharedLeft);
+  renderNaverRank(sharedLeft);
+}}
+
 // 1. 구글 순위 바차트 (이케아 별도 패널 분리)
-function renderGoogleRank() {{
+function renderGoogleRank(sharedLeft) {{
   const norm = RAW.google?.normalized || {{}};
   if (!Object.keys(norm).length) return;
 
@@ -1171,7 +1219,7 @@ function renderGoogleRank() {{
     mainDom.style.height = h + 'px';
     const mainChart = echarts.init(mainDom);
 
-    const lm = leftMargin(brands);
+    const lm = sharedLeft !== undefined ? sharedLeft : leftMargin(brands);
     mainChart.setOption({{
       grid: {{ left: lm, right: 110, top: TOP_PAD, bottom: AXIS_AREA, containLabel: false }},
       xAxis: axisOption(dataMax, '', 5),
@@ -1202,10 +1250,26 @@ function renderGoogleRank() {{
         label: {{ show: true, position: 'right', fontSize: 11,
                   formatter: p => typeof p.value === 'number' ? p.value.toFixed(1) : p.value }}
       }}],
-      tooltip: {{ trigger: 'axis', formatter: p => {{
-        const t = BRAND_TO_TIER[p[0].name] || '?';
-        return `${{p[0].name}} [Tier ${{t}}]<br>${{p[0].value}} (시몬스=100)`;
-      }} }}
+      tooltip: {{
+        trigger: 'axis',
+        axisPointer: {{ type: 'shadow' }},
+        confine: true,
+        position: function(point, params, dom, rect, size) {{
+          const tooltipW = size.contentSize[0];
+          const chartW   = size.viewSize[0];
+          const x = rect.x + rect.width + 8;
+          return [x + tooltipW > chartW ? rect.x - tooltipW - 8 : x, rect.y];
+        }},
+        backgroundColor: '#ffffff',
+        borderColor: '#cccccc',
+        borderWidth: 1,
+        textStyle: {{ color: '#333', fontSize: 12 }},
+        extraCssText: 'box-shadow: 0 2px 8px rgba(0,0,0,0.15); pointer-events:none;',
+        formatter: p => {{
+          const t = BRAND_TO_TIER[p[0].name] || '?';
+          return `${{p[0].name}} [Tier ${{t}}]<br>${{p[0].value}} (시몬스=100)`;
+        }}
+      }}
     }});
     mainChart.resize();
     setTimeout(() => checkOverlap(mainDom, 'GoogleRank'), 300);
@@ -1220,7 +1284,7 @@ function renderGoogleRank() {{
   const ikeaChart = echarts.init(ikeaDom);
 
   ikeaChart.setOption({{
-    grid: {{ left: leftMargin(['이케아', '시몬스(기준)']), right: 110, top: 8, bottom: 30, containLabel: false }},
+    grid: {{ left: sharedLeft !== undefined ? sharedLeft : leftMargin(['이케아', '시몬스(기준)']), right: 110, top: 8, bottom: 30, containLabel: false }},
     xAxis: {{ type: 'value', min: 0, max: Math.ceil(ikeaVal * 1.1 / 100) * 100,
               axisLabel: {{ fontSize: 11 }} }},
     yAxis: {{ type: 'category', data: ['시몬스(기준)', IKEA_KEY],
@@ -1241,7 +1305,7 @@ function renderGoogleRank() {{
 }}
 
 // 2. 네이버 순위 바차트
-function renderNaverRank() {{
+function renderNaverRank(sharedLeft) {{
   const norm = RAW.naver?.normalized || {{}};
   let entries = Object.entries(norm);
   entries = _filterByTier(entries);
@@ -1256,7 +1320,7 @@ function renderNaverRank() {{
   const brandNames = sorted.map(x=>x[0]);
   const dataMax = vals.length ? Math.max(...vals) : 100;
   const xOpt = axisOption(dataMax, '', 5);
-  const lm = leftMargin(brandNames);
+  const lm = sharedLeft !== undefined ? sharedLeft : leftMargin(brandNames);
   chart.setOption({{
     grid:{{left:lm,right:100,top:TOP_PAD,bottom:AXIS_AREA,containLabel:false}},
     xAxis:xOpt,
@@ -1280,10 +1344,26 @@ function renderNaverRank() {{
       }}),
       label:{{show:true,position:'right',fontSize:11,formatter:p=>p.value}}
     }}],
-    tooltip:{{trigger:'axis',formatter:p=>{{
-      const t = BRAND_TO_TIER[p[0].name] || '?';
-      return `${{p[0].name}} [Tier ${{t}}]<br>${{p[0].value}} (시몬스=100)`;
-    }}}}
+    tooltip: {{
+      trigger: 'axis',
+      axisPointer: {{ type: 'shadow' }},
+      confine: true,
+      position: function(point, params, dom, rect, size) {{
+        const tooltipW = size.contentSize[0];
+        const chartW   = size.viewSize[0];
+        const x = rect.x + rect.width + 8;
+        return [x + tooltipW > chartW ? rect.x - tooltipW - 8 : x, rect.y];
+      }},
+      backgroundColor: '#ffffff',
+      borderColor: '#cccccc',
+      borderWidth: 1,
+      textStyle: {{ color: '#333', fontSize: 12 }},
+      extraCssText: 'box-shadow: 0 2px 8px rgba(0,0,0,0.15); pointer-events:none;',
+      formatter: p => {{
+        const t = BRAND_TO_TIER[p[0].name] || '?';
+        return `${{p[0].name}} [Tier ${{t}}]<br>${{p[0].value}} (시몬스=100)`;
+      }}
+    }}
   }});
   chart.resize();
   setTimeout(() => checkOverlap(chartDom, 'NaverRank'), 300);
@@ -1988,8 +2068,7 @@ function exportCSV() {{
 }}
 
 // 전체 렌더
-renderGoogleRank();
-renderNaverRank();
+renderRankCharts();
 renderMonthly();
 renderDatalab();
 renderSoS();
