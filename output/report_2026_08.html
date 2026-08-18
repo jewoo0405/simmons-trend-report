@@ -468,6 +468,13 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
       </div>
       <div class="card-sub" id="sub-google-rank">시몬스=100 기준 · 최근 3개월 한국</div>
       <div id="chart-google-rank" style="min-height:200px;"></div>
+      <!-- 이케아 별도 패널 -->
+      <div style="margin-top:16px;">
+        <p style="font-size:12px;font-weight:600;color:#6c3483;margin-bottom:6px;">
+          &#9646; 이케아 별도 표기 (Tier C &#8212; 종합가구, 스케일 분리)
+        </p>
+        <div id="chart-google-rank-ikea" style="min-height:80px;"></div>
+      </div>
       <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends · 수집: 2026-08-18T02:54:53+09:00 · 기준: 시몬스=100 · N=3회 수집</div>
     </div>
     <div class="card" id="section-naver-rank">
@@ -929,51 +936,100 @@ function calcBarChartHeight(n) {
 }
 /* ── 막대 차트 높이 동적 계산 끝 ──────────────────────── */
 
-// 1. 구글 순위 바차트
+// 1. 구글 순위 바차트 (이케아 별도 패널 분리)
 function renderGoogleRank() {
   const norm = RAW.google?.normalized || {};
-  let entries = Object.entries(norm);
-  entries = _filterByTier(entries);
-  const sorted = entries.sort((a,b)=>b[1]-a[1]);
-  if (!sorted.length) return;
-  const chartDom = document.getElementById('chart-google-rank');
-  const h = calcBarChartHeight(sorted.length);
-  chartDom.style.height = h + 'px';
-  const chart = echarts.init(chartDom);
-  const vals = sorted.map(x=>x[1]).filter(v=>v!=null);
-  const brandNames = sorted.map(x=>x[0]);
-  const dataMax = vals.length ? Math.max(...vals) : 100;
-  const xOpt = axisOption(dataMax, '', 5);
-  const lm = leftMargin(brandNames);
-  chart.setOption({
-    grid:{left:lm,right:100,top:TOP_PAD,bottom:AXIS_AREA,containLabel:false},
-    xAxis:xOpt,
-    yAxis:{type:'category',data:brandNames,axisLabel:{fontSize:12,margin:8},axisTick:{alignWithLabel:true},boundaryGap:true},
-    series:[{
-      type:'bar',
-      barMaxWidth:BAR_HEIGHT,
-      data:sorted.map(x=>{
-        const isBase = x[0]==='시몬스';
-        const tier = BRAND_TO_TIER[x[0]];
-        const isCautionTier = tier === 'C' || tier === 'D';
-        return {
-          value:x[1],
-          itemStyle:{
-            color:COLORS[x[0]]||'#888',
-            opacity: isBase ? 1 : (isCautionTier ? 0.45 : 0.75),
-            borderColor: isBase ? '#c8a96e' : 'transparent',
-            borderWidth: isBase ? 2 : 0
+  if (!Object.keys(norm).length) return;
+
+  // 이케아 키 탐색
+  const IKEA_KEY = Object.keys(norm).find(k => k.includes('이케아') || k.includes('IKEA')) || null;
+
+  // 티어 필터 적용 후 이케아 제외
+  let allEntries = Object.entries(norm);
+  allEntries = _filterByTier(allEntries);
+  const mainEntries = allEntries
+    .filter(([b]) => b !== IKEA_KEY)
+    .sort(([,a],[,b]) => a - b);  // 오름차순 (ECharts 가로막대: 아래→위)
+
+  const ikeaVal = IKEA_KEY ? norm[IKEA_KEY] : null;
+  const simonVal = norm['시몬스'] || 100;
+
+  // ── 메인 차트 (이케아 제외) ──────────────────────────
+  const mainDom = document.getElementById('chart-google-rank');
+  if (mainDom && mainEntries.length) {
+    const brands = mainEntries.map(([b]) => b);
+    const vals   = mainEntries.map(([,v]) => v);
+    const dataMax = Math.max(...vals);
+
+    const h = calcBarChartHeight(brands.length);
+    mainDom.style.height = h + 'px';
+    const mainChart = echarts.getInstanceByDom(mainDom) || echarts.init(mainDom);
+
+    const lm = leftMargin(brands);
+    mainChart.setOption({
+      grid: { left: lm, right: 110, top: TOP_PAD, bottom: AXIS_AREA, containLabel: false },
+      xAxis: axisOption(dataMax, '', 5),
+      yAxis: {
+        type: 'category',
+        data: brands,
+        axisLabel: {
+          fontSize: 12,
+          margin: 8,
+          formatter: b => b === '시몬스' ? '{highlight|' + b + '}' : b,
+          rich: { highlight: { fontWeight: 'bold', color: '#e53935' } }
+        },
+        axisTick: { alignWithLabel: true },
+        boundaryGap: true
+      },
+      series: [{
+        type: 'bar',
+        barMaxWidth: BAR_HEIGHT,
+        data: brands.map((b, i) => ({
+          value: vals[i],
+          itemStyle: {
+            color: b === '시몬스' ? '#e53935' : (COLORS[b] || '#3498db'),
+            opacity: b === '시몬스' ? 1 : ((BRAND_TO_TIER[b] === 'C' || BRAND_TO_TIER[b] === 'D') ? 0.45 : 0.75),
+            borderColor: b === '시몬스' ? '#c8a96e' : 'transparent',
+            borderWidth: b === '시몬스' ? 2 : 0
           }
-        };
-      }),
-      label:{show:true,position:'right',fontSize:11,formatter:p=>p.value}
+        })),
+        label: { show: true, position: 'right', fontSize: 11,
+                  formatter: p => typeof p.value === 'number' ? p.value.toFixed(1) : p.value }
+      }],
+      tooltip: { trigger: 'axis', formatter: p => {
+        const t = BRAND_TO_TIER[p[0].name] || '?';
+        return `${p[0].name} [Tier ${t}]<br>${p[0].value} (시몬스=100)`;
+      } }
+    });
+    setTimeout(() => checkOverlap(mainDom, 'GoogleRank'), 300);
+  }
+
+  // ── 이케아 별도 패널 ─────────────────────────────────
+  const ikeaDom = document.getElementById('chart-google-rank-ikea');
+  if (!ikeaDom || !IKEA_KEY || !ikeaVal) return;
+
+  ikeaDom.style.height = '100px';
+  const ikeaChart = echarts.getInstanceByDom(ikeaDom) || echarts.init(ikeaDom);
+
+  ikeaChart.setOption({
+    grid: { left: leftMargin(['이케아', '시몬스(기준)']), right: 110, top: 8, bottom: 30, containLabel: false },
+    xAxis: { type: 'value', min: 0, max: Math.ceil(ikeaVal * 1.1 / 100) * 100,
+              axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'category', data: ['시몬스(기준)', IKEA_KEY],
+              axisLabel: { fontSize: 11 }, boundaryGap: true },
+    series: [{
+      type: 'bar',
+      data: [
+        { value: simonVal, itemStyle: { color: '#e53935' } },
+        { value: ikeaVal,  itemStyle: { color: '#9b59b6' } }
+      ],
+      barMaxWidth: 22,
+      label: { show: true, position: 'right', fontSize: 11,
+                formatter: p => typeof p.value === 'number' ? p.value.toFixed(1) : p.value }
     }],
-    tooltip:{trigger:'axis',formatter:p=>{
-      const t = BRAND_TO_TIER[p[0].name] || '?';
-      return `${p[0].name} [Tier ${t}]<br>${p[0].value} (시몬스=100)`;
-    }}
+    tooltip: { trigger: 'axis', formatter: p =>
+      `${p[0].name}<br>${p[0].value.toFixed(1)} (시몬스=100)` }
   });
-  setTimeout(() => checkOverlap(chartDom, 'GoogleRank'), 300);
 }
 
 // 2. 네이버 순위 바차트
@@ -1767,7 +1823,7 @@ renderInsights();
 // ── C-2 캡션 삽입 끝 ──────────────────────────────────
 
 window.addEventListener('resize', ()=>{
-  ['chart-google-rank','chart-naver-rank','chart-monthly','chart-datalab',
+  ['chart-google-rank','chart-google-rank-ikea','chart-naver-rank','chart-monthly','chart-datalab',
    'chart-sos','chart-gap','chart-gender','chart-age','chart-sos-som']
   .forEach(id=>{const el=document.getElementById(id);if(el){const inst=echarts.getInstanceByDom(el);if(inst)inst.resize();}});
 });
