@@ -1,6 +1,197 @@
 import json
+import os
+from datetime import datetime, timedelta
 from brand_config import BRANDS, TIER_LABELS
 from analyzer.validator import overall_confidence_score
+
+_SNAP_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "snapshots")
+
+# KPI 방향성 정의 — True = 값이 높을수록 좋음, False = 낮을수록 좋음
+_KPI_DIRECTION = {
+    "sos":       True,   # SoS 높을수록 좋음
+    "g_rank":    False,  # 순위 낮을수록(1위) 좋음
+    "n_rank":    False,
+    "gap_to_top": False, # 1위와 격차 작을수록 좋음
+}
+
+
+def _compute_kpi(data):
+    """현재 월 KPI 계산 — 시몬스=100 기준"""
+    sos = data.get("sos", {})
+    google = data.get("google", {})
+    naver = data.get("naver", {})
+
+    sos_val = round(sos.get("시몬스", 0), 1)
+
+    # 구글 순위: linked 정렬
+    g_linked = google.get("linked", google.get("normalized", {}))
+    sorted_g = sorted(g_linked.items(), key=lambda x: x[1], reverse=True)
+    g_rank = next((i + 1 for i, (b, _) in enumerate(sorted_g) if b == "시몬스"), None)
+    g_top = sorted_g[0] if sorted_g else ("—", 0)
+    gap_to_top = round(g_top[1] - 100, 1) if g_top[0] != "시몬스" else 0.0
+
+    # 네이버 순위: normalized 정렬
+    n_norm = naver.get("normalized", {})
+    sorted_n = sorted(n_norm.items(), key=lambda x: x[1], reverse=True)
+    n_rank = next((i + 1 for i, (b, _) in enumerate(sorted_n) if b == "시몬스"), None)
+
+    return {
+        "sos": sos_val,
+        "g_rank": g_rank,
+        "n_rank": n_rank,
+        "g_top_brand": g_top[0],
+        "gap_to_top": gap_to_top,
+        "total_brands": len(sorted_g),
+    }
+
+
+def _load_prev_kpi(report_month):
+    """전월 KPI 스냅샷 로드. 없으면 None 반환."""
+    try:
+        # "2026년 08월" → datetime
+        parts = report_month.replace("년 ", "-").replace("월", "").strip()
+        cur = datetime.strptime(parts, "%Y-%m")
+        prev = (cur.replace(day=1) - timedelta(days=1))
+        key = prev.strftime("%Y_%m")
+    except Exception:
+        return None
+    path = os.path.join(_SNAP_DIR, f"{key}_kpi.json")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    return None
+
+
+def _save_monthly_kpi(kpi, report_month):
+    """이번 달 KPI를 YYYY_MM_kpi.json 으로 저장 (이미 있으면 건너뜀)."""
+    try:
+        parts = report_month.replace("년 ", "-").replace("월", "").strip()
+        cur = datetime.strptime(parts, "%Y-%m")
+        key = cur.strftime("%Y_%m")
+    except Exception:
+        return
+    path = os.path.join(_SNAP_DIR, f"{key}_kpi.json")
+    if not os.path.exists(path):
+        os.makedirs(_SNAP_DIR, exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(kpi, f, ensure_ascii=False, indent=2)
+
+
+def _delta_html(cur, prev, key, unit=""):
+    """전월비 델타 HTML 문자열. prev=None 이면 '—' 반환."""
+    if prev is None or key not in prev:
+        return '<span style="color:#999;">— <small>비교기준 없음</small></span>'
+    diff = round(cur[key] - prev[key], 1)
+    if diff == 0:
+        arrow, color = "→", "#888"
+    elif _KPI_DIRECTION.get(key, True):
+        arrow, color = ("▲", "#2e7d32") if diff > 0 else ("▼", "#c62828")
+    else:
+        arrow, color = ("▲", "#c62828") if diff > 0 else ("▼", "#2e7d32")
+    sign = "+" if diff > 0 else ""
+    return f'<span style="color:{color};font-weight:bold;">{arrow} {sign}{diff}{unit}</span>'
+
+
+def _build_kpi_strip(kpi, prev_kpi, total_brands):
+    """KPI 스트립 HTML 생성"""
+    d = lambda k, u="": _delta_html(kpi, prev_kpi, k, u)
+
+    cards = [
+        ("Share of Search", f"{kpi['sos']}%", d("sos", "%p"),
+         "브랜드별 구글 검색 점유율 합산 기준"),
+        ("구글 검색 순위", f"{kpi['g_rank']}위 / {total_brands}",
+         d("g_rank", "위"), "Google Trends 정규화 지수 기준"),
+        ("네이버 노출 순위", f"{kpi['n_rank']}위 / {total_brands}",
+         d("n_rank", "위"), "블로그+뉴스 건수 기준"),
+        ("1위 브랜드 대비 갭", f"-{kpi['gap_to_top']}pt",
+         d("gap_to_top", "pt"), f"vs {kpi['g_top_brand']} (구글 지수 기준)"),
+    ]
+
+    items = ""
+    for title, val, delta, note in cards:
+        items += f"""
+      <div class="kpi-card">
+        <div class="kpi-label">{title}</div>
+        <div class="kpi-value">{val}</div>
+        <div class="kpi-delta">{delta}</div>
+        <div class="kpi-note">{note}</div>
+      </div>"""
+
+    footnote = "" if prev_kpi else \
+        '<div style="font-size:10px;color:#999;margin-top:8px;text-align:right;">※ 전월 스냅샷 없음 — 비교 기준월 데이터 축적 후 전월비 표시</div>'
+
+    return f'<div class="kpi-strip">{items}</div>{footnote}'
+
+
+def _build_action_table(data, kpi):
+    """권고 액션 테이블 — 실제 데이터 근거 기반 자동 생성"""
+    sos_val = kpi["sos"]
+    g_rank = kpi["g_rank"]
+
+    # 데이터 기반 액션 자동 생성
+    actions = []
+
+    if g_rank and g_rank > 2:
+        actions.append((
+            f"구글 검색 지수 상위 2위권 진입 전략 수립 (현재 {g_rank}위)",
+            '<a href="#section-rank">구글 검색 지수 순위</a>',
+            "브랜드팀", "2026 Q4", "높음"
+        ))
+
+    demo = data.get("demographics", {})
+    simmons_demo = demo.get("시몬스", {})
+    age = simmons_demo.get("age", {})
+    young = round((age.get("20대", 0) + age.get("30대", 0)), 1)
+    if young < 30:
+        actions.append((
+            f"20~30대 검색 비중 제고 (현재 {young}%, 에이스침대 대비 저조)",
+            '<a href="#section-demo">연령대별 검색 관심도</a>',
+            "마케팅팀", "2026 Q4", "높음"
+        ))
+
+    naver_data = data.get("naver", {})
+    naver_norm = naver_data.get("normalized", {})
+    ace_naver = naver_norm.get("에이스침대", 0)
+    if ace_naver > 100:
+        actions.append((
+            f"네이버 콘텐츠 발행량 확대 (에이스침대 대비 {round(ace_naver-100,1)}pt 낮음)",
+            '<a href="#section-naver-rank">네이버 콘텐츠 노출량</a>',
+            "디지털마케팅팀", "2026 Q3", "중간"
+        ))
+
+    if sos_val < 10:
+        actions.append((
+            f"Share of Search 10% 목표 설정 (현재 {sos_val}%)",
+            '<a href="#section-sos">Share of Search</a>',
+            "브랜드팀", "2027 Q1", "중간"
+        ))
+
+    actions.append((
+        "네이버 쿠키 만료 전 갱신 (3개월 주기 정기 점검)",
+        '<a href="#section-cv">데이터 신뢰도 상세</a>',
+        "CS팀", "3개월 주기", "낮음"
+    ))
+
+    rows = ""
+    priority_color = {"높음": "#c62828", "중간": "#e65100", "낮음": "#2e7d32"}
+    for rec, ref, owner, deadline, priority in actions:
+        pc = priority_color.get(priority, "#888")
+        rows += f"""
+        <tr>
+          <td>{rec}</td>
+          <td>{ref}</td>
+          <td>{owner}</td>
+          <td>{deadline}</td>
+          <td><span style="color:{pc};font-weight:bold;">{priority}</span></td>
+        </tr>"""
+
+    return f"""
+    <table class="data-table">
+      <thead><tr>
+        <th>제언</th><th>근거 지표</th><th>담당</th><th>기한</th><th>우선순위</th>
+      </tr></thead>
+      <tbody>{rows}</tbody>
+    </table>"""
 
 
 def _color(name):
@@ -23,6 +214,14 @@ def build_dashboard(data, report_month, collected_at, confidence_score):
 
     conf_color = "#2e7d32" if confidence_score >= 70 else "#e65100" if confidence_score >= 40 else "#c62828"
     conf_label = "안정" if confidence_score >= 70 else "주의" if confidence_score >= 40 else "불안정"
+
+    # KPI 계산 및 전월 비교
+    kpi = _compute_kpi(data)
+    prev_kpi = _load_prev_kpi(report_month)
+    _save_monthly_kpi(kpi, report_month)
+    total_brands = kpi.get("total_brands", 11)
+    kpi_strip_html = _build_kpi_strip(kpi, prev_kpi, total_brands)
+    action_table_html = _build_action_table(data, kpi)
 
     html = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -49,7 +248,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
   background:{conf_color};color:#fff;
 }}
 
-/* 레이아웃 */
+/* 레이아웃 — 사이드바 + main 2열 */
 #layout{{display:flex;height:calc(100vh - 52px);}}
 
 /* 좌측 사이드바 */
@@ -90,13 +289,47 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 /* 중앙 차트 영역 */
 #main{{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;}}
 
-/* 우측 인사이트 패널 */
-#insight-panel{{
-  width:280px;min-width:280px;background:#fff;
-  border-left:1px solid #e0e0e0;overflow-y:auto;padding:16px;
+/* KPI 스트립 */
+.kpi-strip{{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+  margin-bottom:0;
 }}
-#insight-panel h3{{font-size:13px;font-weight:bold;color:#0b0b0b;
-                   border-left:3px solid #c8a96e;padding-left:8px;margin-bottom:12px;}}
+.kpi-card{{
+  background:#fff;border-radius:8px;border:1px solid #e0e0e0;
+  padding:14px 16px;border-top:3px solid #c8a96e;
+}}
+.kpi-label{{font-size:11px;color:#666;font-weight:600;text-transform:uppercase;
+            letter-spacing:0.5px;margin-bottom:6px;}}
+.kpi-value{{font-size:22px;font-weight:bold;color:#0b0b0b;margin-bottom:4px;}}
+.kpi-delta{{font-size:13px;margin-bottom:4px;}}
+.kpi-note{{font-size:10px;color:#aaa;}}
+
+/* 섹션 구분선 */
+.section-divider{{
+  display:flex;align-items:center;gap:12px;margin:8px 0;
+  color:#888;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+}}
+.section-divider::before,.section-divider::after{{
+  content:'';flex:1;height:1px;background:#e0e0e0;
+}}
+
+/* 요약 카드 그리드 */
+.summary-grid{{display:grid;grid-template-columns:1fr 2fr;gap:16px;}}
+.summary-col{{display:flex;flex-direction:column;gap:12px;}}
+
+/* 인사이트 아이템 */
+.insight-item{{
+  padding:10px;border-radius:6px;background:#f9f9f9;
+  margin-bottom:8px;font-size:12px;line-height:1.6;
+}}
+.insight-item.warn{{background:#fff3e0;border-left:3px solid #e65100;}}
+.insight-item.good{{background:#e8f5e9;border-left:3px solid #2e7d32;}}
+
+/* 섹션 타이틀 */
+.section-title{{
+  font-size:13px;font-weight:bold;color:#0b0b0b;
+  border-left:3px solid #c8a96e;padding-left:8px;margin-bottom:12px;
+}}
 
 /* 차트 카드 */
 .chart-row{{display:grid;gap:16px;}}
@@ -112,14 +345,6 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 .badge-google{{background:#e8f5e9;color:#2e7d32;}}
 .badge-naver{{background:#e3f2fd;color:#1565c0;}}
 .badge-no-demo{{background:#fff3e0;color:#e65100;}}
-
-/* 인사이트 아이템 */
-.insight-item{{
-  padding:10px;border-radius:6px;background:#f9f9f9;
-  margin-bottom:8px;font-size:12px;line-height:1.6;
-}}
-.insight-item.warn{{background:#fff3e0;border-left:3px solid #e65100;}}
-.insight-item.good{{background:#e8f5e9;border-left:3px solid #2e7d32;}}
 
 /* CV 신뢰도 색상 */
 .cv-stable{{color:#2e7d32;font-weight:bold;}}
@@ -139,10 +364,13 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 
 /* 인쇄 */
 @media print {{
-  #top-header,#sidebar,#insight-panel{{display:none;}}
+  #top-header,#sidebar{{display:none;}}
   #layout{{height:auto;}}
-  #main{{overflow:visible;}}
+  #main{{overflow:visible;padding:0;}}
   .card{{break-inside:avoid;}}
+  .kpi-strip{{break-inside:avoid;}}
+  .no-print{{display:none;}}
+  h2{{break-after:avoid;}}
 }}
 </style>
 </head>
@@ -175,11 +403,81 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
   <button class="filter-btn" onclick="window.print()">인쇄 / PDF</button>
 </div>
 
-<!-- 중앙 차트 -->
+<!-- 메인 콘텐츠 (결론 우선 → 근거 데이터) -->
 <div id="main">
 
-  <!-- Row 1: 구글 순위 + 네이버 순위 -->
-  <div class="chart-row col2">
+  <!-- ① KPI 요약 스트립 (T1-2) -->
+  <div class="chart-row">
+    {kpi_strip_html}
+  </div>
+
+  <!-- ② 핵심 시사점 + 시몬스 포지셔닝 + 주요 발견 (T1-1, T1-4) -->
+  <div class="chart-row">
+    <div class="summary-grid">
+      <div class="card">
+        <div class="section-title">주요 시사점</div>
+        <div id="insight-commentary" style="font-size:12px;line-height:1.7;color:#333;"></div>
+        <div style="margin-top:16px;padding-top:10px;border-top:1px solid #eee;
+                    font-size:11px;color:#999;">
+          작성: 자동 생성 / 검수: ______
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="card">
+          <div class="section-title">시몬스 포지셔닝</div>
+          <div id="insight-simmons"></div>
+        </div>
+        <div class="card">
+          <div class="section-title">주요 발견</div>
+          <div id="insight-findings"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 이번 달 변화점 (T1-1) -->
+  <div class="chart-row">
+    <div class="card">
+      <div class="section-title">이번 달 변화점</div>
+      <div id="insight-changes"
+           style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
+      </div>
+    </div>
+  </div>
+
+  <!-- ④ 권고 액션 테이블 (T1-5) -->
+  <div class="chart-row" id="section-action">
+    <div class="card" style="border-top:3px solid #0b0b0b;">
+      <div class="card-title">권고 액션
+        <span style="font-size:11px;font-weight:normal;color:#888;margin-left:6px;">
+          근거 지표 클릭 → 해당 섹션으로 이동
+        </span>
+      </div>
+      {action_table_html}
+    </div>
+  </div>
+
+  <!-- 근거 데이터 구분선 -->
+  <div class="section-divider">근거 데이터</div>
+
+  <!-- ⑤ Share of Search (T1-3 순서 앞으로) -->
+  <div class="chart-row col2" id="section-sos">
+    <div class="card">
+      <div class="card-title">Share of Search
+        <span class="source-badge badge-google">Google Trends</span>
+      </div>
+      <div class="card-sub">브랜드별 구글 검색 점유율 (%) · SoS = 브랜드 지수 ÷ 전체 합계 × 100</div>
+      <div id="chart-sos" style="height:320px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">구글 vs 네이버 갭 분석</div>
+      <div class="card-sub">네이버 지수 − 구글 지수 (양수=네이버 강세 / 음수=구글 강세)</div>
+      <div id="chart-gap" style="height:320px;"></div>
+    </div>
+  </div>
+
+  <!-- ⑥ 구글 순위 + 네이버 콘텐츠 노출량 (T1-4 라벨 변경) -->
+  <div class="chart-row col2" id="section-rank">
     <div class="card">
       <div class="card-title">구글 검색 지수 순위
         <span class="source-badge badge-google">Google Trends</span>
@@ -187,27 +485,30 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       <div class="card-sub" id="sub-google-rank">시몬스=100 기준 · 최근 3개월 한국</div>
       <div id="chart-google-rank" style="height:420px;"></div>
     </div>
-    <div class="card">
-      <div class="card-title">네이버 관심도 순위
+    <div class="card" id="section-naver-rank">
+      <div class="card-title">네이버 콘텐츠 노출량
         <span class="source-badge badge-naver">Naver Search</span>
       </div>
       <div class="card-sub" id="sub-naver-rank">시몬스=100 기준 · 블로그+뉴스 건수</div>
-      <div id="chart-naver-rank" style="height:420px;"></div>
+      <div id="chart-naver-rank" style="height:380px;"></div>
+      <div style="font-size:10px;color:#999;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0;">
+        ※ 검색 수요가 아닌 콘텐츠 발행량 지표. 브랜드 자체 마케팅 활동량이 반영됨.
+      </div>
     </div>
   </div>
 
-  <!-- Row 2: 월별 추이 -->
+  <!-- ⑦ 월별 추이 -->
   <div class="chart-row">
     <div class="card">
       <div class="card-title">월별 검색 트렌드 추이
         <span class="source-badge badge-google">Google Trends</span>
       </div>
-      <div class="card-sub">주요 브랜드 · 음영은 신뢰구간(CV)</div>
+      <div class="card-sub">주요 브랜드 · 음영은 신뢰구간(CV) · 출처: Google Trends · 기준: 시몬스=100</div>
       <div id="chart-monthly" style="height:420px;"></div>
     </div>
   </div>
 
-  <!-- Row 2b: DataLab 트렌드 (§12, API 수집 시 표시) -->
+  <!-- DataLab 트렌드 (§12, API 수집 시 표시) -->
   <div class="chart-row" id="datalab-row" style="display:none;">
     <div class="card">
       <div class="card-title">네이버 데이터랩 검색어트렌드
@@ -218,22 +519,8 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
     </div>
   </div>
 
-  <!-- Row 3: Share of Search + 갭 분석 -->
-  <div class="chart-row col2">
-    <div class="card">
-      <div class="card-title">Share of Search</div>
-      <div class="card-sub">브랜드별 검색 점유율 (%)</div>
-      <div id="chart-sos" style="height:320px;"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">구글 vs 네이버 갭 분석</div>
-      <div class="card-sub">플랫폼 간 순위 차이 — 차이 클수록 전략 검토 필요</div>
-      <div id="chart-gap" style="height:320px;"></div>
-    </div>
-  </div>
-
-  <!-- Row 4: 인구통계 -->
-  <div class="chart-row col2">
+  <!-- ⑧ 성별 / 연령대 (T1-3 MoM 컬럼은 데이터 축적 후 추가) -->
+  <div class="chart-row col2" id="section-demo">
     <div class="card">
       <div class="card-title">성별 검색 관심도
         <span class="source-badge badge-naver">Naver DataLab</span>
@@ -250,122 +537,29 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
     </div>
   </div>
 
-  <!-- Row 5: 신뢰도 테이블 -->
-  <div class="chart-row">
-    <div class="card">
-      <div class="card-title">데이터 신뢰도 상세 (CV 분석)</div>
-      <div class="card-sub">CV≤0.05 안정(녹) · CV≤0.15 주의(주황) · CV>0.15 불안정(빨강)</div>
-      <div id="cv-table"></div>
-    </div>
-  </div>
-
-  <!-- Row 6: DART 매출 (§13, API 수집 시 표시) -->
+  <!-- ⑨ DART 매출 (§13, 수집 시 표시) -->
   <div class="chart-row" id="dart-row" style="display:none;">
     <div class="card">
-      <div class="card-title">공시 매출 현황 (DART OpenAPI)</div>
+      <div class="card-title">공시 매출 현황
+        <span class="source-badge" style="background:#f3e5f5;color:#6a1b9a;">네이버 증권</span>
+      </div>
       <div class="card-sub">⚠ 종합가구(한샘·현대리바트·일룸)·렌탈(코웨이) 브랜드는 침대 외 사업 포함 — 직접 비교 주의</div>
       <div id="dart-table"></div>
     </div>
   </div>
 
-  <!-- Row 7: 전략 시사점 -->
-  <div class="chart-row">
-    <div class="card" style="border-top:3px solid #c8a96e;">
-      <div class="card-title" style="font-size:15px;margin-bottom:2px;">전략 시사점 — {report_month}</div>
-      <div class="card-sub" style="margin-bottom:20px;">Google Trends · Naver DataLab · 블로그/뉴스 언급량 기반 종합 분석</div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-
-        <div>
-          <div style="font-size:13px;font-weight:bold;color:#0b0b0b;border-left:4px solid #c8a96e;padding-left:10px;margin-bottom:12px;">
-            시몬스 현재 포지셔닝
-          </div>
-          <div style="background:#fafafa;border-radius:6px;padding:14px;margin-bottom:10px;font-size:12px;line-height:1.8;">
-            <b>구글-네이버 갭 0</b> — 조사 대상 11개 브랜드 중 유일하게 두 플랫폼 지수가 완벽히 일치.
-            검색 관심이 실제 구매 고려로 전환되는 효율적 구조를 갖춘 유일한 브랜드.
-          </div>
-          <div style="background:#fafafa;border-radius:6px;padding:14px;margin-bottom:10px;font-size:12px;line-height:1.8;">
-            <b>주력 고객층: 40~50대 여성</b><br>
-            40대 29.2% · 50대 31.2% → 합산 60.4%가 중장년층.<br>
-            여성 관심도 40.7% vs 남성 7.0% — 여성 주도 구매 결정 구조.
-          </div>
-          <div style="background:#fafafa;border-radius:6px;padding:14px;font-size:12px;line-height:1.8;">
-            <b>네이버 블로그/뉴스 약 15.6만 건</b> — 이케아·에이스침대에 이어 3위권 유지.
-            매트리스 전업 브랜드 중 콘텐츠 볼륨 1위.
-          </div>
-        </div>
-
-        <div>
-          <div style="font-size:13px;font-weight:bold;color:#0b0b0b;border-left:4px solid #e65100;padding-left:10px;margin-bottom:12px;">
-            주요 발견 · 변환점
-          </div>
-          <div style="background:#fff3e0;border-left:3px solid #e65100;border-radius:0 6px 6px 0;padding:14px;margin-bottom:10px;font-size:12px;line-height:1.8;">
-            <b>젊은층 이탈 신호</b><br>
-            시몬스 20대 5.2% · 30대 19.0% → 합산 24.2%.<br>
-            에이스침대 동일 연령대(20대 52.5% · 30대 56.3%)와 큰 격차.<br>
-            현재 주구매층(40~50대) 고령화 시 10년 내 수요 공백 발생 가능.
-          </div>
-          <div style="background:#fff3e0;border-left:3px solid #e65100;border-radius:0 6px 6px 0;padding:14px;margin-bottom:10px;font-size:12px;line-height:1.8;">
-            <b>에이스침대 전 연령 균형 확보 중</b><br>
-            10대~60대+ 전 연령대에서 50% 내외 점유율 유지.<br>
-            시몬스의 가장 직접적인 매트리스 경쟁 위협.
-          </div>
-          <div style="background:#e8f5e9;border-left:3px solid #2e7d32;border-radius:0 6px 6px 0;padding:14px;font-size:12px;line-height:1.8;">
-            <b>프리미엄 포지션 유지</b><br>
-            구글 지수 100으로 에이스침대(34.2)·씰리침대(2.6) 대비 압도적 인지도.<br>
-            브랜드 희소성 전략이 검색량에 정상 반영.
-          </div>
-        </div>
-
+  <!-- ⑩ 부록: 데이터 신뢰도 상세 (T3-1 준비, 현재는 CV 테이블) -->
+  <div class="chart-row" id="section-cv">
+    <div class="card">
+      <div class="card-title">부록 — 데이터 신뢰도 상세 (CV 분석)</div>
+      <div class="card-sub">CV≤0.05 안정(녹) · CV≤0.15 주의(주황) · CV>0.15 불안정(빨강)
+        · 출처: Naver Search API · 기준: 3회 반복 수집 중앙값
       </div>
-
-      <div style="margin-top:20px;">
-        <div style="font-size:13px;font-weight:bold;color:#0b0b0b;border-left:4px solid #888;padding-left:10px;margin-bottom:12px;">
-          타사 동향 요약
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;font-size:11px;line-height:1.7;">
-          <div style="background:#f5f5f5;border-radius:6px;padding:12px;">
-            <b>이케아</b><br>
-            구글 735.7 · 네이버 갭 –602.5<br>
-            인지도는 압도적이나 구매 전환 콘텐츠 취약. 국내 침대 카테고리 직접 경쟁 구도 제한적.
-          </div>
-          <div style="background:#f5f5f5;border-radius:6px;padding:12px;">
-            <b>에이스침대</b><br>
-            구글 34.2 · 네이버 갭 +81.5 · 매출 3,173억<br>
-            온라인 마케팅 강화 중. 전 연령 고른 검색 점유 — 시몬스와 가장 직접 경쟁.
-          </div>
-          <div style="background:#f5f5f5;border-radius:6px;padding:12px;">
-            <b>한샘</b><br>
-            구글 224.1 · 여성·젊은층 중심<br>
-            20~30대 여성 인테리어 연관 검색 강세. 종합 가구 브랜드로 포지셔닝.
-          </div>
-          <div style="background:#f5f5f5;border-radius:6px;padding:12px;">
-            <b>지누스</b><br>
-            구글 39.5 · 매출 9,132억<br>
-            국내 브랜드 인지는 낮으나 글로벌 온라인 중심 성장. 가성비 매트리스 시장 주도.
-          </div>
-        </div>
-      </div>
-
+      <div id="cv-table"></div>
     </div>
   </div>
 
 </div><!-- /main -->
-
-<!-- 우측 인사이트 패널 -->
-<div id="insight-panel">
-  <h3>AI 임원 브리핑</h3>
-  <div id="insight-commentary"></div>
-
-  <h3 style="margin-top:16px;">시몬스 포지셔닝</h3>
-  <div id="insight-simmons"></div>
-
-  <h3 style="margin-top:16px;">주요 발견</h3>
-  <div id="insight-findings"></div>
-
-  <h3 style="margin-top:16px;">변화점</h3>
-  <div id="insight-changes"></div>
-</div>
 
 </div><!-- /layout -->
 
