@@ -1,0 +1,43 @@
+# 시몬스 브랜드 트렌드 대시보드 — 경쟁군 티어 정의
+# 이 파일을 수정하면 모든 차트의 티어 경고와 필터에 반영됩니다.
+# brand_config.py 의 TIER_NEW 와 동기화 유지 필요.
+
+tiers:
+  A:
+    label: "Tier A — 프리미엄 매트리스 전문"
+    warning: null
+    caution_in_search: false
+    caution_in_sales: false
+    brands:
+      - 시몬스
+      - 씰리침대
+
+  B:
+    label: "Tier B — 매스 침대"
+    warning: null
+    caution_in_search: false
+    caution_in_sales: false
+    brands:
+      - 에이스침대
+      - 에몬스
+      - 지누스
+
+  C:
+    label: "Tier C — 종합가구 (침대 외 사업 포함)"
+    warning: "검색 지수에 가구·인테리어·리모델링 수요 혼재 가능. 침대 전문 브랜드와 직접 비교 주의."
+    caution_in_search: true
+    caution_in_sales: true
+    brands:
+      - 한샘
+      - 현대리바트
+      - 까사미아
+      - 일룸
+      - 이케아
+
+  D:
+    label: "Tier D — 렌탈"
+    warning: "렌탈 사업 모델로 검색·매출 구조가 상이함. 직접 비교 주의."
+    caution_in_search: true
+    caution_in_sales: true
+    brands:
+      - 코웨이 비렉스

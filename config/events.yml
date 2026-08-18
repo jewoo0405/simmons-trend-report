@@ -1,0 +1,30 @@
+# 시몬스 브랜드 트렌드 대시보드 — 이벤트 마커 정의
+# 월별 추이 차트에 수직선 + 라벨로 표시됩니다.
+# scripts/detect_events.py 로 급등/급락 자동 탐지 후 이 파일에 추가하세요.
+#
+# type 종류:
+#   campaign   — 광고/마케팅 캠페인 집행
+#   product    — 신제품/라인업 출시
+#   issue      — 이슈/리콜/부정 사건
+#   competitor — 경쟁사 주요 이벤트
+#   auto_detected — 스크립트 자동 탐지 (사람 확인 전)
+#
+# source 종류:
+#   내부 — 시몬스 내부 자료
+#   뉴스  — 뉴스 기사 기반
+#   추정  — 검색량 급등 구간에서 추정
+
+events: []
+
+# 예시 (주석 해제 후 사용):
+# events:
+#   - date: 2026-05-01
+#     brand: 시몬스
+#     type: campaign
+#     label: "신제품 캠페인 온에어"
+#     source: 내부
+#   - date: 2026-06-15
+#     brand: 에이스침대
+#     type: competitor
+#     label: "에이스침대 여름 프로모션"
+#     source: 뉴스
