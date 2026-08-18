@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime, timedelta
-from brand_config import BRANDS, TIER_LABELS, TIER_NEW, BRAND_TO_TIER_NEW, KEYWORD_GROUPS
+from brand_config import BRANDS, TIER_LABELS, TIER_NEW, BRAND_TO_TIER_NEW, KEYWORD_GROUPS, KEYWORD_VERSION
 from analyzer.validator import overall_confidence_score
 
 _SNAP_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "snapshots")
@@ -246,7 +246,29 @@ def _caption(source, collected_at, n=""):
 
 def _build_appendix(collected_at):
     """부록 섹션 HTML 생성 (T3-1)"""
-    # ① 키워드 그룹 정의 테이블
+    keyword_version = KEYWORD_VERSION  # 버전 문자열 로컬 바인딩 (f-string 에서 사용)
+    # ① 키워드 그룹 정의 테이블 (v2 확장 포함)
+    # v1 기준 초기 키워드 세트 — v2에서 추가된 항목 표시용
+    _v1_keywords = {
+        "시몬스":       {"시몬스", "시몬스침대", "시몬스 침대", "시몬스 매트리스", "SIMMONS", "뷰티레스트"},
+        "에이스침대":   {"에이스침대", "에이스 침대", "에이스 매트리스", "ACE침대"},
+        "씰리침대":     {"씰리침대", "씰리 침대", "씰리 매트리스", "SEALY"},
+        "지누스":       {"지누스", "지누스 매트리스", "Zinus"},
+        "코웨이 비렉스":{"코웨이 비렉스", "비렉스", "코웨이 매트리스"},
+        "한샘":         {"한샘 침대", "한샘 매트리스"},
+        "현대리바트":   {"현대리바트 침대", "리바트 침대", "리바트 매트리스"},
+        "까사미아":     {"까사미아 침대", "까사미아 매트리스"},
+        "일룸":         {"일룸 침대", "일룸 매트리스"},
+        "에몬스":       {"에몬스", "에몬스 가구", "에몬스 침대"},
+        "이케아":       {"이케아 침대", "이케아 매트리스"},
+    }
+    # 제외된 키워드 (동음이의 위험)
+    _excluded = {
+        "에이스침대": ["에이스 (단독) — 에이스 크래커·스포츠 용어·인명 등 동음이의 위험",
+                      "ACE (단독) — ACE 억제제·학원명 등 노이즈 위험"],
+        "한샘":       ["HANSEM — IT회사 한샘과 혼동 가능 (위험도 중간, 수집 후 노이즈 검토 필요)"],
+    }
+
     kw_rows = ""
     for brand, kws in KEYWORD_GROUPS.items():
         forbidden_note = ""
@@ -255,10 +277,31 @@ def _build_appendix(collected_at):
         elif brand == "이케아":
             forbidden_note = ' <span style="color:#e65100;font-size:10px;">※ \'이케아\' 단독 금지</span>'
         weight = "bold" if brand == "시몬스" else "normal"
+
+        v1_set = _v1_keywords.get(brand, set())
+        kw_parts = []
+        for kw in kws:
+            if kw not in v1_set:
+                kw_parts.append(f'<code style="background:#e8f5e9;color:#2e7d32;">{kw}</code>'
+                                 f'<sup style="color:#2e7d32;font-size:9px;">신규(v2)</sup>')
+            else:
+                kw_parts.append(f'<code>{kw}</code>')
+        kw_str = ' / '.join(kw_parts)
+
+        exc = _excluded.get(brand, [])
+        exc_str = ""
+        if exc:
+            exc_items = "".join(
+                f'<div style="color:#e74c3c;font-size:10px;"><s>{e}</s> '
+                f'<span style="color:#888;">(제외 — 동음이의 위험)</span></div>'
+                for e in exc
+            )
+            exc_str = f'<div style="margin-top:4px;">{exc_items}</div>'
+
         kw_rows += f"""
         <tr>
           <td style="font-weight:{weight}">{brand}{forbidden_note}</td>
-          <td>{' / '.join(kws)}</td>
+          <td>{kw_str}{exc_str}</td>
         </tr>"""
 
     # ② 동음이의어 처리 내역
@@ -272,6 +315,11 @@ def _build_appendix(collected_at):
           <td>이케아</td>
           <td>단독 사용 금지</td>
           <td>'이케아' 단독은 가구 전반 수요 혼재. 반드시 '이케아 침대', '이케아 매트리스' 등 복합어 사용</td>
+        </tr>
+        <tr>
+          <td>에이스침대</td>
+          <td>단독어 제외</td>
+          <td>'에이스' 단독 — 에이스 크래커·스포츠 용어·인명 등 동음이의 위험 높음. 'ACE' 단독 — ACE 억제제·학원명 등 노이즈 위험. 조합형(에이스침대·에이스 매트리스·ACE침대)만 허용.</td>
         </tr>"""
 
     # ③ 지표 산출식
@@ -321,11 +369,18 @@ def _build_appendix(collected_at):
 
       <!-- ① 키워드 그룹 정의 -->
       <div class="section-title" style="margin-top:16px;">① 키워드 그룹 정의 (Naver DataLab 수집 기준)</div>
-      <div style="margin-bottom:12px;font-size:11px;color:#666;">브랜드별 표기 변형을 통합한 키워드 그룹. 동일 그룹 내 키워드는 OR 조건으로 합산.</div>
+      <h4 style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px;">키워드 그룹 정의 (v{keyword_version})</h4>
+      <p style="font-size:11px;color:#e67e22;margin-bottom:8px;">
+        ⚠ 키워드 정의 변경됨 (2026-08-v2) — 다음 수집분부터 반영
+      </p>
+      <div style="margin-bottom:12px;font-size:11px;color:#666;">브랜드별 표기 변형을 통합한 키워드 그룹. 동일 그룹 내 키워드는 OR 조건으로 합산.
+      <span style="color:#2e7d32;">■ 초록 배경 = 신규 추가 (v2)</span>&nbsp;&nbsp;
+      <span style="color:#e74c3c;"><s>취소선</s> = 제외 (동음이의 위험)</span>
+      </div>
       <table class="data-table" style="margin-bottom:20px;">
         <thead><tr>
           <th style="width:130px;">브랜드</th>
-          <th>수집 키워드</th>
+          <th>수집 키워드 / 제외 키워드</th>
         </tr></thead>
         <tbody>{kw_rows}
         </tbody>

@@ -31,6 +31,7 @@ from collector.commentary import generate_commentary
 from analyzer.validator import overall_confidence_score
 from analyzer.stats import share_of_search, detect_change_points, naver_google_gap
 from builder.dashboard import build_dashboard
+from brand_config import KEYWORD_VERSION
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "output")
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
@@ -113,6 +114,7 @@ def build_snapshot_payload(run_id, collected_at, google_data, naver_data,
         "naver_search": naver_search,
         "dart": dart_data or {},
         "gap": gap,
+        "keyword_version": KEYWORD_VERSION,  # 이 수집에 사용된 키워드 버전
         "quality": {
             "cv": cv_map,
             "confidence_score": conf_score,
