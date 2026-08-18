@@ -324,7 +324,7 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
     <h3 class="toc-title">목차</h3>
     <ol class="toc-list">
       <li><a href="#section-kpi">1. KPI 요약</a></li>
-      <li><a href="#section-summary">2. 핵심 시사점</a></li>
+      <li><a href="#section-summary">2. 포지셔닝 &amp; 주요 발견</a></li>
       <li><a href="#section-action">3. 권고 액션</a></li>
       <li><a href="#section-sos">4. Share of Search</a></li>
       <li><a href="#section-rank">5. 검색 순위</a></li>
@@ -364,26 +364,16 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
       </div></div><div style="font-size:10px;color:#767676;margin-top:8px;text-align:right;">※ 전월 스냅샷 없음 — 비교 기준월 데이터 축적 후 전월비 표시</div>
   </div>
 
-  <!-- ② 핵심 시사점 + 시몬스 포지셔닝 + 주요 발견 (T1-1, T1-4) -->
+  <!-- ② 시몬스 포지셔닝 + 주요 발견 (T1-1, T1-4) -->
   <div class="chart-row" id="section-summary">
-    <div class="summary-grid">
+    <div class="chart-row col2">
       <div class="card">
-        <div class="section-title">주요 시사점</div>
-        <div id="insight-commentary" style="font-size:12px;line-height:1.7;color:#333;"></div>
-        <div style="margin-top:16px;padding-top:10px;border-top:1px solid #eee;
-                    font-size:11px;color:#999;">
-          작성: 자동 생성 / 검수: ______
-        </div>
+        <div class="section-title">시몬스 포지셔닝</div>
+        <div id="insight-simmons"></div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <div class="card">
-          <div class="section-title">시몬스 포지셔닝</div>
-          <div id="insight-simmons"></div>
-        </div>
-        <div class="card">
-          <div class="section-title">주요 발견</div>
-          <div id="insight-findings"></div>
-        </div>
+      <div class="card">
+        <div class="section-title">주요 발견</div>
+        <div id="insight-findings"></div>
       </div>
     </div>
   </div>
@@ -566,11 +556,11 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
   <div class="chart-row" id="section-cv">
     <div class="card">
       <div class="card-title">부록 — 데이터 신뢰도 상세 (CV 분석)</div>
-      <div class="card-sub">CV≤0.05 안정(녹) · CV≤0.15 주의(주황) · CV>0.15 불안정(빨강)
-        · 출처: Naver Search API · 기준: 3회 반복 수집 중앙값
+      <div class="card-sub">CV≤0.05 안정(녹) · CV≤0.15 주의(주황) · CV&gt;0.15 불안정(빨강)
+        · 출처: Google Trends 월별 지수 · 기준: monthly_series 기반 변동계수
       </div>
       <div id="cv-table"></div>
-      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Naver Search API · 수집: 2026-08-18T02:54:53+09:00 · 기준: 시몬스=100 · N=3회 반복 수집 중앙값</div>
+      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends monthly_series · 수집: 2026-08-18T02:54:53+09:00 · 기준: 시몬스=100</div>
     </div>
   </div>
 
@@ -1271,40 +1261,73 @@ function renderAge() {
   gc('chart-age').setOption(chartOpt);
 }
 
-// 8. CV 신뢰도 테이블 (시몬스 sticky, std=0→측정불가)
+// 8. CV 신뢰도 테이블 — Google Trends monthly_series 기반
 function renderCVTable() {
-  const stats = RAW.naver?.stats || {};
-  // 시몬스 먼저
-  const allNames = ['시몬스', ...Object.keys(stats).filter(n=>n!=='시몬스')];
-  const rows = allNames.filter(n=>stats[n]).map(name=>{
-    const s = stats[name];
-    const isBase = name === '시몬스';
-    const isMeasurable = !(s.std === 0 && s.cv === 0);
-    let cvCell, confCell;
-    if (!isMeasurable) {
-      cvCell = '<span class="cv-na">측정 불가</span>';
-      confCell = '<span class="cv-na">—</span>';
-    } else {
-      const cls = s.confidence==='stable'?'cv-stable':s.confidence==='warning'?'cv-warning':'cv-unstable';
-      const label = s.confidence==='stable'?'안정':s.confidence==='warning'?'주의':'불안정';
-      cvCell = `<span class="${cls}">${(s.cv*100).toFixed(1)}%</span>`;
-      confCell = `<span class="${cls}">${label}</span>`;
+  const ms = RAW.google?.monthly_series || {};
+  const brands = Object.keys(ms);
+
+  if (!brands.length) {
+    document.getElementById('cv-table').innerHTML = `
+      <table class="data-table">
+        <thead><tr>
+          <th>브랜드</th><th>평균 지수</th><th>표준편차</th><th>CV</th><th>기간</th><th>안정성</th>
+        </tr></thead>
+        <tbody id="cv-table-body">
+          <tr><td colspan="6" style="text-align:center;color:#999;padding:20px">데이터 축적 중 — monthly_series 수집 후 표시됩니다</td></tr>
+        </tbody>
+      </table>
+      <span id="cv-caption" style="font-size:10px;color:#767676;display:block;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;"></span>`;
+    return;
+  }
+
+  // 시몬스 먼저, 나머지는 브랜드명 순
+  const ordered = ['시몬스', ...brands.filter(b => b !== '시몬스')];
+
+  const rows = ordered.map(brand => {
+    const pts = ms[brand] || [];
+    const vals = pts.map(p => p.value).filter(v => v != null && !isNaN(v));
+    const n = vals.length;
+    const isBase = brand === '시몬스';
+
+    if (n < 3) {
+      return `<tr class="${isBase ? 'simmons-sticky' : ''}">
+        <td>${isBase ? '<strong>' + brand + '</strong> <span style="font-size:9px;color:#c8a96e;">●기준</span>' : brand}</td>
+        <td colspan="5" style="color:#999;font-size:12px;">표본 부족 (${n}개월, 최소 3개월 필요)</td>
+      </tr>`;
     }
-    return `<tr class="${isBase?'simmons-sticky':''}">
-      <td>${name}${isBase?' <span style="font-size:9px;color:#c8a96e;">●기준</span>':''}</td>
-      <td>${s.median}</td>
-      <td>${cvCell}</td>
-      <td>${confCell}</td>
-      <td>${s.outliers_removed}개</td>
+
+    const mean = vals.reduce((a, b) => a + b, 0) / n;
+    const std = Math.sqrt(vals.reduce((a, b) => a + (b - mean) ** 2, 0) / (n - 1));
+    const cv = mean > 0 ? std / mean : 0;
+
+    let status, statusColor, cvCls;
+    if (cv <= 0.05) { status = '안정'; statusColor = '#27ae60'; cvCls = 'cv-stable'; }
+    else if (cv <= 0.15) { status = '주의'; statusColor = '#f39c12'; cvCls = 'cv-warning'; }
+    else { status = '불안정'; statusColor = '#e74c3c'; cvCls = 'cv-unstable'; }
+
+    return `<tr class="${isBase ? 'simmons-sticky' : ''}">
+      <td>${isBase ? '<strong>' + brand + '</strong> <span style="font-size:9px;color:#c8a96e;">●기준</span>' : brand}</td>
+      <td>${mean.toFixed(1)}</td>
+      <td>${std.toFixed(2)}</td>
+      <td><span class="${cvCls}">${(cv * 100).toFixed(1)}%</span></td>
+      <td>${n}개월</td>
+      <td style="color:${statusColor};font-weight:600">${status}</td>
     </tr>`;
   }).join('');
+
+  const nMonths = Math.max(...ordered.map(b => {
+    const pts = ms[b] || [];
+    return pts.map(p => p.value).filter(v => v != null && !isNaN(v)).length;
+  }), 0);
+
   document.getElementById('cv-table').innerHTML = `
     <table class="data-table">
       <thead><tr>
-        <th>브랜드</th><th>중앙값</th><th>CV</th><th>신뢰도</th><th>이상치 제거</th>
+        <th>브랜드</th><th>평균 지수</th><th>표준편차</th><th>CV</th><th>기간</th><th>안정성</th>
       </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+      <tbody id="cv-table-body">${rows}</tbody>
+    </table>
+    <span id="cv-caption" style="font-size:10px;color:#767676;display:block;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">산출식: CV = 표준편차 ÷ 평균 · 기준: Google Trends 월별 지수 최근 ${nMonths}개월 · 판정: ≤5% 안정 / ≤15% 주의 / &gt;15% 불안정</span>`;
 }
 
 // 9. DataLab 트렌드 차트 (§12)
@@ -1414,20 +1437,7 @@ function renderSoSSoM() {
   });
 }
 
-// 11. AI 코멘터리
-function renderCommentary() {
-  const text = RAW.commentary || '';
-  const el = document.getElementById('insight-commentary');
-  if (!text) {
-    el.innerHTML = '<div class="insight-item" style="color:#999;font-size:11px;">ANTHROPIC_API_KEY 설정 시 자동 생성</div>';
-    return;
-  }
-  // 마침표·느낌표 뒤 공백으로 문장 분리
-  const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim());
-  el.innerHTML = sentences.map(s => `<div class="insight-item">${s}</div>`).join('');
-}
-
-// 12. 인사이트 패널
+// 11. 인사이트 패널
 function renderInsights() {
   const norm_g = RAW.google?.normalized || {};
   const norm_n = RAW.naver?.normalized || {};
@@ -1541,7 +1551,6 @@ renderGender();
 renderAge();
 renderCVTable();
 renderSoSSoM();
-renderCommentary();
 renderInsights();
 
 window.addEventListener('resize', ()=>{
