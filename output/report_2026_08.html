@@ -465,7 +465,8 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
         <span class="source-badge badge-google">Google Trends</span>
       </div>
       <div class="card-sub">브랜드별 구글 검색 점유율 (%) · SoS = 브랜드 지수 ÷ 전체 합계 × 100</div>
-      <div id="chart-sos" style="height:320px;"></div>
+      <div id="chart-sos" style="height:280px;"></div>
+      <div id="sos-table"></div>
     </div>
     <div class="card" id="section-gap">
       <div class="card-title">구글 vs 네이버 갭 분석</div>
@@ -1516,17 +1517,17 @@ function renderSoS() {
   if (_activeTier !== 'ALL') {
     entries = entries.filter(([name]) => name === '시몬스' || BRAND_TO_TIER[name] === _activeTier);
   }
-  const data = entries
-    .sort((a,b)=>b[1]-a[1])
-    .map(([name,val])=>{
-      const isBase = name === '시몬스';
-      return {
-        name, value: val,
-        itemStyle:{color:COLORS[name]||'#888'},
-        selected: isBase,
-        selectedOffset: isBase ? 12 : 0
-      };
-    });
+  const sorted = entries.sort((a,b)=>b[1]-a[1]);
+  const total = sorted.reduce((s,[,v])=>s+v, 0);
+  const data = sorted.map(([name,val])=>{
+    const isBase = name === '시몬스';
+    return {
+      name, value: val,
+      itemStyle:{color:COLORS[name]||'#888'},
+      selected: isBase,
+      selectedOffset: isBase ? 12 : 0
+    };
+  });
   gc('chart-sos').setOption({
     tooltip:{trigger:'item',formatter:p=>`${p.name} [Tier ${BRAND_TO_TIER[p.name]||'기준'}]: ${p.value}%`},
     legend:{orient:'vertical',right:0,top:'center',textStyle:{fontSize:12}},
@@ -1535,6 +1536,46 @@ function renderSoS() {
       label:{show:false},data
     }]
   });
+
+  // SoS 상세 테이블
+  const rows = sorted.map(([name, val], i) => {
+    const tier = BRAND_TO_TIER[name] || '—';
+    const isSimmons = name === '시몬스';
+    const formula = `${val.toFixed(2)}% = ${val.toFixed(2)} ÷ ${total.toFixed(2)} × 100`;
+    return `<tr style="${isSimmons ? 'background:#fff8f8;font-weight:bold' : ''}">
+      <td style="text-align:center;color:#888;font-size:11px">${i+1}</td>
+      <td>
+        ${isSimmons ? '<strong>'+name+'</strong>' : name}
+        <span class="src-badge gt">GT</span>
+        <span style="font-size:10px;color:#888;margin-left:4px">Tier ${tier}</span>
+      </td>
+      <td style="text-align:right;font-weight:600;color:${isSimmons?'#e53935':'#333'}">${val.toFixed(1)}%</td>
+      <td class="detail-cell" style="display:none;font-family:monospace;font-size:10px">${formula}</td>
+      <td class="detail-cell" style="display:none;font-size:10px;color:#555">Google Trends · KR</td>
+    </tr>`;
+  }).join('');
+
+  const tableHtml = `
+    <div class="rank-table-wrap" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <p style="font-size:11px;font-weight:600;color:#555">브랜드별 SoS 상세</p>
+        <button onclick="toggleDetailCols(this)" style="font-size:10px;padding:2px 8px;border:1px solid #ccc;border-radius:3px;background:#fff;cursor:pointer">
+          산출식 보기 ▾
+        </button>
+      </div>
+      <table class="rank-detail-table">
+        <thead><tr>
+          <th style="text-align:center;width:32px">#</th>
+          <th>브랜드</th>
+          <th style="text-align:right">SoS</th>
+          <th class="detail-cell" style="display:none">산출식</th>
+          <th class="detail-cell" style="display:none">출처</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  const container = document.getElementById('sos-table');
+  if (container) container.innerHTML = tableHtml;
 }
 
 // 5. 갭 분석 — 좌우 대칭 축, 음수 레이블 겹침 방지
