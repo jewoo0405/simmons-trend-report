@@ -40,6 +40,21 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(SNAP_DIR, exist_ok=True)
 
 
+def save_history(snapshot: dict, report_month: str):
+    """data/history/YYYY_MM.json 에 누적 저장 (덮어쓰지 않음)"""
+    hist_dir = os.path.join(os.path.dirname(__file__), "data", "history")
+    os.makedirs(hist_dir, exist_ok=True)
+    # report_month 예: "2026년 08월" → "2026_08"
+    month_key = report_month.replace("년 ", "_").replace("월", "").strip()
+    hist_path = os.path.join(hist_dir, f"{month_key}.json")
+    if not os.path.exists(hist_path):   # 이미 있으면 덮어쓰지 않음
+        with open(hist_path, "w", encoding="utf-8") as f:
+            json.dump(snapshot, f, ensure_ascii=False, indent=2)
+        print(f"[history] 저장: {hist_path}")
+    else:
+        print(f"[history] 이미 존재: {hist_path} (스킵)")
+
+
 def save_snapshot(payload, collected_date):
     """
     data/snapshots/{date}.json 에 수집 결과 저장.
@@ -233,6 +248,7 @@ def run():
         datalab_data=datalab_data, dart_data=dart_data,
     )
     save_snapshot(snapshot, collected_date)
+    save_history(snapshot, report_month)
 
     # ── AI 코멘터리 생성 (§16) ────────────────────────────────────
     print("\n[AI] 임원 브리핑 생성 중...")

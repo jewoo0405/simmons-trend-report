@@ -361,6 +361,51 @@ def _build_appendix(collected_at):
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
         {limit_cards}
       </div>
+
+      <!-- ⑤ 지표 정의집 -->
+      <div class="section-title" style="margin-top:24px;">⑤ 지표 정의집</div>
+      <table class="appendix-table">
+        <thead>
+          <tr><th>지표명</th><th>산출식</th><th>출처</th><th>갱신 주기</th><th>한계</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Share of Search (SoS)</td>
+            <td>자사 검색량 ÷ 전체 브랜드 합 × 100</td>
+            <td>Google Trends + Naver DataLab</td>
+            <td>월 1회</td>
+            <td>Tier C 종합가구 포함 시 카테고리 수요 혼재</td>
+          </tr>
+          <tr>
+            <td>구글 검색 지수</td>
+            <td>시몬스=100 기준 상대지수</td>
+            <td>Google Trends (KR)</td>
+            <td>월 1회</td>
+            <td>표본 기반 상대값, 절대 검색량 아님</td>
+          </tr>
+          <tr>
+            <td>네이버 콘텐츠 노출량</td>
+            <td>블로그 건수 + 뉴스 건수</td>
+            <td>Naver 검색 API</td>
+            <td>월 1회</td>
+            <td>마케팅 물량 반영, 검색 수요 아님</td>
+          </tr>
+          <tr>
+            <td>성별·연령 인덱스</td>
+            <td>(브랜드 비율 ÷ 카테고리 평균) × 100</td>
+            <td>Naver DataLab</td>
+            <td>월 1회</td>
+            <td>DataLab 관심도 기준, 실구매 반영 안 됨</td>
+          </tr>
+          <tr>
+            <td>CV (변동계수)</td>
+            <td>표준편차 ÷ 평균 (Google Trends 월별값 기준)</td>
+            <td>Google Trends 월별 시계열</td>
+            <td>매월 갱신</td>
+            <td>최소 3개월 필요, 초기 운영 중 표본 부족</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>"""
 
@@ -536,6 +581,42 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 .demo-toggle:hover,.demo-toggle.active {{
   background:#0b0b0b;color:#fff;border-color:#0b0b0b;
 }}
+
+/* ── 산출 근거 캡션 ─────────────────────────── */
+.chart-caption {{
+  font-size: 11px;
+  color: #767676;
+  margin-top: 6px;
+  padding: 6px 8px;
+  border-top: 1px solid #eee;
+  line-height: 1.6;
+}}
+.chart-caption .cap-formula {{ font-style: italic; }}
+.chart-caption .cap-source {{ }}
+.chart-caption .cap-drill {{
+  color: #3498db;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 10px;
+  margin-left: 6px;
+}}
+.drill-detail {{
+  display: none;
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.8;
+  font-family: monospace;
+}}
+
+/* 지표 정의집 테이블 */
+.appendix-table {{ width:100%; border-collapse:collapse; font-size:12px; margin-top:12px; }}
+.appendix-table th {{ background:#2c3e50; color:#fff; padding:8px; text-align:left; }}
+.appendix-table td {{ padding:7px 8px; border-bottom:1px solid #eee; vertical-align:top; }}
+.appendix-table tr:nth-child(even) td {{ background:#f9f9f9; }}
 
 /* ── 인쇄 전용 ─────────────────────────────── */
 .print-only {{ display: none; }}          /* 화면: 숨김 */
@@ -959,6 +1040,31 @@ function dateAxisOption(periods) {{
 }}
 /* ── 공통 축 유틸리티 끝 ────────────────────────────── */
 
+/* ── 산출 근거 캡션 유틸리티 ────────────────────────── */
+function buildCaption(opts) {{
+  // opts: {{ formula, source, collected, n, note, drillId, drillContent }}
+  const parts = [];
+  if (opts.formula)   parts.push(`<span class="cap-formula">산출식: ${{opts.formula}}</span>`);
+  if (opts.source)    parts.push(`출처: ${{opts.source}}`);
+  if (opts.collected) parts.push(`수집: ${{opts.collected}}`);
+  if (opts.n)         parts.push(`표본: n=${{opts.n}}`);
+
+  let drillHtml = '';
+  if (opts.drillId && opts.drillContent) {{
+    drillHtml = `
+      <span class="cap-drill" onclick="toggleDrill('${{opts.drillId}}')">계산 내역 ▾</span>
+      <div id="${{opts.drillId}}" class="drill-detail">${{opts.drillContent}}</div>`;
+  }}
+
+  return `<div class="chart-caption">${{parts.join(' · ')}}${{opts.note ? '<br>' + opts.note : ''}}${{drillHtml}}</div>`;
+}}
+
+function toggleDrill(id) {{
+  const el = document.getElementById(id);
+  if (el) el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}}
+/* ── 산출 근거 캡션 유틸리티 끝 ─────────────────────── */
+
 const RAW = {data_json};
 const COLORS = {colors_json};
 const BRANDS_CFG = {brands_cfg_json};
@@ -1120,7 +1226,19 @@ const EVENT_COLORS = {{
 function renderMonthly() {{
   const ms = RAW.google?.monthly_series || {{}};
   const periods = RAW.google?.periods || [];
-  if(!Object.keys(ms).length) return;
+  if(!Object.keys(ms).length) {{
+    const chart = gc('chart-monthly');
+    chart.setOption({{
+      title: {{
+        text: '월별 데이터 수집 중',
+        subtext: '다음 Actions 실행 후 12개월 추이가 표시됩니다',
+        left: 'center', top: 'center',
+        textStyle: {{ color: '#999', fontSize: 14 }},
+        subtextStyle: {{ color: '#bbb', fontSize: 12 }}
+      }}
+    }});
+    return;
+  }}
   const series = [];
 
   // 티어 필터 적용
@@ -1666,13 +1784,38 @@ function renderInsights() {{
     : '<div class="insight-item">특이사항 없음</div>';
 
   const changes = RAW.change_points || [];
-  document.getElementById('insight-changes').innerHTML = changes.length
-    ? changes.slice(0,5).map(c=>`
+  const changeEl = document.getElementById('insight-changes');
+  if (!changes.length) {{
+    // 절대값 순위로 대체 표시
+    const norm = RAW.google?.normalized || {{}};
+    const sorted = Object.entries(norm)
+      .filter(([,v]) => v > 0)
+      .sort(([,a],[,b]) => b - a);
+    const top3 = sorted.slice(0, 3);
+    const bot3 = sorted.slice(-3).reverse();
+
+    changeEl.innerHTML = `
+      <div style="grid-column:1/-1">
+        <p style="color:#888;font-size:12px;margin-bottom:8px">전월 비교 데이터 없음 — 이번 달 검색 지수 현황</p>
+        <div style="display:flex;gap:24px">
+          <div>
+            <p style="font-size:11px;font-weight:600;color:#27ae60;margin-bottom:4px">▲ 상위 브랜드</p>
+            ${{top3.map(([b,v],i) => `<p style="font-size:13px">${{i+1}}위 ${{b === '시몬스' ? '<strong>'+b+'</strong>' : b}} <span style="color:#888">${{v.toFixed(1)}}</span></p>`).join('')}}
+          </div>
+          <div>
+            <p style="font-size:11px;font-weight:600;color:#e74c3c;margin-bottom:4px">▼ 하위 브랜드</p>
+            ${{bot3.map(([b,v],i) => `<p style="font-size:13px">${{i+1}}위 ${{b}} <span style="color:#888">${{v.toFixed(1)}}</span></p>`).join('')}}
+          </div>
+        </div>
+        <p style="font-size:11px;color:#aaa;margin-top:8px">다음 달부터 전월 대비 변화점 자동 탐지 시작</p>
+      </div>`;
+  }} else {{
+    changeEl.innerHTML = changes.slice(0,5).map(c=>`
         <div class="insight-item ${{c.direction==='급등'?'good':'warn'}}">
           ${{c.brand}} · ${{c.period}}<br>
           <b>${{c.direction}} ${{c.pct_change > 0?'+':''}}${{c.pct_change}}%</b>
-        </div>`).join('')
-    : '<div class="insight-item">급등/급락 없음</div>';
+        </div>`).join('');
+  }}
 }}
 
 // T3-3: 기본값 변경 배너 로직
@@ -1741,6 +1884,77 @@ renderAge();
 renderCVTable();
 renderSoSSoM();
 renderInsights();
+
+// ── C-2: 섹션별 산출 근거 캡션 삽입 ──────────────────
+(function insertCaptions() {{
+  const collected = RAW.meta?.collected_at || '';
+
+  // Share of Search 캡션
+  const sosDrillContent = (() => {{
+    const sos = RAW.sos || {{}};
+    return Object.entries(sos).map(([b,v]) => `${{b}}: ${{v.toFixed(2)}}%`).join('<br>') || '데이터 없음';
+  }})();
+  const sosCaption = buildCaption({{
+    formula: 'SoS = 자사 검색량 ÷ 전체 브랜드 합 × 100',
+    source: 'Google Trends / Naver DataLab',
+    collected,
+    n: Object.keys(RAW.sos || {{}}).length + '개 브랜드',
+    note: '분모: 11개 브랜드 전체 합산. Tier C(종합가구) 브랜드 포함으로 직접 비교 주의.',
+    drillId: 'drill-sos',
+    drillContent: sosDrillContent
+  }});
+  document.getElementById('section-sos')?.insertAdjacentHTML('beforeend', sosCaption);
+
+  // 구글 검색 지수 순위 캡션 (section-rank 카드 첫 번째 자식)
+  const googleCaption = buildCaption({{
+    formula: '시몬스=100 기준 상대지수 = (브랜드값 ÷ 시몬스값) × 100',
+    source: 'Google Trends (지역: KR)',
+    collected,
+    note: '검색 표본 기반 상대지수. 절대 검색량이 아님. <a href="#section-appendix">키워드 정의 →</a>'
+  }});
+  const rankSection = document.getElementById('section-rank');
+  if (rankSection) {{
+    const firstCard = rankSection.querySelector('.card');
+    if (firstCard) firstCard.insertAdjacentHTML('beforeend', googleCaption);
+  }}
+
+  // 네이버 콘텐츠 노출량 캡션
+  const naverCaption = buildCaption({{
+    formula: '블로그 건수 + 뉴스 건수',
+    source: 'Naver 검색 API (blog + news)',
+    collected,
+    note: '⚠ 검색 수요가 아닌 콘텐츠 발행량 지표. 브랜드 자체 마케팅 물량에 직접 좌우됨.'
+  }});
+  document.getElementById('section-naver-rank')?.insertAdjacentHTML('beforeend', naverCaption);
+
+  // 월별 검색 트렌드 추이 캡션
+  const warnings = RAW.google?.warnings || [];
+  const monthlyCaption = buildCaption({{
+    formula: '시몬스=100 기준 월별 정규화 지수',
+    source: 'Google Trends (지역: KR)',
+    collected,
+    note: '결측월: ' + (warnings.length ? warnings.join(', ') : '없음')
+  }});
+  document.getElementById('section-trend')?.querySelector('.card')?.insertAdjacentHTML('beforeend', monthlyCaption);
+
+  // 구글 vs 네이버 갭 캡션
+  const gapCaption = buildCaption({{
+    formula: 'Gap = Google 정규화 지수 − Naver 정규화 지수 (양수: 구글 우세)',
+    source: 'Google Trends + Naver 검색 API',
+    collected
+  }});
+  document.getElementById('section-gap')?.insertAdjacentHTML('beforeend', gapCaption);
+
+  // 성별·연령 인덱스 캡션
+  const demoCaption = buildCaption({{
+    formula: '인덱스 = (브랜드 비율 ÷ 카테고리 평균) × 100 (100 초과: 해당 세그먼트 과대색인)',
+    source: 'Naver DataLab',
+    collected,
+    note: '카테고리 평균 = 11개 브랜드 단순 평균'
+  }});
+  document.getElementById('section-demo')?.insertAdjacentHTML('beforeend', demoCaption);
+}})();
+// ── C-2 캡션 삽입 끝 ──────────────────────────────────
 
 window.addEventListener('resize', ()=>{{
   ['chart-google-rank','chart-naver-rank','chart-monthly','chart-datalab',
