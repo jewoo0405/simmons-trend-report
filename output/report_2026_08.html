@@ -3,291 +3,403 @@
 <head>
 <meta charset="UTF-8">
 <title>시몬스 브랜드 트렌드 대시보드 — 2026년 08월</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;min-width:1280px;}
+/* ═══════════════════════════════════════════
+   시몬스 브랜드 트렌드 대시보드 — UI v3
+   Design: Modern Korean Business Dashboard
+   ═══════════════════════════════════════════ */
 
-/* 상단 헤더 */
-#top-header{
-  position:sticky;top:0;z-index:100;
-  background:#0b0b0b;color:#fff;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 24px;height:52px;
-  border-bottom:2px solid #c8a96e;
-}
-#top-header .title{font-size:16px;font-weight:bold;}
-#top-header .meta{display:flex;gap:20px;align-items:center;font-size:12px;color:#aaa;}
-.conf-badge{
-  padding:3px 10px;border-radius:12px;font-size:12px;font-weight:bold;
-  background:#2e7d32;color:#fff;
-}
-
-/* 레이아웃 — 사이드바 + main 2열 */
-#layout{display:flex;height:calc(100vh - 52px);}
-
-/* 좌측 사이드바 */
-#sidebar{
-  width:220px;min-width:220px;background:#fff;
-  border-right:1px solid #e0e0e0;overflow-y:auto;padding:16px 12px;
-}
-#sidebar h3{font-size:12px;color:#888;text-transform:uppercase;
-             letter-spacing:1px;margin:16px 0 8px;padding-bottom:4px;
-             border-bottom:1px solid #eee;}
-.tier-header{
-  font-size:10px;color:#999;font-weight:600;letter-spacing:0.5px;
-  padding:8px 4px 4px;text-transform:uppercase;
-}
-.brand-item{
-  display:flex;align-items:center;gap:8px;padding:5px 4px;
-  border-radius:4px;cursor:pointer;font-size:13px;transition:background 0.15s;
-}
-.brand-item:hover{background:#f5f5f5;}
-.brand-item.active{background:#e8eaf6;font-weight:bold;}
-.brand-item--baseline{
-  background:#fafafa;border:1px solid #e0e0e0;
-  border-radius:6px;margin-bottom:6px;
-}
-.brand-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.baseline-badge{
-  margin-left:auto;font-size:9px;font-weight:700;
-  background:#0b0b0b;color:#c8a96e;
-  padding:2px 5px;border-radius:3px;letter-spacing:0.5px;
-}
-.filter-btn{
-  display:block;width:100%;padding:6px 10px;margin-bottom:6px;
-  border:1px solid #ddd;border-radius:4px;background:#fff;
-  font-size:12px;cursor:pointer;text-align:left;transition:all 0.15s;
-}
-.filter-btn:hover,.filter-btn.active{background:#0b0b0b;color:#fff;border-color:#0b0b0b;}
-
-/* 중앙 차트 영역 */
-#main{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;}
-
-/* KPI 스트립 */
-.kpi-strip{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
-  margin-bottom:0;
-}
-.kpi-card{
-  background:#fff;border-radius:8px;border:1px solid #e0e0e0;
-  padding:14px 16px;border-top:3px solid #c8a96e;
-}
-.kpi-label{font-size:11px;color:#666;font-weight:600;text-transform:uppercase;
-            letter-spacing:0.5px;margin-bottom:6px;}
-.kpi-value{font-size:22px;font-weight:bold;color:#0b0b0b;margin-bottom:4px;}
-.kpi-delta{font-size:13px;margin-bottom:4px;}
-.kpi-note{font-size:10px;color:#767676;}
-
-/* 섹션 구분선 */
-.section-divider{
-  display:flex;align-items:center;gap:12px;margin:8px 0;
-  color:#888;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
-}
-.section-divider::before,.section-divider::after{
-  content:'';flex:1;height:1px;background:#e0e0e0;
+:root {
+  --simmons:        #C8102E;
+  --simmons-light:  #fff1f2;
+  --primary:        #1e3a8a;
+  --primary-mid:    #2563eb;
+  --primary-light:  #eff6ff;
+  --primary-border: #bfdbfe;
+  --bg:             #f0f4f8;
+  --surface:        #ffffff;
+  --surface-2:      #f8fafc;
+  --border:         #e2e8f0;
+  --border-light:   #f1f5f9;
+  --tx1:            #0f172a;
+  --tx2:            #475569;
+  --tx3:            #94a3b8;
+  --green:          #15803d;
+  --green-light:    #dcfce7;
+  --orange:         #c2410c;
+  --orange-light:   #fff7ed;
+  --red:            #dc2626;
+  --red-light:      #fee2e2;
+  --kpi-1:          #2563eb;
+  --kpi-2:          #7c3aed;
+  --kpi-3:          #059669;
+  --kpi-4:          #d97706;
+  --header-h:       58px;
+  --sidebar-w:      220px;
+  --r-s:  6px;
+  --r:    10px;
+  --r-l:  14px;
+  --shadow-s:  0 1px 2px rgba(15,23,42,.05);
+  --shadow:    0 1px 3px rgba(15,23,42,.08), 0 4px 16px rgba(15,23,42,.04);
+  --shadow-m:  0 4px 24px rgba(15,23,42,.10);
 }
 
-/* 요약 카드 그리드 */
-.summary-grid{display:grid;grid-template-columns:1fr 2fr;gap:16px;}
-.summary-col{display:flex;flex-direction:column;gap:12px;}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* 인사이트 아이템 */
-.insight-item{
-  padding:10px;border-radius:6px;background:#f9f9f9;
-  margin-bottom:8px;font-size:12px;line-height:1.6;
-}
-.insight-item.warn{background:#fff3e0;border-left:3px solid #e65100;}
-.insight-item.good{background:#e8f5e9;border-left:3px solid #2e7d32;}
-
-/* 섹션 타이틀 */
-.section-title{
-  font-size:13px;font-weight:bold;color:#0b0b0b;
-  border-left:3px solid #c8a96e;padding-left:8px;margin-bottom:12px;
+body {
+  font-family: 'Noto Sans KR', 'Malgun Gothic', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--tx1);
+  min-width: 1280px;
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* 차트 카드 */
-.chart-row{display:grid;gap:16px;}
-.chart-row.col2{grid-template-columns:1fr 1fr;}
-.chart-row.col3{grid-template-columns:1fr 1fr 1fr;}
-.card{background:#fff;border-radius:8px;border:1px solid #e0e0e0;padding:16px;height:auto !important;padding-bottom:16px;overflow:visible;}
-.card-title{font-size:13px;font-weight:bold;color:#0b0b0b;margin-bottom:4px;}
-.card-sub{font-size:11px;color:#888;margin-bottom:12px;}
-.source-badge{
-  display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;
-  margin-left:6px;font-weight:normal;
+/* ── 상단 헤더 ──────────────────────────────── */
+#top-header {
+  position: sticky; top: 0; z-index: 200;
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: var(--shadow-s);
 }
-.badge-google{background:#e8f5e9;color:#2e7d32;}
-.badge-naver{background:#e3f2fd;color:#1565c0;}
-.badge-no-demo{background:#fff3e0;color:#e65100;}
+.header-brand { display: flex; align-items: center; gap: 12px; }
+.header-logo {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--simmons) 0%, #8b0d1f 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 15px; font-weight: 800; flex-shrink: 0;
+}
+.header-title-group { display: flex; flex-direction: column; gap: 1px; }
+.header-title { font-size: 15px; font-weight: 700; color: var(--tx1); letter-spacing: -.3px; }
+.header-sub { font-size: 11px; color: var(--tx3); }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.header-chip {
+  display: inline-flex; align-items: center;
+  height: 28px; padding: 0 12px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 20px; font-size: 11px; color: var(--tx2); white-space: nowrap;
+}
+.conf-badge {
+  display: inline-flex; align-items: center;
+  height: 28px; padding: 0 12px;
+  border-radius: 20px; font-size: 11px; font-weight: 600;
+  background: #2e7d32; color: #fff;
+}
 
-/* CV 신뢰도 색상 */
-.cv-stable{color:#2e7d32;font-weight:bold;}
-.cv-warning{color:#e65100;font-weight:bold;}
-.cv-unstable{color:#c62828;font-weight:bold;}
-.cv-na{color:#999;font-style:italic;}
+/* ── 레이아웃 ──────────────────────────────── */
+#layout { display: flex; height: calc(100vh - var(--header-h)); overflow: hidden; }
 
-/* 데이터 테이블 */
-.data-table{width:100%;border-collapse:collapse;font-size:12px;}
-.data-table th{background:#0b0b0b;color:#fff;padding:7px 10px;text-align:left;}
-.data-table td{padding:7px 10px;border-bottom:1px solid #f0f0f0;}
-.data-table tr:hover td{background:#f9f9f9;}
-.simmons-sticky td{background:#fafafa;font-weight:bold;position:sticky;top:0;z-index:1;}
+/* ── 사이드바 ──────────────────────────────── */
+#sidebar {
+  width: var(--sidebar-w); min-width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex; flex-direction: column;
+}
+#sidebar::-webkit-scrollbar { width: 4px; }
+#sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-/* 인구통계 없음 */
-.no-data{text-align:center;padding:30px;color:#aaa;font-size:13px;}
+.nav-section { padding: 14px 14px 12px; border-bottom: 1px solid var(--border-light); }
+.nav-section:last-child { border-bottom: none; }
 
-/* 인구통계 인덱스 토글 버튼 */
+.nav-label {
+  font-size: 10px; font-weight: 700; color: var(--tx3);
+  text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;
+}
+
+/* 기간 필터 pills */
+.period-pills { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
+.period-pill {
+  padding: 6px 2px;
+  border: 1px solid var(--border); border-radius: 20px;
+  background: var(--surface); font-size: 11px;
+  font-family: inherit; color: var(--tx2);
+  cursor: pointer; text-align: center; transition: all .15s;
+}
+.period-pill:hover { background: var(--primary-light); border-color: var(--primary-mid); color: var(--primary-mid); }
+.period-pill.active { background: var(--primary-mid); border-color: var(--primary-mid); color: #fff; font-weight: 600; }
+
+/* 티어 필터 pills */
+.tier-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.tier-pill {
+  padding: 6px 4px;
+  border: 1px solid var(--border); border-radius: var(--r-s);
+  background: var(--surface); font-size: 11px;
+  font-family: inherit; color: var(--tx2);
+  cursor: pointer; text-align: center; transition: all .15s; white-space: nowrap;
+}
+.tier-pill:hover { background: var(--primary-light); border-color: var(--primary-mid); color: var(--primary-mid); }
+.tier-pill.active { background: var(--primary-mid); border-color: var(--primary-mid); color: #fff; font-weight: 600; }
+.tier-pill[data-tier="ALL"] { grid-column: 1 / -1; }
+/* 하위 호환 */
+.filter-btn { display: block; width: 100%; padding: 6px 10px; margin-bottom: 4px; border: 1px solid var(--border); border-radius: var(--r-s); background: var(--surface); font-size: 12px; font-family: inherit; cursor: pointer; text-align: left; transition: all .15s; color: var(--tx2); }
+.filter-btn:hover, .filter-btn.active { background: var(--primary-mid); color: #fff; border-color: var(--primary-mid); }
+
+/* 브랜드 리스트 */
+.tier-header { font-size: 9px; color: var(--tx3); font-weight: 700; letter-spacing: 0.5px; padding: 8px 8px 3px; text-transform: uppercase; }
+.brand-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: var(--r-s);
+  cursor: pointer; font-size: 12px; color: var(--tx2); transition: background .12s;
+}
+.brand-item:hover { background: var(--surface-2); }
+.brand-item.active { background: var(--primary-light); color: var(--primary-mid); font-weight: 600; }
+.brand-item--baseline {
+  background: var(--simmons-light); border: 1px solid #fca5a5;
+  border-radius: var(--r-s); margin-bottom: 6px;
+}
+.brand-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.baseline-badge {
+  margin-left: auto; font-size: 9px; font-weight: 700;
+  background: var(--simmons); color: #fff;
+  padding: 1px 5px; border-radius: 3px;
+}
+
+/* 사이드바 액션 버튼 */
+.action-btn {
+  display: block; width: 100%; padding: 7px 12px; margin-bottom: 5px;
+  border: 1px solid var(--border); border-radius: var(--r-s);
+  background: var(--surface); font-size: 12px; font-family: inherit;
+  color: var(--tx2); cursor: pointer; text-align: left; transition: all .15s;
+}
+.action-btn:hover { background: var(--primary-light); border-color: var(--primary-mid); color: var(--primary-mid); }
+
+/* ── 메인 콘텐츠 ──────────────────────────── */
+#main {
+  flex: 1; overflow-y: auto;
+  padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+#main::-webkit-scrollbar { width: 6px; }
+#main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── KPI 스트립 ──────────────────────────── */
+.kpi-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+.kpi-card {
+  background: var(--surface);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+  transition: box-shadow .2s, transform .2s;
+}
+.kpi-card:hover { box-shadow: var(--shadow-m); transform: translateY(-1px); }
+.kpi-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; border-radius: var(--r) var(--r) 0 0;
+}
+.kpi-card:nth-child(1)::before { background: var(--kpi-1); }
+.kpi-card:nth-child(2)::before { background: var(--kpi-2); }
+.kpi-card:nth-child(3)::before { background: var(--kpi-3); }
+.kpi-card:nth-child(4)::before { background: var(--kpi-4); }
+.kpi-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; margin-bottom: 10px; flex-shrink: 0;
+}
+.kpi-card:nth-child(1) .kpi-icon { background: #dbeafe; }
+.kpi-card:nth-child(2) .kpi-icon { background: #ede9fe; }
+.kpi-card:nth-child(3) .kpi-icon { background: #d1fae5; }
+.kpi-card:nth-child(4) .kpi-icon { background: #fef3c7; }
+.kpi-label { font-size: 11px; color: var(--tx3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.kpi-value { font-size: 26px; font-weight: 700; color: var(--tx1); letter-spacing: -.5px; margin-bottom: 5px; line-height: 1.2; }
+.kpi-delta { font-size: 12px; margin-bottom: 4px; font-weight: 500; }
+.kpi-note { font-size: 10px; color: var(--tx3); line-height: 1.4; }
+
+/* ── 섹션 구분선 ──────────────────────────── */
+.section-divider {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--tx3); font-size: 10px; font-weight: 700;
+  letter-spacing: 1.2px; text-transform: uppercase;
+}
+.section-divider::before, .section-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── 요약 그리드 ──────────────────────────── */
+.summary-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
+.summary-col { display: flex; flex-direction: column; gap: 12px; }
+
+/* ── 인사이트 ──────────────────────────────── */
+.insight-item {
+  padding: 10px 12px;
+  border-radius: var(--r-s);
+  background: var(--surface-2);
+  border: 1px solid var(--border-light);
+  margin-bottom: 8px; font-size: 12px; line-height: 1.6;
+}
+.insight-item.warn { background: var(--orange-light); border-left: 3px solid var(--orange); }
+.insight-item.good { background: var(--green-light); border-left: 3px solid var(--green); }
+
+/* ── 섹션 타이틀 ──────────────────────────── */
+.section-title {
+  font-size: 13px; font-weight: 700; color: var(--tx1);
+  border-left: 3px solid var(--primary-mid);
+  padding-left: 10px; margin-bottom: 12px;
+}
+
+/* ── 차트 그리드 / 카드 ───────────────────── */
+.chart-row { display: grid; gap: 16px; }
+.chart-row.col2 { grid-template-columns: 1fr 1fr; }
+.chart-row.col3 { grid-template-columns: 1fr 1fr 1fr; }
+.card {
+  background: var(--surface);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  height: auto !important; overflow: visible;
+  transition: box-shadow .2s;
+}
+.card:hover { box-shadow: var(--shadow-m); }
+.card-title {
+  font-size: 14px; font-weight: 700; color: var(--tx1);
+  margin-bottom: 3px;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+}
+.card-sub { font-size: 11px; color: var(--tx3); margin-bottom: 14px; line-height: 1.5; }
+
+/* ── 뱃지 ──────────────────────────────────── */
+.source-badge {
+  display: inline-flex; align-items: center;
+  height: 18px; padding: 0 7px;
+  border-radius: 4px; font-size: 10px; font-weight: 600;
+}
+.badge-google { background: #dcfce7; color: #15803d; }
+.badge-naver { background: #dbeafe; color: #1d4ed8; }
+.badge-no-demo { background: var(--orange-light); color: var(--orange); }
+
+/* ── CV 신뢰도 ──────────────────────────────── */
+.cv-stable { color: var(--green); font-weight: 600; }
+.cv-warning { color: var(--orange); font-weight: 600; }
+.cv-unstable { color: var(--red); font-weight: 600; }
+.cv-na { color: var(--tx3); font-style: italic; }
+
+/* ── 데이터 테이블 ──────────────────────────── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th {
+  background: #1e293b; color: #fff;
+  padding: 8px 12px; text-align: left;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+}
+.data-table th:first-child { border-radius: var(--r-s) 0 0 0; }
+.data-table th:last-child { border-radius: 0 var(--r-s) 0 0; }
+.data-table td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface-2); }
+.data-table tr:nth-child(even) td { background: #fafbfc; }
+.simmons-sticky td {
+  background: var(--simmons-light) !important;
+  font-weight: 700; position: sticky; top: 0; z-index: 1;
+}
+
+/* ── 없음 상태 ──────────────────────────────── */
+.no-data { text-align: center; padding: 40px; color: var(--tx3); font-size: 13px; }
+
+/* ── 인구통계 토글 ──────────────────────────── */
 .demo-toggle {
-  padding:4px 10px;border:1px solid #ddd;border-radius:4px;
-  background:#fff;font-size:11px;cursor:pointer;transition:all 0.15s;
-  font-family:'Malgun Gothic',Arial,sans-serif;
+  padding: 5px 12px;
+  border: 1px solid var(--border); border-radius: 20px;
+  background: var(--surface); font-size: 11px;
+  font-family: inherit; cursor: pointer; color: var(--tx2); transition: all .15s;
 }
-.demo-toggle:hover,.demo-toggle.active {
-  background:#0b0b0b;color:#fff;border-color:#0b0b0b;
-}
+.demo-toggle:hover { background: var(--primary-light); border-color: var(--primary-mid); color: var(--primary-mid); }
+.demo-toggle.active { background: var(--primary-mid); border-color: var(--primary-mid); color: #fff; }
 
-/* ── 산출 근거 캡션 ─────────────────────────── */
+/* ── 캡션 ──────────────────────────────────── */
 .chart-caption {
-  font-size: 11px;
-  color: #767676;
-  margin-top: 12px;
-  padding: 6px 8px;
-  border-top: 1px solid #eee;
-  line-height: 1.7;
-  word-break: keep-all;
-  white-space: normal;
-  overflow: visible;
-  position: static;
+  font-size: 11px; color: var(--tx3);
+  margin-top: 12px; padding: 8px 10px;
+  background: var(--surface-2);
+  border-radius: var(--r-s); border: 1px solid var(--border-light);
+  line-height: 1.7; word-break: keep-all;
+  overflow: visible; position: static;
 }
 .chart-caption .cap-formula { font-style: italic; }
-.chart-caption .cap-source { }
 .chart-caption .cap-drill {
-  color: #3498db;
-  cursor: pointer;
-  text-decoration: underline;
-  font-size: 10px;
-  margin-left: 6px;
+  color: var(--primary-mid); cursor: pointer;
+  text-decoration: underline; font-size: 10px; margin-left: 6px;
 }
-.cap-note {
-  display: block;
-  margin-top: 4px;
-  color: #856404;
-}
+.cap-note { display: block; margin-top: 4px; color: #92400e; }
 .drill-detail {
   display: none;
-  background: #f8f9fa;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 8px 10px;
-  margin-top: 4px;
-  font-size: 11px;
-  line-height: 1.8;
-  font-family: monospace;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--r-s); padding: 8px 10px;
+  margin-top: 4px; font-size: 11px; line-height: 1.8; font-family: monospace;
 }
 
-/* 지표 정의집 테이블 */
-.appendix-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:12px; }
-.appendix-table th { background:#2c3e50; color:#fff; padding:8px; text-align:left; }
-.appendix-table td { padding:7px 8px; border-bottom:1px solid #eee; vertical-align:top; }
-.appendix-table tr:nth-child(even) td { background:#f9f9f9; }
+/* ── 부록 테이블 ──────────────────────────── */
+.appendix-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+.appendix-table th { background: #1e293b; color: #fff; padding: 8px; text-align: left; }
+.appendix-table td { padding: 7px 8px; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+.appendix-table tr:nth-child(even) td { background: var(--surface-2); }
 
-/* ── 인쇄 전용 ─────────────────────────────── */
-.print-only { display: none; }          /* 화면: 숨김 */
-.no-print { }                           /* 화면: 정상 */
+/* ── 소스 뱃지 ──────────────────────────────── */
+.src-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 4px; border-radius: 3px; margin-left: 3px; vertical-align: middle; }
+.src-badge.gt { background: #4285f4; color: #fff; }
+.src-badge.ns { background: #03c75a; color: #fff; }
+.src-badge.nd { background: #0ea5e9; color: #fff; }
+.src-badge.dt { background: #e53e3e; color: #fff; }
 
+/* ── 순위 테이블 ──────────────────────────── */
+.rank-detail-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.rank-detail-table th { background: var(--surface-2); padding: 5px 8px; text-align: left; border-bottom: 2px solid var(--border); font-size: 10px; color: var(--tx3); font-weight: 600; }
+.rank-detail-table td { padding: 5px 8px; border-bottom: 1px solid var(--border-light); }
+.rank-detail-table .simmons-row td { background: var(--simmons-light); font-weight: 600; }
+.formula-text { font-family: monospace; font-size: 10px; }
+
+/* ── 필터 변경 배너 ──────────────────────────── */
+#filter-changed-banner {
+  background: var(--orange-light); border-bottom: 2px solid #ea580c;
+  padding: 6px 24px; font-size: 12px; color: #c2410c;
+  position: sticky; top: var(--header-h); z-index: 99;
+}
+
+/* ── 표지 ──────────────────────────────────── */
+.print-only { display: none; }
+.cover-inner {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100vh; text-align: center; gap: 20px;
+}
+.cover-confidential {
+  color: var(--red); font-weight: 700; font-size: 14px;
+  border: 2px solid var(--red); padding: 4px 16px; border-radius: var(--r-s);
+}
+.cover-title { font-size: 32px; font-weight: 800; color: var(--tx1); }
+.cover-month { font-size: 22px; color: var(--tx2); font-weight: 600; }
+.cover-meta { font-size: 13px; color: var(--tx2); line-height: 1.8; margin-top: 20px; }
+
+/* ── 인쇄 ──────────────────────────────────── */
 @media print {
-  /* 표지 표시 */
   .print-only { display: block !important; }
   #cover-page { page-break-after: always; }
-
-  /* 인터랙티브 요소 숨김 */
-  .no-print,
-  #filter-banner,
-  .tier-filter,
-  .toggle-btn,
-  button,
-  .export-btn { display: none !important; }
-
-  /* 페이지 분할 제어 */
-  .chart-block,
-  .kpi-strip,
-  table,
-  .section-card { page-break-inside: avoid; }
-
+  .no-print, #filter-banner, .tier-filter, .toggle-btn, button, .action-btn { display: none !important; }
+  .chart-block, .kpi-strip, table, .section-card { page-break-inside: avoid; }
   h2, h3 { page-break-after: avoid; }
-
-  /* 여백 */
   @page { margin: 20mm 15mm; }
-
-  /* 링크 URL 숨김 */
   a[href]::after { content: none; }
-
-  /* 흑백 출력 보조: 색상 정보 보완 */
-  .delta-up::before { content: "▲ "; }
-  .delta-down::before { content: "▼ "; }
-
-  /* 사이드바 숨김, 메인 전체폭 */
-  .sidebar { display: none !important; }
   #sidebar { display: none !important; }
   #top-header { display: none !important; }
   #filter-changed-banner { display: none !important; }
   #layout { height: auto; }
   #main { overflow: visible; padding: 0; width: 100% !important; margin-left: 0 !important; }
-
-  /* 폰트 크기 최소 10pt */
   body { font-size: 10pt; }
-
-  .card { break-inside: avoid; }
+  .card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
   h2 { break-after: avoid; }
+  .detail-cell { display: table-cell !important; }
 }
-
-/* 표지 스타일 (화면·인쇄 공통) */
-.cover-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  text-align: center;
-  gap: 20px;
-}
-.cover-confidential {
-  color: #c0392b;
-  font-weight: 700;
-  font-size: 14px;
-  border: 2px solid #c0392b;
-  padding: 4px 16px;
-  border-radius: 4px;
-}
-.cover-title {
-  font-size: 32px;
-  font-weight: 800;
-  color: #1a1a2e;
-  margin: 0;
-}
-.cover-month {
-  font-size: 22px;
-  color: #2c3e50;
-  font-weight: 600;
-}
-.cover-meta {
-  font-size: 13px;
-  color: #555;
-  line-height: 1.8;
-  margin-top: 20px;
-}
-.src-badge { display:inline-block; font-size:9px; font-weight:700; padding:1px 4px; border-radius:2px; margin-left:4px; vertical-align:middle; }
-.src-badge.gt { background:#4285f4; color:#fff; }
-.src-badge.ns { background:#03c75a; color:#fff; }
-.src-badge.nd { background:#00b4d8; color:#fff; }
-.src-badge.dt { background:#e74c3c; color:#fff; }
-.rank-detail-table { width:100%; border-collapse:collapse; font-size:11px; }
-.rank-detail-table th { background:#f5f5f5; padding:5px 8px; text-align:left; border-bottom:2px solid #ddd; }
-.rank-detail-table td { padding:5px 8px; border-bottom:1px solid #f0f0f0; }
-.rank-detail-table .simmons-row td { background:#fff8f8; }
-.formula-text { font-family:monospace; font-size:10px; }
-@media print { .detail-cell { display:table-cell !important; } }
 </style>
 </head>
 <body>
@@ -300,7 +412,7 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
     <p class="cover-month">2026년 08월</p>
     <div class="cover-meta">
       <p>작성부서: 고객서비스(CS) 전략팀</p>
-      <p>수집일시: 2026-08-18T07:07:51+09:00</p>
+      <p>수집일시: 2026-08-18 09:00</p>
       <p>작성: 자동 생성 시스템 · 검수: ___________</p>
     </div>
   </div>
@@ -313,38 +425,57 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
 
 <!-- 상단 헤더 -->
 <div id="top-header">
-  <div class="title">시몬스 브랜드 트렌드 대시보드 · 2026년 08월</div>
-  <div class="meta">
-    <span style="font-size:11px;color:#c8a96e;font-weight:600;">보고 기준: 최근 3개월 · 전체 11개 브랜드</span>
-    <span>수집: 2026-08-18T07:07:51+09:00</span>
-    <span>대상: 11개 브랜드</span>
-    <span class="conf-badge">안정 100점</span>
+  <div class="header-brand">
+    <div class="header-logo">S</div>
+    <div class="header-title-group">
+      <div class="header-title">시몬스 브랜드 트렌드 대시보드</div>
+      <div class="header-sub">2026년 08월 · 월간 리포트</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="header-chip">수집 2026-08-18 09:00</span>
+    <span class="header-chip">11개 브랜드</span>
+    <span class="conf-badge">안정 75점</span>
   </div>
 </div>
 
 <div id="layout">
 
 <!-- 좌측 사이드바 -->
-<div id="sidebar">
-  <h3>기간</h3>
-  <button class="filter-btn active" data-range="today 3-m" onclick="setRange(this,'today 3-m')">최근 3개월</button>
-  <button class="filter-btn" data-range="today 6-m" onclick="setRange(this,'today 6-m')">최근 6개월</button>
-  <button class="filter-btn" data-range="today 12-m" onclick="setRange(this,'today 12-m')">최근 12개월</button>
+<nav id="sidebar">
 
-  <h3>티어 필터</h3>
-  <button class="filter-btn tier-filter active" data-tier="ALL" onclick="setTierFilter(this,'ALL')">전체</button>
-  <button class="filter-btn tier-filter" data-tier="A" onclick="setTierFilter(this,'A')">Tier A — 프리미엄</button>
-  <button class="filter-btn tier-filter" data-tier="B" onclick="setTierFilter(this,'B')">Tier B — 매스 침대</button>
-  <button class="filter-btn tier-filter" data-tier="C" onclick="setTierFilter(this,'C')">Tier C — 종합가구</button>
-  <button class="filter-btn tier-filter" data-tier="D" onclick="setTierFilter(this,'D')">Tier D — 렌탈</button>
+  <div class="nav-section">
+    <div class="nav-label">기간 선택</div>
+    <div class="period-pills">
+      <button class="period-pill active" data-range="today 3-m" onclick="setRange(this,'today 3-m')">3개월</button>
+      <button class="period-pill" data-range="today 6-m" onclick="setRange(this,'today 6-m')">6개월</button>
+      <button class="period-pill" data-range="today 12-m" onclick="setRange(this,'today 12-m')">12개월</button>
+    </div>
+  </div>
 
-  <h3>브랜드</h3>
-  <div id="brand-list"></div>
+  <div class="nav-section">
+    <div class="nav-label">티어 필터</div>
+    <div class="tier-grid">
+      <button class="tier-pill active tier-filter" data-tier="ALL" onclick="setTierFilter(this,'ALL')">전체</button>
+      <button class="tier-pill tier-filter" data-tier="A" onclick="setTierFilter(this,'A')">Tier A</button>
+      <button class="tier-pill tier-filter" data-tier="B" onclick="setTierFilter(this,'B')">Tier B</button>
+      <button class="tier-pill tier-filter" data-tier="C" onclick="setTierFilter(this,'C')">Tier C</button>
+      <button class="tier-pill tier-filter" data-tier="D" onclick="setTierFilter(this,'D')">Tier D</button>
+    </div>
+  </div>
 
-  <h3>내보내기</h3>
-  <button class="filter-btn" onclick="exportCSV()">CSV 다운로드</button>
-  <button class="filter-btn" onclick="exportPrint()">인쇄 / PDF</button>
-</div>
+  <div class="nav-section">
+    <div class="nav-label">브랜드 목록</div>
+    <div id="brand-list"></div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">내보내기</div>
+    <button class="action-btn" onclick="exportCSV()">↓ CSV 다운로드</button>
+    <button class="action-btn" onclick="exportPrint()">⎙ 인쇄 / PDF</button>
+  </div>
+
+</nav>
 
 <!-- 메인 콘텐츠 (결론 우선 → 근거 데이터) -->
 <div id="main">
@@ -353,24 +484,28 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
   <div class="chart-row" id="section-kpi">
     <div class="kpi-strip">
       <div class="kpi-card">
+        <div class="kpi-icon">📊</div>
         <div class="kpi-label">Share of Search</div>
-        <div class="kpi-value">7.9%</div>
+        <div class="kpi-value">0%</div>
         <div class="kpi-delta"><span style="color:#999;">— <small>비교기준 없음</small></span></div>
         <div class="kpi-note">브랜드별 구글 검색 점유율 합산 기준</div>
       </div>
       <div class="kpi-card">
+        <div class="kpi-icon">🔍</div>
         <div class="kpi-label">구글 검색 순위</div>
         <div class="kpi-value">3위 / 11</div>
         <div class="kpi-delta"><span style="color:#999;">— <small>비교기준 없음</small></span></div>
         <div class="kpi-note">Google Trends 정규화 지수 기준</div>
       </div>
       <div class="kpi-card">
+        <div class="kpi-icon">🌐</div>
         <div class="kpi-label">네이버 노출 순위</div>
-        <div class="kpi-value">3위 / 11</div>
+        <div class="kpi-value">None위 / 11</div>
         <div class="kpi-delta"><span style="color:#999;">— <small>비교기준 없음</small></span></div>
         <div class="kpi-note">블로그+뉴스 건수 기준</div>
       </div>
       <div class="kpi-card">
+        <div class="kpi-icon">📈</div>
         <div class="kpi-label">1위 브랜드 대비 갭</div>
         <div class="kpi-value">-628.8pt</div>
         <div class="kpi-delta"><span style="color:#999;">— <small>비교기준 없음</small></span></div>
@@ -424,21 +559,14 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
           <td><span style="color:#c62828;font-weight:bold;">높음</span></td>
         </tr>
         <tr>
-          <td>20~30대 검색 비중 제고 (현재 24.2%, 에이스침대 대비 저조)</td>
+          <td>20~30대 검색 비중 제고 (현재 0%, 에이스침대 대비 저조)</td>
           <td><a href="#section-demo">연령대별 검색 관심도</a></td>
           <td>마케팅팀</td>
           <td>2026 Q4</td>
           <td><span style="color:#c62828;font-weight:bold;">높음</span></td>
         </tr>
         <tr>
-          <td>네이버 콘텐츠 발행량 확대 (에이스침대 대비 93.2pt 낮음)</td>
-          <td><a href="#section-naver-rank">네이버 콘텐츠 노출량</a></td>
-          <td>디지털마케팅팀</td>
-          <td>2026 Q3</td>
-          <td><span style="color:#e65100;font-weight:bold;">중간</span></td>
-        </tr>
-        <tr>
-          <td>Share of Search 10% 목표 설정 (현재 7.9%)</td>
+          <td>Share of Search 10% 목표 설정 (현재 0%)</td>
           <td><a href="#section-sos">Share of Search</a></td>
           <td>브랜드팀</td>
           <td>2027 Q1</td>
@@ -522,7 +650,7 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
       </div>
       <div class="card-sub">시몬스=100 기준 · 월별 추이 (키워드 그룹 통합)</div>
       <div id="chart-datalab" style="height:360px;"></div>
-      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Naver DataLab (Playwright) · 수집: 2026-08-18T07:07:51+09:00 · 기준: 시몬스=100 · N=단회 수집</div>
+      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Naver DataLab (Playwright) · 수집: 2026-08-18 09:00 · 기준: 시몬스=100 · N=단회 수집</div>
     </div>
   </div>
 
@@ -558,13 +686,13 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
       <div class="card-title">Share of Search vs Share of Market (ESOV 분석)</div>
       <div class="card-sub">한샘·현대리바트·코웨이는 침대 외 사업 포함 — SoM 제외 (참고용)</div>
       <div style="display:inline-block;margin:8px 0 12px;padding:7px 14px;background:#fff3f3;border:1px solid #f5c6c6;border-radius:6px;font-size:12px;color:#c0392b;line-height:1.6;">
-        ⚑ 시몬스 SoS: <strong>7.9%</strong> · SoM 산출 불가 (비상장 — DART 공시 없음)
+        ⚑ 시몬스 SoS: <strong>0%</strong> · SoM 산출 불가 (비상장 — DART 공시 없음)
       </div>
       <div id="chart-sos-som" style="height:400px;"></div>
       <div style="font-size:10px;color:#999;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0;">
         ※ SoM = DART 공시 매출 기준 (caution=false 브랜드만). 대각선 위 = 검색 과소 → 검색 투자 여력. 대각선 아래 = 검색 과잉.
       </div>
-      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends + 네이버 증권 · 수집: 2026-08-18T07:07:51+09:00 · 기준: 시몬스=100</div>
+      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends + 네이버 증권 · 수집: 2026-08-18 09:00 · 기준: 시몬스=100</div>
     </div>
   </div>
 
@@ -576,7 +704,7 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
         · 출처: Google Trends 월별 지수 · 기준: monthly_series 기반 변동계수
       </div>
       <div id="cv-table"></div>
-      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends monthly_series · 수집: 2026-08-18T07:07:51+09:00 · 기준: 시몬스=100</div>
+      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends monthly_series · 수집: 2026-08-18 09:00 · 기준: 시몬스=100</div>
     </div>
   </div>
 
@@ -585,7 +713,7 @@ body{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;
   <div class="chart-row" id="section-appendix">
     <div class="card">
       <div class="card-title">부록 — 방법론 및 데이터 소스</div>
-      <div class="card-sub">수집 기준 · 산출식 · 데이터 한계 공개 / 수집: 2026-08-18T07:07:51+09:00</div>
+      <div class="card-sub">수집 기준 · 산출식 · 데이터 한계 공개 / 수집: 2026-08-18 09:00</div>
 
       <!-- ① 키워드 그룹 정의 -->
       <div class="section-title" style="margin-top:16px;">① 키워드 그룹 정의 (Naver DataLab 수집 기준)</div>
@@ -887,13 +1015,13 @@ function toggleDrill(id) {
 }
 /* ── 산출 근거 캡션 유틸리티 끝 ─────────────────────── */
 
-const RAW = {"google": {"batches": [{"label": "A", "keywords": ["이케아", "한샘", "지누스", "일룸"], "bridge": "일룸", "raw_medians": {"이케아": 78.37769230769231, "한샘": 23.686923076923076, "지누스": 4.256923076923077, "일룸": 6.8}}, {"label": "B", "keywords": ["일룸", "시몬스", "까사미아", "에이스침대", "현대리바트"], "bridge": "에이스침대", "raw_medians": {"일룸": 14.065384615384616, "시몬스": 22.243076923076924, "까사미아": 8.95, "에이스침대": 7.697692307692308, "현대리바트": 3.3861538461538463}}, {"label": "C", "keywords": ["에이스침대", "에몬스", "코웨이 비렉스", "씰리침대"], "bridge": null, "raw_medians": {"에이스침대": 62.68153846153846, "에몬스": 26.142307692307693, "코웨이 비렉스": 0.6476923076923077, "씰리침대": 4.857692307692307}}], "linked": {"이케아": 728.8, "한샘": 220.3, "지누스": 39.6, "일룸": 63.2, "시몬스": 100.0, "까사미아": 40.2, "에이스침대": 34.6, "현대리바트": 15.2, "에몬스": 14.4, "코웨이 비렉스": 0.4, "씰리침대": 2.7}, "normalized": {"이케아": 728.8, "한샘": 220.3, "지누스": 39.6, "일룸": 63.2, "시몬스": 100.0, "까사미아": 40.2, "에이스침대": 34.6, "현대리바트": 15.2, "에몬스": 14.4, "코웨이 비렉스": 0.4, "씰리침대": 2.7}, "warnings": ["배치C: max/min=96.8x > 20 (배치 재구성 권장)"], "monthly_series": {"이케아": [{"period": "2025-08", "value": 765.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 688.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 741.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 766.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 857.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 785.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 785.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 745.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 641.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 636.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 625.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 725.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 709.8, "cv": 0.0, "confidence": "stable"}], "한샘": [{"period": "2025-08", "value": 207.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 213.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 206.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 236.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 234.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 244.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 230.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 262.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 206.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 232.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 204.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 197.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 186.0, "cv": 0.0, "confidence": "stable"}], "지누스": [{"period": "2025-08", "value": 43.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 34.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 44.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 40.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 46.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 41.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 39.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 48.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 34.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 40.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 39.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 34.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 24.8, "cv": 0.0, "confidence": "stable"}], "일룸": [{"period": "2025-08", "value": 62.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 58.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 60.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 63.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 76.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 79.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 79.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 63.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 62.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 53.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 53.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 60.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 49.6, "cv": 0.0, "confidence": "stable"}], "시몬스": [{"period": "2025-08", "value": 239.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 94.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 91.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 110.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 98.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 83.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 88.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 83.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 114.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 84.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 73.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 73.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 64.4, "cv": 0.0, "confidence": "stable"}], "까사미아": [{"period": "2025-08", "value": 37.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 32.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 43.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 49.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 56.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 38.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 45.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 40.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 41.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 34.5, "cv": 0.0, "confidence": "stable"}], "에이스침대": [{"period": "2025-08", "value": 34.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 30.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 37.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 37.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 42.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 41.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 33.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 39.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 30.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 30.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 22.5, "cv": 0.0, "confidence": "stable"}], "현대리바트": [{"period": "2025-08", "value": 16.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 11.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 14.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 10.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 12.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 30.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 28.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 13.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 18.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 9.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 13.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 10.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 9.0, "cv": 0.0, "confidence": "stable"}], "에몬스": [{"period": "2025-08", "value": 9.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 6.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 14.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 30.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 17.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 14.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 14.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 10.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 12.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 17.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 14.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 8.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 16.4, "cv": 0.0114, "confidence": "stable"}], "코웨이 비렉스": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-12", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-01", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-02", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-03", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-04", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-05", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-06", "value": 2.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-08", "value": 2.0, "cv": 0.2009, "confidence": "unstable"}], "씰리침대": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 6.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 2.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 2.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 2.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 2.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-04", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-05", "value": 5.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 2.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 4.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 5.0, "cv": 0.0182, "confidence": "stable"}]}, "periods": ["2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08"]}, "naver": {"normalized": {"시몬스": 166.9, "에이스침대": 193.2, "씰리침대": 123.6, "지누스": 27.9, "코웨이 비렉스": 26.2, "한샘": 84.0, "현대리바트": 42.9, "까사미아": 53.9, "일룸": 70.5, "에몬스": 88.4, "이케아": 222.4}, "stats": {}}, "datalab": {}, "demographics": {"시몬스": {"gender": {"여성": 40.7, "남성": 7.0}, "age": {"10대": 2.1, "20대": 5.2, "30대": 19.0, "40대": 29.2, "50대": 31.2, "60대+": 21.2}}, "에이스침대": {"gender": {"여성": 55.0, "남성": 56.2}, "age": {"10대": 32.1, "20대": 52.4, "30대": 56.2, "40대": 50.0, "50대": 55.9, "60대+": 59.4}}, "한샘": {"gender": {"여성": 59.6, "남성": 20.7}, "age": {"10대": 38.9, "20대": 52.4, "30대": 46.2, "40대": 33.0, "50대": 24.1, "60대+": 17.9}}, "씰리침대": {"gender": {"여성": 47.6, "남성": 46.1}, "age": {"10대": 13.7, "20대": 45.6, "30대": 48.5, "40대": 45.8, "50대": 36.3, "60대+": 34.8}}}, "dart": {"에이스침대": {"amount": 3173, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업", "source": "naver_finance"}, "한샘": {"amount": 17445, "year": "2025", "unit": "억원", "caution": true, "note": "종합 가구 포함", "source": "naver_finance"}, "현대리바트": {"amount": 15462, "year": "2025", "unit": "억원", "caution": true, "note": "종합 가구 포함", "source": "naver_finance"}, "지누스": {"amount": 9132, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업", "source": "naver_finance"}, "코웨이 비렉스": {"amount": 49636, "year": "2025", "unit": "억원", "caution": true, "note": "코웨이 전체 매출 (비렉스 분리 불가)", "source": "naver_finance"}}, "commentary": null, "sos": {"이케아": 57.9, "한샘": 17.5, "지누스": 3.1, "일룸": 5.0, "시몬스": 7.9, "까사미아": 3.2, "에이스침대": 2.7, "현대리바트": 1.2, "에몬스": 1.1, "코웨이 비렉스": 0.0, "씰리침대": 0.2}, "gap": [{"brand": "이케아", "naver": 133.2, "google": 728.8, "gap": -595.6}, {"brand": "한샘", "naver": 50.3, "google": 220.3, "gap": -170.0}, {"brand": "에이스침대", "naver": 115.7, "google": 34.6, "gap": 81.1}, {"brand": "씰리침대", "naver": 74.1, "google": 2.7, "gap": 71.4}, {"brand": "에몬스", "naver": 53.0, "google": 14.4, "gap": 38.6}, {"brand": "지누스", "naver": 16.7, "google": 39.6, "gap": -22.9}, {"brand": "일룸", "naver": 42.2, "google": 63.2, "gap": -21.0}, {"brand": "코웨이 비렉스", "naver": 15.7, "google": 0.4, "gap": 15.3}, {"brand": "현대리바트", "naver": 25.7, "google": 15.2, "gap": 10.5}, {"brand": "까사미아", "naver": 32.3, "google": 40.2, "gap": -7.9}, {"brand": "시몬스", "naver": 100.0, "google": 100.0, "gap": 0.0}], "change_points": [], "events": [], "meta": {"run_id": "20260818_070751", "collected_at": "2026-08-18T07:07:51+09:00", "confidence_score": 100}, "quality": {"sample_count": 3}};
+const RAW = {"collected_at": "2026-08-18T07:07:51+09:00", "baseline": "시몬스", "run_id": "20260818_070751", "google": {"batches": [{"label": "A", "keywords": ["이케아", "한샘", "지누스", "일룸"], "bridge": "일룸", "raw_medians": {"이케아": 78.37769230769231, "한샘": 23.686923076923076, "지누스": 4.256923076923077, "일룸": 6.8}}, {"label": "B", "keywords": ["일룸", "시몬스", "까사미아", "에이스침대", "현대리바트"], "bridge": "에이스침대", "raw_medians": {"일룸": 14.065384615384616, "시몬스": 22.243076923076924, "까사미아": 8.95, "에이스침대": 7.697692307692308, "현대리바트": 3.3861538461538463}}, {"label": "C", "keywords": ["에이스침대", "에몬스", "코웨이 비렉스", "씰리침대"], "bridge": null, "raw_medians": {"에이스침대": 62.68153846153846, "에몬스": 26.142307692307693, "코웨이 비렉스": 0.6476923076923077, "씰리침대": 4.857692307692307}}], "linked": {"이케아": 728.8, "한샘": 220.3, "지누스": 39.6, "일룸": 63.2, "시몬스": 100.0, "까사미아": 40.2, "에이스침대": 34.6, "현대리바트": 15.2, "에몬스": 14.4, "코웨이 비렉스": 0.4, "씰리침대": 2.7}, "normalized": {"이케아": 728.8, "한샘": 220.3, "지누스": 39.6, "일룸": 63.2, "시몬스": 100.0, "까사미아": 40.2, "에이스침대": 34.6, "현대리바트": 15.2, "에몬스": 14.4, "코웨이 비렉스": 0.4, "씰리침대": 2.7}, "warnings": ["배치C: max/min=96.8x > 20 (배치 재구성 권장)"], "monthly_series": {"이케아": [{"period": "2025-08", "value": 765.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 688.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 741.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 766.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 857.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 785.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 785.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 745.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 641.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 636.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 625.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 725.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 709.8, "cv": 0.0, "confidence": "stable"}], "한샘": [{"period": "2025-08", "value": 207.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 213.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 206.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 236.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 234.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 244.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 230.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 262.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 206.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 232.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 204.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 197.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 186.0, "cv": 0.0, "confidence": "stable"}], "지누스": [{"period": "2025-08", "value": 43.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 34.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 44.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 40.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 46.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 41.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 39.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 48.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 34.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 40.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 39.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 34.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 24.8, "cv": 0.0, "confidence": "stable"}], "일룸": [{"period": "2025-08", "value": 62.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 58.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 60.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 63.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 76.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 79.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 79.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 63.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 62.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 53.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 53.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 60.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 49.6, "cv": 0.0, "confidence": "stable"}], "시몬스": [{"period": "2025-08", "value": 239.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 94.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 91.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 110.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 98.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 83.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 88.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 83.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 114.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 84.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 73.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 73.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 64.4, "cv": 0.0, "confidence": "stable"}], "까사미아": [{"period": "2025-08", "value": 37.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 32.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 43.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 49.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 56.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 38.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 45.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 40.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 41.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 34.5, "cv": 0.0, "confidence": "stable"}], "에이스침대": [{"period": "2025-08", "value": 34.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 30.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 37.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 37.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 42.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 41.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 33.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 39.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 30.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 30.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 22.5, "cv": 0.0, "confidence": "stable"}], "현대리바트": [{"period": "2025-08", "value": 16.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 11.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 14.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 10.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 12.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 30.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 28.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 13.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 18.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 9.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 13.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 10.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 9.0, "cv": 0.0, "confidence": "stable"}], "에몬스": [{"period": "2025-08", "value": 9.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 6.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 14.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 30.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 17.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 14.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 14.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 10.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 12.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 17.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 14.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 8.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 16.4, "cv": 0.0114, "confidence": "stable"}], "코웨이 비렉스": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-12", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-01", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-02", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-03", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-04", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-05", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-06", "value": 2.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-08", "value": 2.0, "cv": 0.2009, "confidence": "unstable"}], "씰리침대": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 6.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 2.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 2.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 2.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 2.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-04", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-05", "value": 5.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 2.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 4.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 5.0, "cv": 0.0182, "confidence": "stable"}]}, "periods": ["2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08"]}, "naver_datalab_trend": {}, "naver_datalab": {"시몬스": {"gender": {"여성": 40.7, "남성": 7.0}, "age": {"10대": 2.1, "20대": 5.2, "30대": 19.0, "40대": 29.2, "50대": 31.2, "60대+": 21.2}}, "에이스침대": {"gender": {"여성": 55.0, "남성": 56.2}, "age": {"10대": 32.1, "20대": 52.4, "30대": 56.2, "40대": 50.0, "50대": 55.9, "60대+": 59.4}}, "한샘": {"gender": {"여성": 59.6, "남성": 20.7}, "age": {"10대": 38.9, "20대": 52.4, "30대": 46.2, "40대": 33.0, "50대": 24.1, "60대+": 17.9}}, "씰리침대": {"gender": {"여성": 47.6, "남성": 46.1}, "age": {"10대": 13.7, "20대": 45.6, "30대": 48.5, "40대": 45.8, "50대": 36.3, "60대+": 34.8}}}, "naver_search": {"시몬스": {"blog_news_total": 156855}, "에이스침대": {"blog_news_total": 181538}, "씰리침대": {"blog_news_total": 116190}, "지누스": {"blog_news_total": 26201}, "코웨이 비렉스": {"blog_news_total": 24656}, "한샘": {"blog_news_total": 78960}, "현대리바트": {"blog_news_total": 40326}, "까사미아": {"blog_news_total": 50659}, "일룸": {"blog_news_total": 66259}, "에몬스": {"blog_news_total": 83118}, "이케아": {"blog_news_total": 208969}}, "dart": {"에이스침대": {"amount": 3173, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업", "source": "naver_finance"}, "한샘": {"amount": 17445, "year": "2025", "unit": "억원", "caution": true, "note": "종합 가구 포함", "source": "naver_finance"}, "현대리바트": {"amount": 15462, "year": "2025", "unit": "억원", "caution": true, "note": "종합 가구 포함", "source": "naver_finance"}, "지누스": {"amount": 9132, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업", "source": "naver_finance"}, "코웨이 비렉스": {"amount": 49636, "year": "2025", "unit": "억원", "caution": true, "note": "코웨이 전체 매출 (비렉스 분리 불가)", "source": "naver_finance"}}, "gap": [{"brand": "이케아", "naver": 133.2, "google": 728.8, "gap": -595.6}, {"brand": "한샘", "naver": 50.3, "google": 220.3, "gap": -170.0}, {"brand": "에이스침대", "naver": 115.7, "google": 34.6, "gap": 81.1}, {"brand": "씰리침대", "naver": 74.1, "google": 2.7, "gap": 71.4}, {"brand": "에몬스", "naver": 53.0, "google": 14.4, "gap": 38.6}, {"brand": "지누스", "naver": 16.7, "google": 39.6, "gap": -22.9}, {"brand": "일룸", "naver": 42.2, "google": 63.2, "gap": -21.0}, {"brand": "코웨이 비렉스", "naver": 15.7, "google": 0.4, "gap": 15.3}, {"brand": "현대리바트", "naver": 25.7, "google": 15.2, "gap": 10.5}, {"brand": "까사미아", "naver": 32.3, "google": 40.2, "gap": -7.9}, {"brand": "시몬스", "naver": 100.0, "google": 100.0, "gap": 0.0}], "quality": {"cv": {"시몬스": 0.0, "에이스침대": 0.0, "씰리침대": 0.0, "지누스": 0.0, "코웨이 비렉스": 0.0, "한샘": 0.0, "현대리바트": 0.0, "까사미아": 0.0, "일룸": 0.0, "에몬스": 0.0, "이케아": 0.0}, "confidence_score": 100, "sample_count": 3, "outliers_removed": 0, "suspect": true}};
 const COLORS = {"시몬스": "#0b0b0b", "에이스침대": "#e34948", "씰리침대": "#1baf7a", "지누스": "#008300", "코웨이 비렉스": "#2a78d6", "한샘": "#199e70", "현대리바트": "#4a3aa7", "까사미아": "#eb6834", "일룸": "#d95926", "에몬스": "#534ab7", "이케아": "#378add"};
 const BRANDS_CFG = [{"name": "시몬스", "tier": 0, "baseline": true, "trend_kw": "시몬스", "naver_kw": "시몬스 침대", "color": "#0b0b0b"}, {"name": "에이스침대", "tier": 1, "baseline": false, "trend_kw": "에이스침대", "naver_kw": "에이스침대", "color": "#e34948"}, {"name": "씰리침대", "tier": 1, "baseline": false, "trend_kw": "씰리침대", "naver_kw": "씰리침대", "color": "#1baf7a"}, {"name": "지누스", "tier": 2, "baseline": false, "trend_kw": "지누스", "naver_kw": "지누스 매트리스", "color": "#008300"}, {"name": "코웨이 비렉스", "tier": 2, "baseline": false, "trend_kw": "코웨이 비렉스", "naver_kw": "코웨이 비렉스", "color": "#2a78d6"}, {"name": "한샘", "tier": 3, "baseline": false, "trend_kw": "한샘", "naver_kw": "한샘 매트리스", "color": "#199e70"}, {"name": "현대리바트", "tier": 3, "baseline": false, "trend_kw": "현대리바트", "naver_kw": "현대리바트 침대", "color": "#4a3aa7"}, {"name": "까사미아", "tier": 3, "baseline": false, "trend_kw": "까사미아", "naver_kw": "까사미아 침대", "color": "#eb6834"}, {"name": "일룸", "tier": 3, "baseline": false, "trend_kw": "일룸", "naver_kw": "일룸 침대", "color": "#d95926"}, {"name": "에몬스", "tier": 3, "baseline": false, "trend_kw": "에몬스", "naver_kw": "에몬스 가구", "color": "#534ab7"}, {"name": "이케아", "tier": 3, "baseline": false, "trend_kw": "이케아", "naver_kw": "이케아 침대", "color": "#378add"}];
 const TIER_LABELS = {"0": "기준", "1": "1군 · 직접 경쟁", "2": "2군 · 대체 채널", "3": "3군 · 종합 가구"};
 const TIER_NEW = {"A": {"label": "Tier A — 프리미엄 매트리스", "warning": null, "brands": ["시몬스", "씰리침대"]}, "B": {"label": "Tier B — 매스 침대", "warning": null, "brands": ["에이스침대", "에몬스", "지누스"]}, "C": {"label": "Tier C — 종합가구", "warning": "검색 지수에 가구·인테리어 수요 혼재. 직접 비교 주의.", "brands": ["한샘", "현대리바트", "까사미아", "일룸", "이케아"]}, "D": {"label": "Tier D — 렌탈", "warning": "렌탈 사업 모델로 직접 비교 주의.", "brands": ["코웨이 비렉스"]}};
 const BRAND_TO_TIER = {"시몬스": "A", "씰리침대": "A", "에이스침대": "B", "에몬스": "B", "지누스": "B", "한샘": "C", "현대리바트": "C", "까사미아": "C", "일룸": "C", "이케아": "C", "코웨이 비렉스": "D"};
-const SOS_SOM_DATA = [{"brand": "이케아", "sos": 57.9, "som": null, "caution": true, "tier": "C", "in_dart": false}, {"brand": "한샘", "sos": 17.5, "som": null, "caution": true, "tier": "C", "in_dart": true}, {"brand": "지누스", "sos": 3.1, "som": 74.2, "caution": false, "tier": "B", "in_dart": true}, {"brand": "일룸", "sos": 5.0, "som": null, "caution": true, "tier": "C", "in_dart": false}, {"brand": "까사미아", "sos": 3.2, "som": null, "caution": true, "tier": "C", "in_dart": false}, {"brand": "에이스침대", "sos": 2.7, "som": 25.8, "caution": false, "tier": "B", "in_dart": true}, {"brand": "현대리바트", "sos": 1.2, "som": null, "caution": true, "tier": "C", "in_dart": true}, {"brand": "에몬스", "sos": 1.1, "som": null, "caution": true, "tier": "B", "in_dart": false}, {"brand": "코웨이 비렉스", "sos": 0.0, "som": null, "caution": true, "tier": "D", "in_dart": true}, {"brand": "씰리침대", "sos": 0.2, "som": null, "caution": true, "tier": "A", "in_dart": false}];
+const SOS_SOM_DATA = [];
 
 // 현재 티어 필터 상태
 let _activeTier = 'ALL';
@@ -2114,7 +2242,7 @@ function renderInsights() {
 
 // T3-3: 기본값 변경 배너 로직
 function _updateFilterBanner() {
-  const rangeBtn = document.querySelector('.filter-btn.active[data-range]');
+  const rangeBtn = document.querySelector('.period-pill.active[data-range]');
   const tierBtn = document.querySelector('.tier-filter.active');
   const banner = document.getElementById('filter-changed-banner');
   if (!banner) return;
@@ -2124,7 +2252,7 @@ function _updateFilterBanner() {
 }
 
 function setRange(btn, range) {
-  document.querySelectorAll('.filter-btn[data-range]').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.period-pill[data-range]').forEach(b=>b.classList.remove('active'));
   btn.dataset.range = range;
   btn.classList.add('active');
   // range 문자열 → _activePeriod 매핑
@@ -2150,7 +2278,7 @@ function setRange(btn, range) {
 // T3-3: PDF 인쇄 표지 자동 기록
 function exportPrint() {
   const cover = document.getElementById('cover-page');
-  const rangeBtn = document.querySelector('.filter-btn.active[data-range]');
+  const rangeBtn = document.querySelector('.period-pill.active[data-range]');
   const tierBtn = document.querySelector('.tier-filter.active');
   const rangeLabel = rangeBtn?.textContent || '최근 3개월';
   const tierLabel = tierBtn?.textContent || '전체';
@@ -2200,7 +2328,7 @@ renderInsights();
   const hasMonthlySeries = Object.keys(RAW.google?.monthly_series || {}).length > 0;
   const hasDatalabSeries = Object.keys((RAW.datalab || {}).monthly_series || {}).length > 0;
   if (!hasMonthlySeries && !hasDatalabSeries) {
-    document.querySelectorAll('.filter-btn[data-range]').forEach(btn => {
+    document.querySelectorAll('.period-pill[data-range]').forEach(btn => {
       btn.disabled = true;
       btn.style.opacity = '0.4';
       btn.style.cursor = 'not-allowed';

@@ -97,20 +97,21 @@ def _build_kpi_strip(kpi, prev_kpi, total_brands):
     d = lambda k, u="": _delta_html(kpi, prev_kpi, k, u)
 
     cards = [
-        ("Share of Search", f"{kpi['sos']}%", d("sos", "%p"),
+        ("📊", "Share of Search", f"{kpi['sos']}%", d("sos", "%p"),
          "브랜드별 구글 검색 점유율 합산 기준"),
-        ("구글 검색 순위", f"{kpi['g_rank']}위 / {total_brands}",
+        ("🔍", "구글 검색 순위", f"{kpi['g_rank']}위 / {total_brands}",
          d("g_rank", "위"), "Google Trends 정규화 지수 기준"),
-        ("네이버 노출 순위", f"{kpi['n_rank']}위 / {total_brands}",
+        ("🌐", "네이버 노출 순위", f"{kpi['n_rank']}위 / {total_brands}",
          d("n_rank", "위"), "블로그+뉴스 건수 기준"),
-        ("1위 브랜드 대비 갭", f"-{kpi['gap_to_top']}pt",
+        ("📈", "1위 브랜드 대비 갭", f"-{kpi['gap_to_top']}pt",
          d("gap_to_top", "pt"), f"vs {kpi['g_top_brand']} (구글 지수 기준)"),
     ]
 
     items = ""
-    for title, val, delta, note in cards:
+    for icon, title, val, delta, note in cards:
         items += f"""
       <div class="kpi-card">
+        <div class="kpi-icon">{icon}</div>
         <div class="kpi-label">{title}</div>
         <div class="kpi-value">{val}</div>
         <div class="kpi-delta">{delta}</div>
@@ -495,291 +496,403 @@ def build_dashboard(data, report_month, collected_at, confidence_score):
 <head>
 <meta charset="UTF-8">
 <title>시몬스 브랜드 트렌드 대시보드 — {report_month}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <style>
-*{{box-sizing:border-box;margin:0;padding:0;}}
-body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222;min-width:1280px;}}
+/* ═══════════════════════════════════════════
+   시몬스 브랜드 트렌드 대시보드 — UI v3
+   Design: Modern Korean Business Dashboard
+   ═══════════════════════════════════════════ */
 
-/* 상단 헤더 */
-#top-header{{
-  position:sticky;top:0;z-index:100;
-  background:#0b0b0b;color:#fff;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 24px;height:52px;
-  border-bottom:2px solid #c8a96e;
-}}
-#top-header .title{{font-size:16px;font-weight:bold;}}
-#top-header .meta{{display:flex;gap:20px;align-items:center;font-size:12px;color:#aaa;}}
-.conf-badge{{
-  padding:3px 10px;border-radius:12px;font-size:12px;font-weight:bold;
-  background:{conf_color};color:#fff;
-}}
-
-/* 레이아웃 — 사이드바 + main 2열 */
-#layout{{display:flex;height:calc(100vh - 52px);}}
-
-/* 좌측 사이드바 */
-#sidebar{{
-  width:220px;min-width:220px;background:#fff;
-  border-right:1px solid #e0e0e0;overflow-y:auto;padding:16px 12px;
-}}
-#sidebar h3{{font-size:12px;color:#888;text-transform:uppercase;
-             letter-spacing:1px;margin:16px 0 8px;padding-bottom:4px;
-             border-bottom:1px solid #eee;}}
-.tier-header{{
-  font-size:10px;color:#999;font-weight:600;letter-spacing:0.5px;
-  padding:8px 4px 4px;text-transform:uppercase;
-}}
-.brand-item{{
-  display:flex;align-items:center;gap:8px;padding:5px 4px;
-  border-radius:4px;cursor:pointer;font-size:13px;transition:background 0.15s;
-}}
-.brand-item:hover{{background:#f5f5f5;}}
-.brand-item.active{{background:#e8eaf6;font-weight:bold;}}
-.brand-item--baseline{{
-  background:#fafafa;border:1px solid #e0e0e0;
-  border-radius:6px;margin-bottom:6px;
-}}
-.brand-dot{{width:10px;height:10px;border-radius:50%;flex-shrink:0;}}
-.baseline-badge{{
-  margin-left:auto;font-size:9px;font-weight:700;
-  background:#0b0b0b;color:#c8a96e;
-  padding:2px 5px;border-radius:3px;letter-spacing:0.5px;
-}}
-.filter-btn{{
-  display:block;width:100%;padding:6px 10px;margin-bottom:6px;
-  border:1px solid #ddd;border-radius:4px;background:#fff;
-  font-size:12px;cursor:pointer;text-align:left;transition:all 0.15s;
-}}
-.filter-btn:hover,.filter-btn.active{{background:#0b0b0b;color:#fff;border-color:#0b0b0b;}}
-
-/* 중앙 차트 영역 */
-#main{{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;}}
-
-/* KPI 스트립 */
-.kpi-strip{{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
-  margin-bottom:0;
-}}
-.kpi-card{{
-  background:#fff;border-radius:8px;border:1px solid #e0e0e0;
-  padding:14px 16px;border-top:3px solid #c8a96e;
-}}
-.kpi-label{{font-size:11px;color:#666;font-weight:600;text-transform:uppercase;
-            letter-spacing:0.5px;margin-bottom:6px;}}
-.kpi-value{{font-size:22px;font-weight:bold;color:#0b0b0b;margin-bottom:4px;}}
-.kpi-delta{{font-size:13px;margin-bottom:4px;}}
-.kpi-note{{font-size:10px;color:#767676;}}
-
-/* 섹션 구분선 */
-.section-divider{{
-  display:flex;align-items:center;gap:12px;margin:8px 0;
-  color:#888;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
-}}
-.section-divider::before,.section-divider::after{{
-  content:'';flex:1;height:1px;background:#e0e0e0;
+:root {{
+  --simmons:        #C8102E;
+  --simmons-light:  #fff1f2;
+  --primary:        #1e3a8a;
+  --primary-mid:    #2563eb;
+  --primary-light:  #eff6ff;
+  --primary-border: #bfdbfe;
+  --bg:             #f0f4f8;
+  --surface:        #ffffff;
+  --surface-2:      #f8fafc;
+  --border:         #e2e8f0;
+  --border-light:   #f1f5f9;
+  --tx1:            #0f172a;
+  --tx2:            #475569;
+  --tx3:            #94a3b8;
+  --green:          #15803d;
+  --green-light:    #dcfce7;
+  --orange:         #c2410c;
+  --orange-light:   #fff7ed;
+  --red:            #dc2626;
+  --red-light:      #fee2e2;
+  --kpi-1:          #2563eb;
+  --kpi-2:          #7c3aed;
+  --kpi-3:          #059669;
+  --kpi-4:          #d97706;
+  --header-h:       58px;
+  --sidebar-w:      220px;
+  --r-s:  6px;
+  --r:    10px;
+  --r-l:  14px;
+  --shadow-s:  0 1px 2px rgba(15,23,42,.05);
+  --shadow:    0 1px 3px rgba(15,23,42,.08), 0 4px 16px rgba(15,23,42,.04);
+  --shadow-m:  0 4px 24px rgba(15,23,42,.10);
 }}
 
-/* 요약 카드 그리드 */
-.summary-grid{{display:grid;grid-template-columns:1fr 2fr;gap:16px;}}
-.summary-col{{display:flex;flex-direction:column;gap:12px;}}
+*, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
 
-/* 인사이트 아이템 */
-.insight-item{{
-  padding:10px;border-radius:6px;background:#f9f9f9;
-  margin-bottom:8px;font-size:12px;line-height:1.6;
-}}
-.insight-item.warn{{background:#fff3e0;border-left:3px solid #e65100;}}
-.insight-item.good{{background:#e8f5e9;border-left:3px solid #2e7d32;}}
-
-/* 섹션 타이틀 */
-.section-title{{
-  font-size:13px;font-weight:bold;color:#0b0b0b;
-  border-left:3px solid #c8a96e;padding-left:8px;margin-bottom:12px;
+body {{
+  font-family: 'Noto Sans KR', 'Malgun Gothic', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--tx1);
+  min-width: 1280px;
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }}
 
-/* 차트 카드 */
-.chart-row{{display:grid;gap:16px;}}
-.chart-row.col2{{grid-template-columns:1fr 1fr;}}
-.chart-row.col3{{grid-template-columns:1fr 1fr 1fr;}}
-.card{{background:#fff;border-radius:8px;border:1px solid #e0e0e0;padding:16px;height:auto !important;padding-bottom:16px;overflow:visible;}}
-.card-title{{font-size:13px;font-weight:bold;color:#0b0b0b;margin-bottom:4px;}}
-.card-sub{{font-size:11px;color:#888;margin-bottom:12px;}}
-.source-badge{{
-  display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;
-  margin-left:6px;font-weight:normal;
+/* ── 상단 헤더 ──────────────────────────────── */
+#top-header {{
+  position: sticky; top: 0; z-index: 200;
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: var(--shadow-s);
 }}
-.badge-google{{background:#e8f5e9;color:#2e7d32;}}
-.badge-naver{{background:#e3f2fd;color:#1565c0;}}
-.badge-no-demo{{background:#fff3e0;color:#e65100;}}
+.header-brand {{ display: flex; align-items: center; gap: 12px; }}
+.header-logo {{
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--simmons) 0%, #8b0d1f 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 15px; font-weight: 800; flex-shrink: 0;
+}}
+.header-title-group {{ display: flex; flex-direction: column; gap: 1px; }}
+.header-title {{ font-size: 15px; font-weight: 700; color: var(--tx1); letter-spacing: -.3px; }}
+.header-sub {{ font-size: 11px; color: var(--tx3); }}
+.header-right {{ display: flex; align-items: center; gap: 8px; }}
+.header-chip {{
+  display: inline-flex; align-items: center;
+  height: 28px; padding: 0 12px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 20px; font-size: 11px; color: var(--tx2); white-space: nowrap;
+}}
+.conf-badge {{
+  display: inline-flex; align-items: center;
+  height: 28px; padding: 0 12px;
+  border-radius: 20px; font-size: 11px; font-weight: 600;
+  background: {conf_color}; color: #fff;
+}}
 
-/* CV 신뢰도 색상 */
-.cv-stable{{color:#2e7d32;font-weight:bold;}}
-.cv-warning{{color:#e65100;font-weight:bold;}}
-.cv-unstable{{color:#c62828;font-weight:bold;}}
-.cv-na{{color:#999;font-style:italic;}}
+/* ── 레이아웃 ──────────────────────────────── */
+#layout {{ display: flex; height: calc(100vh - var(--header-h)); overflow: hidden; }}
 
-/* 데이터 테이블 */
-.data-table{{width:100%;border-collapse:collapse;font-size:12px;}}
-.data-table th{{background:#0b0b0b;color:#fff;padding:7px 10px;text-align:left;}}
-.data-table td{{padding:7px 10px;border-bottom:1px solid #f0f0f0;}}
-.data-table tr:hover td{{background:#f9f9f9;}}
-.simmons-sticky td{{background:#fafafa;font-weight:bold;position:sticky;top:0;z-index:1;}}
+/* ── 사이드바 ──────────────────────────────── */
+#sidebar {{
+  width: var(--sidebar-w); min-width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex; flex-direction: column;
+}}
+#sidebar::-webkit-scrollbar {{ width: 4px; }}
+#sidebar::-webkit-scrollbar-thumb {{ background: var(--border); border-radius: 2px; }}
 
-/* 인구통계 없음 */
-.no-data{{text-align:center;padding:30px;color:#aaa;font-size:13px;}}
+.nav-section {{ padding: 14px 14px 12px; border-bottom: 1px solid var(--border-light); }}
+.nav-section:last-child {{ border-bottom: none; }}
 
-/* 인구통계 인덱스 토글 버튼 */
+.nav-label {{
+  font-size: 10px; font-weight: 700; color: var(--tx3);
+  text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;
+}}
+
+/* 기간 필터 pills */
+.period-pills {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }}
+.period-pill {{
+  padding: 6px 2px;
+  border: 1px solid var(--border); border-radius: 20px;
+  background: var(--surface); font-size: 11px;
+  font-family: inherit; color: var(--tx2);
+  cursor: pointer; text-align: center; transition: all .15s;
+}}
+.period-pill:hover {{ background: var(--primary-light); border-color: var(--primary-mid); color: var(--primary-mid); }}
+.period-pill.active {{ background: var(--primary-mid); border-color: var(--primary-mid); color: #fff; font-weight: 600; }}
+
+/* 티어 필터 pills */
+.tier-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }}
+.tier-pill {{
+  padding: 6px 4px;
+  border: 1px solid var(--border); border-radius: var(--r-s);
+  background: var(--surface); font-size: 11px;
+  font-family: inherit; color: var(--tx2);
+  cursor: pointer; text-align: center; transition: all .15s; white-space: nowrap;
+}}
+.tier-pill:hover {{ background: var(--primary-light); border-color: var(--primary-mid); color: var(--primary-mid); }}
+.tier-pill.active {{ background: var(--primary-mid); border-color: var(--primary-mid); color: #fff; font-weight: 600; }}
+.tier-pill[data-tier="ALL"] {{ grid-column: 1 / -1; }}
+/* 하위 호환 */
+.filter-btn {{ display: block; width: 100%; padding: 6px 10px; margin-bottom: 4px; border: 1px solid var(--border); border-radius: var(--r-s); background: var(--surface); font-size: 12px; font-family: inherit; cursor: pointer; text-align: left; transition: all .15s; color: var(--tx2); }}
+.filter-btn:hover, .filter-btn.active {{ background: var(--primary-mid); color: #fff; border-color: var(--primary-mid); }}
+
+/* 브랜드 리스트 */
+.tier-header {{ font-size: 9px; color: var(--tx3); font-weight: 700; letter-spacing: 0.5px; padding: 8px 8px 3px; text-transform: uppercase; }}
+.brand-item {{
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: var(--r-s);
+  cursor: pointer; font-size: 12px; color: var(--tx2); transition: background .12s;
+}}
+.brand-item:hover {{ background: var(--surface-2); }}
+.brand-item.active {{ background: var(--primary-light); color: var(--primary-mid); font-weight: 600; }}
+.brand-item--baseline {{
+  background: var(--simmons-light); border: 1px solid #fca5a5;
+  border-radius: var(--r-s); margin-bottom: 6px;
+}}
+.brand-dot {{ width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }}
+.baseline-badge {{
+  margin-left: auto; font-size: 9px; font-weight: 700;
+  background: var(--simmons); color: #fff;
+  padding: 1px 5px; border-radius: 3px;
+}}
+
+/* 사이드바 액션 버튼 */
+.action-btn {{
+  display: block; width: 100%; padding: 7px 12px; margin-bottom: 5px;
+  border: 1px solid var(--border); border-radius: var(--r-s);
+  background: var(--surface); font-size: 12px; font-family: inherit;
+  color: var(--tx2); cursor: pointer; text-align: left; transition: all .15s;
+}}
+.action-btn:hover {{ background: var(--primary-light); border-color: var(--primary-mid); color: var(--primary-mid); }}
+
+/* ── 메인 콘텐츠 ──────────────────────────── */
+#main {{
+  flex: 1; overflow-y: auto;
+  padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 20px;
+}}
+#main::-webkit-scrollbar {{ width: 6px; }}
+#main::-webkit-scrollbar-thumb {{ background: var(--border); border-radius: 3px; }}
+
+/* ── KPI 스트립 ──────────────────────────── */
+.kpi-strip {{ display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }}
+.kpi-card {{
+  background: var(--surface);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+  transition: box-shadow .2s, transform .2s;
+}}
+.kpi-card:hover {{ box-shadow: var(--shadow-m); transform: translateY(-1px); }}
+.kpi-card::before {{
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; border-radius: var(--r) var(--r) 0 0;
+}}
+.kpi-card:nth-child(1)::before {{ background: var(--kpi-1); }}
+.kpi-card:nth-child(2)::before {{ background: var(--kpi-2); }}
+.kpi-card:nth-child(3)::before {{ background: var(--kpi-3); }}
+.kpi-card:nth-child(4)::before {{ background: var(--kpi-4); }}
+.kpi-icon {{
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; margin-bottom: 10px; flex-shrink: 0;
+}}
+.kpi-card:nth-child(1) .kpi-icon {{ background: #dbeafe; }}
+.kpi-card:nth-child(2) .kpi-icon {{ background: #ede9fe; }}
+.kpi-card:nth-child(3) .kpi-icon {{ background: #d1fae5; }}
+.kpi-card:nth-child(4) .kpi-icon {{ background: #fef3c7; }}
+.kpi-label {{ font-size: 11px; color: var(--tx3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }}
+.kpi-value {{ font-size: 26px; font-weight: 700; color: var(--tx1); letter-spacing: -.5px; margin-bottom: 5px; line-height: 1.2; }}
+.kpi-delta {{ font-size: 12px; margin-bottom: 4px; font-weight: 500; }}
+.kpi-note {{ font-size: 10px; color: var(--tx3); line-height: 1.4; }}
+
+/* ── 섹션 구분선 ──────────────────────────── */
+.section-divider {{
+  display: flex; align-items: center; gap: 12px;
+  color: var(--tx3); font-size: 10px; font-weight: 700;
+  letter-spacing: 1.2px; text-transform: uppercase;
+}}
+.section-divider::before, .section-divider::after {{
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}}
+
+/* ── 요약 그리드 ──────────────────────────── */
+.summary-grid {{ display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }}
+.summary-col {{ display: flex; flex-direction: column; gap: 12px; }}
+
+/* ── 인사이트 ──────────────────────────────── */
+.insight-item {{
+  padding: 10px 12px;
+  border-radius: var(--r-s);
+  background: var(--surface-2);
+  border: 1px solid var(--border-light);
+  margin-bottom: 8px; font-size: 12px; line-height: 1.6;
+}}
+.insight-item.warn {{ background: var(--orange-light); border-left: 3px solid var(--orange); }}
+.insight-item.good {{ background: var(--green-light); border-left: 3px solid var(--green); }}
+
+/* ── 섹션 타이틀 ──────────────────────────── */
+.section-title {{
+  font-size: 13px; font-weight: 700; color: var(--tx1);
+  border-left: 3px solid var(--primary-mid);
+  padding-left: 10px; margin-bottom: 12px;
+}}
+
+/* ── 차트 그리드 / 카드 ───────────────────── */
+.chart-row {{ display: grid; gap: 16px; }}
+.chart-row.col2 {{ grid-template-columns: 1fr 1fr; }}
+.chart-row.col3 {{ grid-template-columns: 1fr 1fr 1fr; }}
+.card {{
+  background: var(--surface);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  height: auto !important; overflow: visible;
+  transition: box-shadow .2s;
+}}
+.card:hover {{ box-shadow: var(--shadow-m); }}
+.card-title {{
+  font-size: 14px; font-weight: 700; color: var(--tx1);
+  margin-bottom: 3px;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+}}
+.card-sub {{ font-size: 11px; color: var(--tx3); margin-bottom: 14px; line-height: 1.5; }}
+
+/* ── 뱃지 ──────────────────────────────────── */
+.source-badge {{
+  display: inline-flex; align-items: center;
+  height: 18px; padding: 0 7px;
+  border-radius: 4px; font-size: 10px; font-weight: 600;
+}}
+.badge-google {{ background: #dcfce7; color: #15803d; }}
+.badge-naver {{ background: #dbeafe; color: #1d4ed8; }}
+.badge-no-demo {{ background: var(--orange-light); color: var(--orange); }}
+
+/* ── CV 신뢰도 ──────────────────────────────── */
+.cv-stable {{ color: var(--green); font-weight: 600; }}
+.cv-warning {{ color: var(--orange); font-weight: 600; }}
+.cv-unstable {{ color: var(--red); font-weight: 600; }}
+.cv-na {{ color: var(--tx3); font-style: italic; }}
+
+/* ── 데이터 테이블 ──────────────────────────── */
+.data-table {{ width: 100%; border-collapse: collapse; font-size: 12px; }}
+.data-table th {{
+  background: #1e293b; color: #fff;
+  padding: 8px 12px; text-align: left;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+}}
+.data-table th:first-child {{ border-radius: var(--r-s) 0 0 0; }}
+.data-table th:last-child {{ border-radius: 0 var(--r-s) 0 0; }}
+.data-table td {{ padding: 8px 12px; border-bottom: 1px solid var(--border-light); }}
+.data-table tr:last-child td {{ border-bottom: none; }}
+.data-table tr:hover td {{ background: var(--surface-2); }}
+.data-table tr:nth-child(even) td {{ background: #fafbfc; }}
+.simmons-sticky td {{
+  background: var(--simmons-light) !important;
+  font-weight: 700; position: sticky; top: 0; z-index: 1;
+}}
+
+/* ── 없음 상태 ──────────────────────────────── */
+.no-data {{ text-align: center; padding: 40px; color: var(--tx3); font-size: 13px; }}
+
+/* ── 인구통계 토글 ──────────────────────────── */
 .demo-toggle {{
-  padding:4px 10px;border:1px solid #ddd;border-radius:4px;
-  background:#fff;font-size:11px;cursor:pointer;transition:all 0.15s;
-  font-family:'Malgun Gothic',Arial,sans-serif;
+  padding: 5px 12px;
+  border: 1px solid var(--border); border-radius: 20px;
+  background: var(--surface); font-size: 11px;
+  font-family: inherit; cursor: pointer; color: var(--tx2); transition: all .15s;
 }}
-.demo-toggle:hover,.demo-toggle.active {{
-  background:#0b0b0b;color:#fff;border-color:#0b0b0b;
-}}
+.demo-toggle:hover {{ background: var(--primary-light); border-color: var(--primary-mid); color: var(--primary-mid); }}
+.demo-toggle.active {{ background: var(--primary-mid); border-color: var(--primary-mid); color: #fff; }}
 
-/* ── 산출 근거 캡션 ─────────────────────────── */
+/* ── 캡션 ──────────────────────────────────── */
 .chart-caption {{
-  font-size: 11px;
-  color: #767676;
-  margin-top: 12px;
-  padding: 6px 8px;
-  border-top: 1px solid #eee;
-  line-height: 1.7;
-  word-break: keep-all;
-  white-space: normal;
-  overflow: visible;
-  position: static;
+  font-size: 11px; color: var(--tx3);
+  margin-top: 12px; padding: 8px 10px;
+  background: var(--surface-2);
+  border-radius: var(--r-s); border: 1px solid var(--border-light);
+  line-height: 1.7; word-break: keep-all;
+  overflow: visible; position: static;
 }}
 .chart-caption .cap-formula {{ font-style: italic; }}
-.chart-caption .cap-source {{ }}
 .chart-caption .cap-drill {{
-  color: #3498db;
-  cursor: pointer;
-  text-decoration: underline;
-  font-size: 10px;
-  margin-left: 6px;
+  color: var(--primary-mid); cursor: pointer;
+  text-decoration: underline; font-size: 10px; margin-left: 6px;
 }}
-.cap-note {{
-  display: block;
-  margin-top: 4px;
-  color: #856404;
-}}
+.cap-note {{ display: block; margin-top: 4px; color: #92400e; }}
 .drill-detail {{
   display: none;
-  background: #f8f9fa;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 8px 10px;
-  margin-top: 4px;
-  font-size: 11px;
-  line-height: 1.8;
-  font-family: monospace;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--r-s); padding: 8px 10px;
+  margin-top: 4px; font-size: 11px; line-height: 1.8; font-family: monospace;
 }}
 
-/* 지표 정의집 테이블 */
-.appendix-table {{ width:100%; border-collapse:collapse; font-size:12px; margin-top:12px; }}
-.appendix-table th {{ background:#2c3e50; color:#fff; padding:8px; text-align:left; }}
-.appendix-table td {{ padding:7px 8px; border-bottom:1px solid #eee; vertical-align:top; }}
-.appendix-table tr:nth-child(even) td {{ background:#f9f9f9; }}
+/* ── 부록 테이블 ──────────────────────────── */
+.appendix-table {{ width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }}
+.appendix-table th {{ background: #1e293b; color: #fff; padding: 8px; text-align: left; }}
+.appendix-table td {{ padding: 7px 8px; border-bottom: 1px solid var(--border-light); vertical-align: top; }}
+.appendix-table tr:nth-child(even) td {{ background: var(--surface-2); }}
 
-/* ── 인쇄 전용 ─────────────────────────────── */
-.print-only {{ display: none; }}          /* 화면: 숨김 */
-.no-print {{ }}                           /* 화면: 정상 */
+/* ── 소스 뱃지 ──────────────────────────────── */
+.src-badge {{ display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 4px; border-radius: 3px; margin-left: 3px; vertical-align: middle; }}
+.src-badge.gt {{ background: #4285f4; color: #fff; }}
+.src-badge.ns {{ background: #03c75a; color: #fff; }}
+.src-badge.nd {{ background: #0ea5e9; color: #fff; }}
+.src-badge.dt {{ background: #e53e3e; color: #fff; }}
 
+/* ── 순위 테이블 ──────────────────────────── */
+.rank-detail-table {{ width: 100%; border-collapse: collapse; font-size: 11px; }}
+.rank-detail-table th {{ background: var(--surface-2); padding: 5px 8px; text-align: left; border-bottom: 2px solid var(--border); font-size: 10px; color: var(--tx3); font-weight: 600; }}
+.rank-detail-table td {{ padding: 5px 8px; border-bottom: 1px solid var(--border-light); }}
+.rank-detail-table .simmons-row td {{ background: var(--simmons-light); font-weight: 600; }}
+.formula-text {{ font-family: monospace; font-size: 10px; }}
+
+/* ── 필터 변경 배너 ──────────────────────────── */
+#filter-changed-banner {{
+  background: var(--orange-light); border-bottom: 2px solid #ea580c;
+  padding: 6px 24px; font-size: 12px; color: #c2410c;
+  position: sticky; top: var(--header-h); z-index: 99;
+}}
+
+/* ── 표지 ──────────────────────────────────── */
+.print-only {{ display: none; }}
+.cover-inner {{
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100vh; text-align: center; gap: 20px;
+}}
+.cover-confidential {{
+  color: var(--red); font-weight: 700; font-size: 14px;
+  border: 2px solid var(--red); padding: 4px 16px; border-radius: var(--r-s);
+}}
+.cover-title {{ font-size: 32px; font-weight: 800; color: var(--tx1); }}
+.cover-month {{ font-size: 22px; color: var(--tx2); font-weight: 600; }}
+.cover-meta {{ font-size: 13px; color: var(--tx2); line-height: 1.8; margin-top: 20px; }}
+
+/* ── 인쇄 ──────────────────────────────────── */
 @media print {{
-  /* 표지 표시 */
   .print-only {{ display: block !important; }}
   #cover-page {{ page-break-after: always; }}
-
-  /* 인터랙티브 요소 숨김 */
-  .no-print,
-  #filter-banner,
-  .tier-filter,
-  .toggle-btn,
-  button,
-  .export-btn {{ display: none !important; }}
-
-  /* 페이지 분할 제어 */
-  .chart-block,
-  .kpi-strip,
-  table,
-  .section-card {{ page-break-inside: avoid; }}
-
+  .no-print, #filter-banner, .tier-filter, .toggle-btn, button, .action-btn {{ display: none !important; }}
+  .chart-block, .kpi-strip, table, .section-card {{ page-break-inside: avoid; }}
   h2, h3 {{ page-break-after: avoid; }}
-
-  /* 여백 */
   @page {{ margin: 20mm 15mm; }}
-
-  /* 링크 URL 숨김 */
   a[href]::after {{ content: none; }}
-
-  /* 흑백 출력 보조: 색상 정보 보완 */
-  .delta-up::before {{ content: "▲ "; }}
-  .delta-down::before {{ content: "▼ "; }}
-
-  /* 사이드바 숨김, 메인 전체폭 */
-  .sidebar {{ display: none !important; }}
   #sidebar {{ display: none !important; }}
   #top-header {{ display: none !important; }}
   #filter-changed-banner {{ display: none !important; }}
   #layout {{ height: auto; }}
   #main {{ overflow: visible; padding: 0; width: 100% !important; margin-left: 0 !important; }}
-
-  /* 폰트 크기 최소 10pt */
   body {{ font-size: 10pt; }}
-
-  .card {{ break-inside: avoid; }}
+  .card {{ break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }}
   h2 {{ break-after: avoid; }}
+  .detail-cell {{ display: table-cell !important; }}
 }}
-
-/* 표지 스타일 (화면·인쇄 공통) */
-.cover-inner {{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  text-align: center;
-  gap: 20px;
-}}
-.cover-confidential {{
-  color: #c0392b;
-  font-weight: 700;
-  font-size: 14px;
-  border: 2px solid #c0392b;
-  padding: 4px 16px;
-  border-radius: 4px;
-}}
-.cover-title {{
-  font-size: 32px;
-  font-weight: 800;
-  color: #1a1a2e;
-  margin: 0;
-}}
-.cover-month {{
-  font-size: 22px;
-  color: #2c3e50;
-  font-weight: 600;
-}}
-.cover-meta {{
-  font-size: 13px;
-  color: #555;
-  line-height: 1.8;
-  margin-top: 20px;
-}}
-.src-badge {{ display:inline-block; font-size:9px; font-weight:700; padding:1px 4px; border-radius:2px; margin-left:4px; vertical-align:middle; }}
-.src-badge.gt {{ background:#4285f4; color:#fff; }}
-.src-badge.ns {{ background:#03c75a; color:#fff; }}
-.src-badge.nd {{ background:#00b4d8; color:#fff; }}
-.src-badge.dt {{ background:#e74c3c; color:#fff; }}
-.rank-detail-table {{ width:100%; border-collapse:collapse; font-size:11px; }}
-.rank-detail-table th {{ background:#f5f5f5; padding:5px 8px; text-align:left; border-bottom:2px solid #ddd; }}
-.rank-detail-table td {{ padding:5px 8px; border-bottom:1px solid #f0f0f0; }}
-.rank-detail-table .simmons-row td {{ background:#fff8f8; }}
-.formula-text {{ font-family:monospace; font-size:10px; }}
-@media print {{ .detail-cell {{ display:table-cell !important; }} }}
 </style>
 </head>
 <body>
@@ -805,11 +918,16 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 
 <!-- 상단 헤더 -->
 <div id="top-header">
-  <div class="title">시몬스 브랜드 트렌드 대시보드 · {report_month}</div>
-  <div class="meta">
-    <span style="font-size:11px;color:#c8a96e;font-weight:600;">보고 기준: 최근 3개월 · 전체 11개 브랜드</span>
-    <span>수집: {collected_at}</span>
-    <span>대상: 11개 브랜드</span>
+  <div class="header-brand">
+    <div class="header-logo">S</div>
+    <div class="header-title-group">
+      <div class="header-title">시몬스 브랜드 트렌드 대시보드</div>
+      <div class="header-sub">{report_month} · 월간 리포트</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="header-chip">수집 {collected_at}</span>
+    <span class="header-chip">11개 브랜드</span>
     <span class="conf-badge">{conf_label} {confidence_score}점</span>
   </div>
 </div>
@@ -817,26 +935,40 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 <div id="layout">
 
 <!-- 좌측 사이드바 -->
-<div id="sidebar">
-  <h3>기간</h3>
-  <button class="filter-btn active" data-range="today 3-m" onclick="setRange(this,'today 3-m')">최근 3개월</button>
-  <button class="filter-btn" data-range="today 6-m" onclick="setRange(this,'today 6-m')">최근 6개월</button>
-  <button class="filter-btn" data-range="today 12-m" onclick="setRange(this,'today 12-m')">최근 12개월</button>
+<nav id="sidebar">
 
-  <h3>티어 필터</h3>
-  <button class="filter-btn tier-filter active" data-tier="ALL" onclick="setTierFilter(this,'ALL')">전체</button>
-  <button class="filter-btn tier-filter" data-tier="A" onclick="setTierFilter(this,'A')">Tier A — 프리미엄</button>
-  <button class="filter-btn tier-filter" data-tier="B" onclick="setTierFilter(this,'B')">Tier B — 매스 침대</button>
-  <button class="filter-btn tier-filter" data-tier="C" onclick="setTierFilter(this,'C')">Tier C — 종합가구</button>
-  <button class="filter-btn tier-filter" data-tier="D" onclick="setTierFilter(this,'D')">Tier D — 렌탈</button>
+  <div class="nav-section">
+    <div class="nav-label">기간 선택</div>
+    <div class="period-pills">
+      <button class="period-pill active" data-range="today 3-m" onclick="setRange(this,'today 3-m')">3개월</button>
+      <button class="period-pill" data-range="today 6-m" onclick="setRange(this,'today 6-m')">6개월</button>
+      <button class="period-pill" data-range="today 12-m" onclick="setRange(this,'today 12-m')">12개월</button>
+    </div>
+  </div>
 
-  <h3>브랜드</h3>
-  <div id="brand-list"></div>
+  <div class="nav-section">
+    <div class="nav-label">티어 필터</div>
+    <div class="tier-grid">
+      <button class="tier-pill active tier-filter" data-tier="ALL" onclick="setTierFilter(this,'ALL')">전체</button>
+      <button class="tier-pill tier-filter" data-tier="A" onclick="setTierFilter(this,'A')">Tier A</button>
+      <button class="tier-pill tier-filter" data-tier="B" onclick="setTierFilter(this,'B')">Tier B</button>
+      <button class="tier-pill tier-filter" data-tier="C" onclick="setTierFilter(this,'C')">Tier C</button>
+      <button class="tier-pill tier-filter" data-tier="D" onclick="setTierFilter(this,'D')">Tier D</button>
+    </div>
+  </div>
 
-  <h3>내보내기</h3>
-  <button class="filter-btn" onclick="exportCSV()">CSV 다운로드</button>
-  <button class="filter-btn" onclick="exportPrint()">인쇄 / PDF</button>
-</div>
+  <div class="nav-section">
+    <div class="nav-label">브랜드 목록</div>
+    <div id="brand-list"></div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">내보내기</div>
+    <button class="action-btn" onclick="exportCSV()">↓ CSV 다운로드</button>
+    <button class="action-btn" onclick="exportPrint()">⎙ 인쇄 / PDF</button>
+  </div>
+
+</nav>
 
 <!-- 메인 콘텐츠 (결론 우선 → 근거 데이터) -->
 <div id="main">
@@ -2348,7 +2480,7 @@ function renderInsights() {{
 
 // T3-3: 기본값 변경 배너 로직
 function _updateFilterBanner() {{
-  const rangeBtn = document.querySelector('.filter-btn.active[data-range]');
+  const rangeBtn = document.querySelector('.period-pill.active[data-range]');
   const tierBtn = document.querySelector('.tier-filter.active');
   const banner = document.getElementById('filter-changed-banner');
   if (!banner) return;
@@ -2358,7 +2490,7 @@ function _updateFilterBanner() {{
 }}
 
 function setRange(btn, range) {{
-  document.querySelectorAll('.filter-btn[data-range]').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.period-pill[data-range]').forEach(b=>b.classList.remove('active'));
   btn.dataset.range = range;
   btn.classList.add('active');
   // range 문자열 → _activePeriod 매핑
@@ -2384,7 +2516,7 @@ function setRange(btn, range) {{
 // T3-3: PDF 인쇄 표지 자동 기록
 function exportPrint() {{
   const cover = document.getElementById('cover-page');
-  const rangeBtn = document.querySelector('.filter-btn.active[data-range]');
+  const rangeBtn = document.querySelector('.period-pill.active[data-range]');
   const tierBtn = document.querySelector('.tier-filter.active');
   const rangeLabel = rangeBtn?.textContent || '최근 3개월';
   const tierLabel = tierBtn?.textContent || '전체';
@@ -2434,7 +2566,7 @@ renderInsights();
   const hasMonthlySeries = Object.keys(RAW.google?.monthly_series || {{}}).length > 0;
   const hasDatalabSeries = Object.keys((RAW.datalab || {{}}).monthly_series || {{}}).length > 0;
   if (!hasMonthlySeries && !hasDatalabSeries) {{
-    document.querySelectorAll('.filter-btn[data-range]').forEach(btn => {{
+    document.querySelectorAll('.period-pill[data-range]').forEach(btn => {{
       btn.disabled = true;
       btn.style.opacity = '0.4';
       btn.style.cursor = 'not-allowed';
