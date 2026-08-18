@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime, timedelta
-from brand_config import BRANDS, TIER_LABELS, TIER_NEW, BRAND_TO_TIER_NEW
+from brand_config import BRANDS, TIER_LABELS, TIER_NEW, BRAND_TO_TIER_NEW, KEYWORD_GROUPS
 from analyzer.validator import overall_confidence_score
 
 _SNAP_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "snapshots")
@@ -236,6 +236,139 @@ def _compute_sos_som(data):
     return result
 
 
+def _caption(source, collected_at, n=""):
+    """통일 캡션 HTML 생성. source, collected_at, n 을 받아 표준 포맷 반환."""
+    n_part = f" · N={n}" if n else ""
+    return (f'<div style="font-size:10px;color:#999;margin-top:6px;padding-top:6px;'
+            f'border-top:1px solid #f0f0f0;">출처: {source} · 수집: {collected_at}'
+            f' · 기준: 시몬스=100{n_part}</div>')
+
+
+def _build_appendix(collected_at):
+    """부록 섹션 HTML 생성 (T3-1)"""
+    # ① 키워드 그룹 정의 테이블
+    kw_rows = ""
+    for brand, kws in KEYWORD_GROUPS.items():
+        forbidden_note = ""
+        if brand == "한샘":
+            forbidden_note = ' <span style="color:#e65100;font-size:10px;">※ \'한샘\' 단독 금지</span>'
+        elif brand == "이케아":
+            forbidden_note = ' <span style="color:#e65100;font-size:10px;">※ \'이케아\' 단독 금지</span>'
+        weight = "bold" if brand == "시몬스" else "normal"
+        kw_rows += f"""
+        <tr>
+          <td style="font-weight:{weight}">{brand}{forbidden_note}</td>
+          <td>{' / '.join(kws)}</td>
+        </tr>"""
+
+    # ② 동음이의어 처리 내역
+    homonym_rows = """
+        <tr>
+          <td>한샘</td>
+          <td>단독 사용 금지</td>
+          <td>'한샘' 단독은 가구·인테리어·회사명 등 카테고리 오염 발생. 반드시 '한샘 침대', '한샘 매트리스' 등 복합어 사용</td>
+        </tr>
+        <tr>
+          <td>이케아</td>
+          <td>단독 사용 금지</td>
+          <td>'이케아' 단독은 가구 전반 수요 혼재. 반드시 '이케아 침대', '이케아 매트리스' 등 복합어 사용</td>
+        </tr>"""
+
+    # ③ 지표 산출식
+    formula_rows = """
+        <tr>
+          <td>Share of Search (SoS)</td>
+          <td style="font-family:monospace;">SoS(B) = 지수(B) / Σ지수(전체) × 100</td>
+          <td>브랜드별 구글 검색 점유율. 전체 합계=100%</td>
+        </tr>
+        <tr>
+          <td>Google Trends 체인 링킹</td>
+          <td style="font-family:monospace;">배치 간 브리지 브랜드로 정규화, 시몬스=100 고정</td>
+          <td>배치A→B: 일룸 브리지, 배치B→C: 에이스침대 브리지</td>
+        </tr>
+        <tr>
+          <td>CV (변동계수)</td>
+          <td style="font-family:monospace;">CV = 표준편차 / 평균</td>
+          <td>CV≤0.05 안정(녹) · CV≤0.15 주의(주황) · CV&gt;0.15 불안정(빨강)</td>
+        </tr>
+        <tr>
+          <td>카테고리 인덱스</td>
+          <td style="font-family:monospace;">인덱스(B,G) = 브랜드값(B,G) / 카테고리평균(G) × 100</td>
+          <td>성별·연령 인덱스 모드. 카테고리 평균=100 기준</td>
+        </tr>"""
+
+    # ④ 데이터 소스별 한계 카드
+    limit_cards = """
+        <div style="background:#f9f9f9;border-radius:6px;padding:12px;border-left:3px solid #2e7d32;">
+          <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">Google Trends</div>
+          <div style="font-size:11px;color:#555;line-height:1.6;">표본 기반 상대지수, 절대값 아님. 키워드 조합에 따라 결과 달라짐. 배치 체인 링킹으로 정규화.</div>
+        </div>
+        <div style="background:#f9f9f9;border-radius:6px;padding:12px;border-left:3px solid #1565c0;">
+          <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">Naver 콘텐츠 노출량</div>
+          <div style="font-size:11px;color:#555;line-height:1.6;">검색 수요가 아닌 콘텐츠 발행량. 브랜드 마케팅 활동량 반영. 블로그+뉴스 건수 합산.</div>
+        </div>
+        <div style="background:#f9f9f9;border-radius:6px;padding:12px;border-left:3px solid #6a1b9a;">
+          <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">DART 매출</div>
+          <div style="font-size:11px;color:#555;line-height:1.6;">분기 공시 시차 존재. 종합가구·렌탈 브랜드는 침대 외 사업 포함. 직접 비교 주의.</div>
+        </div>
+        <div style="background:#fff3e0;border-radius:6px;padding:12px;border-left:3px solid #e65100;">
+          <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">Google Trends 배치 체인 링킹</div>
+          <div style="font-size:11px;color:#555;line-height:1.6;">배치C max/min비율이 20배 초과 시 WARNING 수준 경고 발생 가능. 수집 로그에서 확인 필요.</div>
+        </div>"""
+
+    return f"""
+  <!-- 부록 섹션 (T3-1) -->
+  <div class="chart-row" id="section-appendix">
+    <div class="card">
+      <div class="card-title">부록 — 방법론 및 데이터 소스</div>
+      <div class="card-sub">수집 기준 · 산출식 · 데이터 한계 공개 / 수집: {collected_at}</div>
+
+      <!-- ① 키워드 그룹 정의 -->
+      <div class="section-title" style="margin-top:16px;">① 키워드 그룹 정의 (Naver DataLab 수집 기준)</div>
+      <div style="margin-bottom:12px;font-size:11px;color:#666;">브랜드별 표기 변형을 통합한 키워드 그룹. 동일 그룹 내 키워드는 OR 조건으로 합산.</div>
+      <table class="data-table" style="margin-bottom:20px;">
+        <thead><tr>
+          <th style="width:130px;">브랜드</th>
+          <th>수집 키워드</th>
+        </tr></thead>
+        <tbody>{kw_rows}
+        </tbody>
+      </table>
+
+      <!-- ② 동음이의어 처리 내역 -->
+      <div class="section-title" style="margin-top:16px;">② 동음이의어 처리 내역</div>
+      <div style="margin-bottom:12px;font-size:11px;color:#666;">카테고리 오염 방지를 위해 단독 사용이 금지된 키워드 목록.</div>
+      <table class="data-table" style="margin-bottom:20px;">
+        <thead><tr>
+          <th style="width:80px;">브랜드</th>
+          <th style="width:120px;">처리 방식</th>
+          <th>사유</th>
+        </tr></thead>
+        <tbody>{homonym_rows}
+        </tbody>
+      </table>
+
+      <!-- ③ 지표 산출식 -->
+      <div class="section-title" style="margin-top:16px;">③ 지표 산출식</div>
+      <table class="data-table" style="margin-bottom:20px;">
+        <thead><tr>
+          <th style="width:160px;">지표</th>
+          <th style="width:260px;">산출식</th>
+          <th>설명</th>
+        </tr></thead>
+        <tbody>{formula_rows}
+        </tbody>
+      </table>
+
+      <!-- ④ 데이터 소스별 한계 -->
+      <div class="section-title" style="margin-top:16px;">④ 데이터 소스별 한계</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
+        {limit_cards}
+      </div>
+    </div>
+  </div>"""
+
+
 def build_dashboard(data, report_month, collected_at, confidence_score):
     colors = _brand_colors()
     data_json = json.dumps(data, ensure_ascii=False)
@@ -245,6 +378,8 @@ def build_dashboard(data, report_month, collected_at, confidence_score):
     tier_new_json = json.dumps(TIER_NEW, ensure_ascii=False)
     brand_to_tier_json = json.dumps(BRAND_TO_TIER_NEW, ensure_ascii=False)
     sos_som_json = json.dumps(_compute_sos_som(data), ensure_ascii=False)
+    sample_count = data.get('quality', {}).get('sample_count', 3)
+    sample_count_label = f"{sample_count}회 수집"
 
     conf_color = "#2e7d32" if confidence_score >= 70 else "#e65100" if confidence_score >= 40 else "#c62828"
     conf_label = "안정" if confidence_score >= 70 else "주의" if confidence_score >= 40 else "불안정"
@@ -408,22 +543,56 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 
 /* 인쇄 */
 @media print {{
-  #top-header,#sidebar{{display:none;}}
+  #top-header,#sidebar,#filter-changed-banner{{display:none;}}
   #layout{{height:auto;}}
   #main{{overflow:visible;padding:0;}}
   .card{{break-inside:avoid;}}
   .kpi-strip{{break-inside:avoid;}}
   .no-print{{display:none;}}
   h2{{break-after:avoid;}}
+  #print-cover{{display:block !important;}}
+}}
+
+/* 인쇄 표지 (평소 숨김) */
+#print-cover{{
+  display:none;
+  page-break-after:always;
+  padding:80px 60px;
+  font-family:'Malgun Gothic',Arial,sans-serif;
+}}
+#print-cover h1{{font-size:28px;color:#0b0b0b;margin-bottom:16px;}}
+#print-cover .cover-meta{{font-size:14px;color:#444;line-height:2;}}
+#print-cover .cover-confidential{{
+  margin-top:40px;display:inline-block;
+  border:2px solid #c62828;color:#c62828;
+  font-size:14px;font-weight:bold;padding:4px 16px;border-radius:4px;
 }}
 </style>
 </head>
 <body>
 
+<!-- 인쇄 표지 (T3-3) -->
+<div id="print-cover">
+  <h1>시몬스 브랜드 트렌드 대시보드</h1>
+  <div class="cover-meta">
+    <div>{report_month}</div>
+    <div>작성부서: 고객서비스(CS)팀</div>
+    <div>작성일: {collected_at}</div>
+    <div id="print-filter-state">보고 기준: 최근 3개월 · 전체</div>
+  </div>
+  <div class="cover-confidential">[대외비]</div>
+</div>
+
+<!-- 기본값 변경 배너 (T3-3) -->
+<div id="filter-changed-banner" style="display:none; background:#fff3e0; border-bottom:2px solid #e65100; padding:6px 24px; font-size:12px; color:#e65100; position:sticky; top:52px; z-index:99;">
+  ※ 기본 보고 기준(최근 3개월 · 전체 브랜드)에서 변경됨 — 인쇄 시 표지에 자동 기록됩니다
+</div>
+
 <!-- 상단 헤더 -->
 <div id="top-header">
   <div class="title">시몬스 브랜드 트렌드 대시보드 · {report_month}</div>
   <div class="meta">
+    <span style="font-size:11px;color:#c8a96e;font-weight:600;">보고 기준: 최근 3개월 · 전체 11개 브랜드</span>
     <span>수집: {collected_at}</span>
     <span>대상: 11개 브랜드</span>
     <span class="conf-badge">{conf_label} {confidence_score}점</span>
@@ -435,9 +604,9 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 <!-- 좌측 사이드바 -->
 <div id="sidebar">
   <h3>기간</h3>
-  <button class="filter-btn active" onclick="setRange(this,'today 3-m')">최근 3개월</button>
-  <button class="filter-btn" onclick="setRange(this,'today 6-m')">최근 6개월</button>
-  <button class="filter-btn" onclick="setRange(this,'today 12-m')">최근 12개월</button>
+  <button class="filter-btn active" data-range="today 3-m" onclick="setRange(this,'today 3-m')">최근 3개월</button>
+  <button class="filter-btn" data-range="today 6-m" onclick="setRange(this,'today 6-m')">최근 6개월</button>
+  <button class="filter-btn" data-range="today 12-m" onclick="setRange(this,'today 12-m')">최근 12개월</button>
 
   <h3>티어 필터</h3>
   <button class="filter-btn tier-filter active" data-tier="ALL" onclick="setTierFilter(this,'ALL')">전체</button>
@@ -451,7 +620,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
 
   <h3>내보내기</h3>
   <button class="filter-btn" onclick="exportCSV()">CSV 다운로드</button>
-  <button class="filter-btn" onclick="window.print()">인쇄 / PDF</button>
+  <button class="filter-btn" onclick="exportPrint()">인쇄 / PDF</button>
 </div>
 
 <!-- 메인 콘텐츠 (결론 우선 → 근거 데이터) -->
@@ -519,11 +688,13 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       </div>
       <div class="card-sub">브랜드별 구글 검색 점유율 (%) · SoS = 브랜드 지수 ÷ 전체 합계 × 100</div>
       <div id="chart-sos" style="height:320px;"></div>
+      {_caption("Google Trends 파생", collected_at)}
     </div>
     <div class="card">
       <div class="card-title">구글 vs 네이버 갭 분석</div>
       <div class="card-sub">네이버 지수 − 구글 지수 (양수=네이버 강세 / 음수=구글 강세)</div>
       <div id="chart-gap" style="height:320px;"></div>
+      {_caption("Google+Naver 파생", collected_at)}
     </div>
   </div>
 
@@ -536,6 +707,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       </div>
       <div class="card-sub" id="sub-google-rank">시몬스=100 기준 · 최근 3개월 한국</div>
       <div id="chart-google-rank" style="height:420px;"></div>
+      {_caption("Google Trends", collected_at, sample_count_label)}
     </div>
     <div class="card" id="section-naver-rank">
       <div class="card-title">네이버 콘텐츠 노출량
@@ -547,6 +719,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       <div style="font-size:10px;color:#999;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0;">
         ※ 검색 수요가 아닌 콘텐츠 발행량 지표. 브랜드 자체 마케팅 활동량이 반영됨.
       </div>
+      {_caption("Naver Search API", collected_at, "블로그+뉴스 3회 수집 중앙값")}
     </div>
   </div>
 
@@ -558,6 +731,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       </div>
       <div class="card-sub">주요 브랜드 · 음영은 신뢰구간(CV) · 출처: Google Trends · 기준: 시몬스=100</div>
       <div id="chart-monthly" style="height:420px;"></div>
+      {_caption("Google Trends", collected_at, sample_count_label)}
     </div>
   </div>
 
@@ -569,6 +743,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       </div>
       <div class="card-sub">시몬스=100 기준 · 월별 추이 (키워드 그룹 통합)</div>
       <div id="chart-datalab" style="height:360px;"></div>
+      {_caption("Naver DataLab (Playwright)", collected_at, "단회 수집")}
     </div>
   </div>
 
@@ -584,6 +759,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       </div>
       <div class="card-sub" id="gender-sub">브랜드별 성별 비율 (브랜드 내 합계=100%)</div>
       <div id="chart-gender" style="height:320px;"></div>
+      {_caption("Naver DataLab (Playwright)", collected_at, "단회 수집")}
     </div>
     <div class="card">
       <div class="card-title">연령대별 검색 관심도
@@ -595,6 +771,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       </div>
       <div class="card-sub" id="age-sub">브랜드별 연령대 비율 (브랜드 내 합계=100%)</div>
       <div id="chart-age" style="height:320px;"></div>
+      {_caption("Naver DataLab (Playwright)", collected_at, "단회 수집")}
     </div>
   </div>
 
@@ -606,6 +783,7 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       </div>
       <div class="card-sub">⚠ 종합가구(한샘·현대리바트·일룸)·렌탈(코웨이) 브랜드는 침대 외 사업 포함 — 직접 비교 주의</div>
       <div id="dart-table"></div>
+      {_caption("네이버 증권 스크래핑", collected_at, "연간 공시 기준")}
     </div>
   </div>
 
@@ -618,10 +796,11 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
       <div style="font-size:10px;color:#999;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0;">
         ※ SoM = DART 공시 매출 기준 (caution=false 브랜드만). 대각선 위 = 검색 과소 → 검색 투자 여력. 대각선 아래 = 검색 과잉.
       </div>
+      {_caption("Google Trends + 네이버 증권", collected_at)}
     </div>
   </div>
 
-  <!-- ⑩ 부록: 데이터 신뢰도 상세 (T3-1 준비, 현재는 CV 테이블) -->
+  <!-- ⑩ 부록: 데이터 신뢰도 상세 (CV 분석) -->
   <div class="chart-row" id="section-cv">
     <div class="card">
       <div class="card-title">부록 — 데이터 신뢰도 상세 (CV 분석)</div>
@@ -629,8 +808,11 @@ body{{font-family:'Malgun Gothic',Arial,sans-serif;background:#f0f2f5;color:#222
         · 출처: Naver Search API · 기준: 3회 반복 수집 중앙값
       </div>
       <div id="cv-table"></div>
+      {_caption("Naver Search API", collected_at, "3회 반복 수집 중앙값")}
     </div>
   </div>
+
+  {_build_appendix(collected_at)}
 
 </div><!-- /main -->
 
@@ -698,6 +880,7 @@ function setTierFilter(btn, tier) {{
   renderSoS();
   renderGap();
   renderMonthly();
+  _updateFilterBanner();
 }}
 
 // 1. 구글 순위 바차트
@@ -1350,9 +1533,36 @@ function renderInsights() {{
     : '<div class="insight-item">급등/급락 없음</div>';
 }}
 
+// T3-3: 기본값 변경 배너 로직
+function _updateFilterBanner() {{
+  const rangeBtn = document.querySelector('.filter-btn.active[data-range]');
+  const tierBtn = document.querySelector('.tier-filter.active');
+  const banner = document.getElementById('filter-changed-banner');
+  if (!banner) return;
+  const rangeDefault = (rangeBtn?.dataset?.range === 'today 3-m') || (!rangeBtn);
+  const tierDefault = tierBtn?.dataset?.tier === 'ALL' || !tierBtn;
+  banner.style.display = (rangeDefault && tierDefault) ? 'none' : 'block';
+}}
+
 function setRange(btn, range) {{
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.filter-btn[data-range]').forEach(b=>b.classList.remove('active'));
+  btn.dataset.range = range;
   btn.classList.add('active');
+  _updateFilterBanner();
+}}
+
+// T3-3: PDF 인쇄 표지 자동 기록
+function exportPrint() {{
+  const cover = document.getElementById('print-cover');
+  const rangeBtn = document.querySelector('.filter-btn.active[data-range]');
+  const tierBtn = document.querySelector('.tier-filter.active');
+  const rangeLabel = rangeBtn?.textContent || '최근 3개월';
+  const tierLabel = tierBtn?.textContent || '전체';
+  if (cover) {{
+    const stateEl = cover.querySelector('#print-filter-state');
+    if (stateEl) stateEl.textContent = `보고 기준: ${{rangeLabel}} · ${{tierLabel}}`;
+  }}
+  window.print();
 }}
 
 // CSV 내보내기 (시몬스 첫 행, 헤더 주석)
