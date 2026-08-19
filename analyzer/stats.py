@@ -42,12 +42,19 @@ def stl_decompose(values):
 
 
 def naver_google_gap(naver_norm, google_norm):
-    """네이버 vs 구글 순위/지수 차이 분석"""
-    all_brands = set(naver_norm) | set(google_norm)
+    """네이버 vs 구글 갭 분석 (브랜드 평균=100으로 재정규화 후 차이 산출)"""
+    all_brands = sorted(set(naver_norm) | set(google_norm))
+
+    # 각 지수를 브랜드 카테고리 평균=100 기준으로 재정규화
+    g_vals = [google_norm.get(b, 0) for b in all_brands]
+    n_vals = [naver_norm.get(b, 0) for b in all_brands]
+    g_avg = sum(g_vals) / len(g_vals) if g_vals else 1
+    n_avg = sum(n_vals) / len(n_vals) if n_vals else 1
+
     gaps = []
     for brand in all_brands:
-        n_val = naver_norm.get(brand, 0)
-        g_val = google_norm.get(brand, 0)
-        diff = round(n_val - g_val, 1)
-        gaps.append({"brand": brand, "naver": n_val, "google": g_val, "gap": diff})
+        g_rebase = round(google_norm.get(brand, 0) / g_avg * 100, 1) if g_avg else 0
+        n_rebase = round(naver_norm.get(brand, 0) / n_avg * 100, 1) if n_avg else 0
+        diff = round(n_rebase - g_rebase, 1)
+        gaps.append({"brand": brand, "naver": n_rebase, "google": g_rebase, "gap": diff})
     return sorted(gaps, key=lambda x: abs(x["gap"]), reverse=True)

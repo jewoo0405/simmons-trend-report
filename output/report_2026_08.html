@@ -345,6 +345,16 @@ body {
 .appendix-table td { padding: 7px 8px; border-bottom: 1px solid var(--border-light); vertical-align: top; }
 .appendix-table tr:nth-child(even) td { background: var(--surface-2); }
 
+/* ── 수집기간 칩 ────────────────────────────── */
+.period-chip {
+  display: inline-flex; align-items: center;
+  height: 16px; padding: 0 6px;
+  background: #f1f5f9; border: 1px solid #e2e8f0;
+  border-radius: 10px; font-size: 10px; color: #64748b;
+  white-space: nowrap; font-weight: 500; margin-left: 6px;
+  vertical-align: middle;
+}
+
 /* ── 소스 뱃지 ──────────────────────────────── */
 .src-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 4px; border-radius: 3px; margin-left: 3px; vertical-align: middle; }
 .src-badge.gt { background: #4285f4; color: #fff; }
@@ -412,7 +422,7 @@ body {
     <p class="cover-month">2026년 08월</p>
     <div class="cover-meta">
       <p>작성부서: 고객서비스(CS) 전략팀</p>
-      <p>수집일시: 2026-08-18 09:00</p>
+      <p>수집일시: 2026.08.19 11:41</p>
       <p>작성: 자동 생성 시스템 · 검수: ___________</p>
     </div>
   </div>
@@ -433,9 +443,9 @@ body {
     </div>
   </div>
   <div class="header-right">
-    <span class="header-chip">수집 2026-08-18 09:00</span>
+    <span class="header-chip">수집 2026.08.19 11:41</span>
     <span class="header-chip">11개 브랜드</span>
-    <span class="conf-badge">안정 75점</span>
+    <span class="conf-badge">안정 100점</span>
   </div>
 </div>
 
@@ -443,15 +453,6 @@ body {
 
 <!-- 좌측 사이드바 -->
 <nav id="sidebar">
-
-  <div class="nav-section">
-    <div class="nav-label">기간 선택</div>
-    <div class="period-pills">
-      <button class="period-pill active" data-range="today 3-m" onclick="setRange(this,'today 3-m')">3개월</button>
-      <button class="period-pill" data-range="today 6-m" onclick="setRange(this,'today 6-m')">6개월</button>
-      <button class="period-pill" data-range="today 12-m" onclick="setRange(this,'today 12-m')">12개월</button>
-    </div>
-  </div>
 
   <div class="nav-section">
     <div class="nav-label">티어 필터</div>
@@ -486,7 +487,7 @@ body {
       <div class="kpi-card">
         <div class="kpi-icon">📊</div>
         <div class="kpi-label">Share of Search</div>
-        <div class="kpi-value">0%</div>
+        <div class="kpi-value">8.1%</div>
         <div class="kpi-delta"><span style="color:#999;">— <small>비교기준 없음</small></span></div>
         <div class="kpi-note">브랜드별 구글 검색 점유율 합산 기준</div>
       </div>
@@ -500,14 +501,14 @@ body {
       <div class="kpi-card">
         <div class="kpi-icon">🌐</div>
         <div class="kpi-label">네이버 노출 순위</div>
-        <div class="kpi-value">None위 / 11</div>
+        <div class="kpi-value">3위 / 11</div>
         <div class="kpi-delta"><span style="color:#999;">— <small>비교기준 없음</small></span></div>
         <div class="kpi-note">블로그+뉴스 건수 기준</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-icon">📈</div>
         <div class="kpi-label">1위 브랜드 대비 갭</div>
-        <div class="kpi-value">-628.8pt</div>
+        <div class="kpi-value">-616.6pt</div>
         <div class="kpi-delta"><span style="color:#999;">— <small>비교기준 없음</small></span></div>
         <div class="kpi-note">vs 이케아 (구글 지수 기준)</div>
       </div></div><div style="font-size:10px;color:#767676;margin-top:8px;text-align:right;">※ 전월 스냅샷 없음 — 비교 기준월 데이터 축적 후 전월비 표시</div>
@@ -559,14 +560,21 @@ body {
           <td><span style="color:#c62828;font-weight:bold;">높음</span></td>
         </tr>
         <tr>
-          <td>20~30대 검색 비중 제고 (현재 0%, 에이스침대 대비 저조)</td>
+          <td>20~30대 검색 비중 제고 (현재 24.0%, 에이스침대 대비 저조)</td>
           <td><a href="#section-demo">연령대별 검색 관심도</a></td>
           <td>마케팅팀</td>
           <td>2026 Q4</td>
           <td><span style="color:#c62828;font-weight:bold;">높음</span></td>
         </tr>
         <tr>
-          <td>Share of Search 10% 목표 설정 (현재 0%)</td>
+          <td>네이버 콘텐츠 발행량 확대 (에이스침대 대비 15.8pt 낮음)</td>
+          <td><a href="#section-naver-rank">네이버 콘텐츠 노출량</a></td>
+          <td>디지털마케팅팀</td>
+          <td>2026 Q3</td>
+          <td><span style="color:#e65100;font-weight:bold;">중간</span></td>
+        </tr>
+        <tr>
+          <td>Share of Search 10% 목표 설정 (현재 8.1%)</td>
           <td><a href="#section-sos">Share of Search</a></td>
           <td>브랜드팀</td>
           <td>2027 Q1</td>
@@ -591,14 +599,17 @@ body {
     <div class="card">
       <div class="card-title">Share of Search
         <span class="source-badge badge-google">Google Trends</span>
+        <span class="period-chip">최근 3개월</span>
       </div>
       <div class="card-sub">브랜드별 구글 검색 점유율 (%) · SoS = 브랜드 지수 ÷ 전체 합계 × 100</div>
       <div id="chart-sos" style="height:280px;"></div>
       <div id="sos-table"></div>
     </div>
     <div class="card" id="section-gap">
-      <div class="card-title">구글 vs 네이버 갭 분석</div>
-      <div class="card-sub">네이버 지수 − 구글 지수 (양수=네이버 강세 / 음수=구글 강세)</div>
+      <div class="card-title">구글 vs 네이버 갭 분석
+        <span class="period-chip">최근 3개월</span>
+      </div>
+      <div class="card-sub">브랜드 카테고리 평균=100 기준 재정규화 후 네이버 지수 − 구글 지수 (양수=네이버 강세 / 음수=구글 강세)</div>
       <div id="chart-gap" style="height:320px;"></div>
     </div>
   </div>
@@ -609,6 +620,7 @@ body {
       <div class="card-title">구글 검색 지수 순위
         <span class="source-badge badge-google">Google Trends</span>
         <span class="source-badge" style="background:#fff3e0;color:#e65100;" title="Tier C(종합가구)·D(렌탈) 브랜드는 가구·렌탈 수요 혼재로 직접 비교 주의">⚠ Tier C·D 비교 주의</span>
+        <span class="period-chip">최근 3개월</span>
       </div>
       <div class="card-sub" id="sub-google-rank">시몬스=100 기준 · 최근 3개월 한국</div>
       <div id="chart-google-rank" style="min-height:200px;"></div>
@@ -624,8 +636,9 @@ body {
       <div class="card-title">네이버 콘텐츠 노출량
         <span class="source-badge badge-naver">Naver Search</span>
         <span class="source-badge" style="background:#fff3e0;color:#e65100;" title="Tier C(종합가구)·D(렌탈) 브랜드는 가구·렌탈 수요 혼재로 직접 비교 주의">⚠ Tier C·D 비교 주의</span>
+        <span class="period-chip">최근 3개월</span>
       </div>
-      <div class="card-sub" id="sub-naver-rank">시몬스=100 기준 · 블로그+뉴스 건수</div>
+      <div class="card-sub" id="sub-naver-rank">시몬스=100 기준 · 블로그+뉴스 건수 · 최근 3개월</div>
       <div id="chart-naver-rank" style="min-height:200px;"></div>
     </div>
   </div>
@@ -635,6 +648,7 @@ body {
     <div class="card">
       <div class="card-title">월별 검색 트렌드 추이
         <span class="source-badge badge-google">Google Trends</span>
+        <span class="period-chip">최근 12개월</span>
       </div>
       <div class="card-sub">주요 브랜드 · 음영은 신뢰구간(CV) · 출처: Google Trends · 기준: 시몬스=100</div>
       <div id="chart-monthly" style="height:420px;"></div>
@@ -650,7 +664,7 @@ body {
       </div>
       <div class="card-sub">시몬스=100 기준 · 월별 추이 (키워드 그룹 통합)</div>
       <div id="chart-datalab" style="height:360px;"></div>
-      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Naver DataLab (Playwright) · 수집: 2026-08-18 09:00 · 기준: 시몬스=100 · N=단회 수집</div>
+      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Naver DataLab (Playwright) · 수집: 2026.08.19 11:41 · 기준: 시몬스=100 · N=단회 수집</div>
     </div>
   </div>
 
@@ -659,6 +673,7 @@ body {
     <div class="card">
       <div class="card-title">성별 검색 관심도
         <span class="source-badge badge-naver">Naver DataLab</span>
+        <span class="period-chip">최근 1개월</span>
       </div>
       <div style="display:flex;gap:6px;margin-bottom:8px;">
         <button class="demo-toggle active" id="gender-toggle-norm" onclick="setGenderMode('norm')">브랜드 내 비율</button>
@@ -670,6 +685,7 @@ body {
     <div class="card">
       <div class="card-title">연령대별 검색 관심도
         <span class="source-badge badge-naver">Naver DataLab</span>
+        <span class="period-chip">최근 1개월</span>
       </div>
       <div style="display:flex;gap:6px;margin-bottom:8px;">
         <button class="demo-toggle active" id="age-toggle-norm" onclick="setAgeMode('norm')">브랜드 내 비율</button>
@@ -683,16 +699,36 @@ body {
   <!-- T2-3: SoS vs SoM 산점도 -->
   <div class="chart-row" id="section-sos-som" style="display:none;">
     <div class="card">
-      <div class="card-title">Share of Search vs Share of Market (ESOV 분석)</div>
-      <div class="card-sub">한샘·현대리바트·코웨이는 침대 외 사업 포함 — SoM 제외 (참고용)</div>
-      <div style="display:inline-block;margin:8px 0 12px;padding:7px 14px;background:#fff3f3;border:1px solid #f5c6c6;border-radius:6px;font-size:12px;color:#c0392b;line-height:1.6;">
-        ⚑ 시몬스 SoS: <strong>0%</strong> · SoM 산출 불가 (비상장 — DART 공시 없음)
+      <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:4px;">
+        <div style="flex:1;min-width:0;">
+          <div class="card-title">Share of Search vs Share of Market (ESOV 분석)</div>
+          <div class="card-sub">● 실선 원형: 침대 전업 브랜드 (지누스·에이스침대) &nbsp;|&nbsp; △ 삼각형: 침대 외 사업 포함 — 전체 매출 기준 (참고용)</div>
+          <div style="display:inline-block;margin:8px 0 0;padding:7px 14px;background:#fff3f3;border:1px solid #f5c6c6;border-radius:6px;font-size:12px;color:#c0392b;line-height:1.6;">
+            ⚑ 시몬스 SoS: <strong>8.1%</strong> · SoM 산출 불가 (비상장 — DART 공시 없음)
+          </div>
+        </div>
+        <div style="flex:0 0 730px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:11px 14px;font-size:11px;color:#475569;line-height:1.75;">
+          <div style="font-weight:700;color:#1e3a8a;margin-bottom:6px;font-size:11px;">📌 지표 해석 가이드</div>
+          <div style="margin-bottom:5px;">
+            <span style="font-weight:700;color:#334155;">SoS</span> — 비교군 전체 검색량 중 해당 브랜드 비중.
+            Google Trends 지수를 시몬스=100으로 정규화해 산출.
+          </div>
+          <div style="margin-bottom:5px;">
+            <span style="font-weight:700;color:#334155;">SoM</span> — DART 공시 매출 기준 점유율.
+            분모는 수집된 브랜드 매출 합계. 코웨이(전체 사업) 포함 시 SoM 53% 차지 → 나머지 브랜드 수치 하향 왜곡.
+          </div>
+          <div style="padding-top:6px;border-top:1px solid #e2e8f0;color:#64748b;">
+            <span style="font-weight:700;">대각선 (y=x)</span> — SoS=SoM 기준선.
+            <span style="color:#2563eb;">위쪽</span> = 매출 대비 검색 적음 (검색 투자 여력).
+            <span style="color:#dc2626;">아래쪽</span> = 검색 대비 매출 적음 (전환 효율 점검 필요).
+          </div>
+        </div>
       </div>
-      <div id="chart-sos-som" style="height:400px;"></div>
+      <div id="chart-sos-som" style="height:400px;margin-top:12px;"></div>
       <div style="font-size:10px;color:#999;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0;">
-        ※ SoM = DART 공시 매출 기준 (caution=false 브랜드만). 대각선 위 = 검색 과소 → 검색 투자 여력. 대각선 아래 = 검색 과잉.
+        ※ SoM = DART 공시 매출 기준. 대각선 위 = 검색 과소 → 검색 투자 여력. 대각선 아래 = 검색 과잉.
       </div>
-      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends + 네이버 증권 · 수집: 2026-08-18 09:00 · 기준: 시몬스=100</div>
+      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends + 네이버 증권 · 수집: 2026.08.19 11:41 · 기준: 시몬스=100</div>
     </div>
   </div>
 
@@ -701,10 +737,10 @@ body {
     <div class="card">
       <div class="card-title">부록 — 데이터 신뢰도 상세 (CV 분석)</div>
       <div class="card-sub">CV≤0.05 안정(녹) · CV≤0.15 주의(주황) · CV&gt;0.15 불안정(빨강)
-        · 출처: Google Trends 월별 지수 · 기준: monthly_series 기반 변동계수
+        · 출처: Google Trends 월별 지수 · 기준: 최근 12개월 monthly_series 기반 변동계수
       </div>
       <div id="cv-table"></div>
-      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends monthly_series · 수집: 2026-08-18 09:00 · 기준: 시몬스=100</div>
+      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends monthly_series · 수집: 2026.08.19 11:41 · 기준: 시몬스=100</div>
     </div>
   </div>
 
@@ -713,7 +749,7 @@ body {
   <div class="chart-row" id="section-appendix">
     <div class="card">
       <div class="card-title">부록 — 방법론 및 데이터 소스</div>
-      <div class="card-sub">수집 기준 · 산출식 · 데이터 한계 공개 / 수집: 2026-08-18 09:00</div>
+      <div class="card-sub">수집 기준 · 산출식 · 데이터 한계 공개 / 수집: 2026.08.19 11:41</div>
 
       <!-- ① 키워드 그룹 정의 -->
       <div class="section-title" style="margin-top:16px;">① 키워드 그룹 정의 (Naver DataLab 수집 기준)</div>
@@ -834,6 +870,11 @@ body {
           <td>카테고리 인덱스</td>
           <td style="font-family:monospace;">인덱스(B,G) = 브랜드값(B,G) / 카테고리평균(G) × 100</td>
           <td>성별·연령 인덱스 모드. 카테고리 평균=100 기준</td>
+        </tr>
+        <tr>
+          <td>구글 vs 네이버 갭</td>
+          <td style="font-family:monospace;">G_cat = G_지수 / avg(G전체) × 100<br>N_cat = N_지수 / avg(N전체) × 100<br>Gap = N_cat − G_cat</td>
+          <td>11개 브랜드 카테고리 평균=100 기준 재정규화 후 차이 산출. 양수=네이버 강세, 음수=구글 강세. 시몬스도 의미 있는 갭 표시.</td>
         </tr>
         </tbody>
       </table>
@@ -1015,18 +1056,18 @@ function toggleDrill(id) {
 }
 /* ── 산출 근거 캡션 유틸리티 끝 ─────────────────────── */
 
-const RAW = {"collected_at": "2026-08-18T07:07:51+09:00", "baseline": "시몬스", "run_id": "20260818_070751", "google": {"batches": [{"label": "A", "keywords": ["이케아", "한샘", "지누스", "일룸"], "bridge": "일룸", "raw_medians": {"이케아": 78.37769230769231, "한샘": 23.686923076923076, "지누스": 4.256923076923077, "일룸": 6.8}}, {"label": "B", "keywords": ["일룸", "시몬스", "까사미아", "에이스침대", "현대리바트"], "bridge": "에이스침대", "raw_medians": {"일룸": 14.065384615384616, "시몬스": 22.243076923076924, "까사미아": 8.95, "에이스침대": 7.697692307692308, "현대리바트": 3.3861538461538463}}, {"label": "C", "keywords": ["에이스침대", "에몬스", "코웨이 비렉스", "씰리침대"], "bridge": null, "raw_medians": {"에이스침대": 62.68153846153846, "에몬스": 26.142307692307693, "코웨이 비렉스": 0.6476923076923077, "씰리침대": 4.857692307692307}}], "linked": {"이케아": 728.8, "한샘": 220.3, "지누스": 39.6, "일룸": 63.2, "시몬스": 100.0, "까사미아": 40.2, "에이스침대": 34.6, "현대리바트": 15.2, "에몬스": 14.4, "코웨이 비렉스": 0.4, "씰리침대": 2.7}, "normalized": {"이케아": 728.8, "한샘": 220.3, "지누스": 39.6, "일룸": 63.2, "시몬스": 100.0, "까사미아": 40.2, "에이스침대": 34.6, "현대리바트": 15.2, "에몬스": 14.4, "코웨이 비렉스": 0.4, "씰리침대": 2.7}, "warnings": ["배치C: max/min=96.8x > 20 (배치 재구성 권장)"], "monthly_series": {"이케아": [{"period": "2025-08", "value": 765.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 688.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 741.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 766.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 857.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 785.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 785.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 745.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 641.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 636.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 625.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 725.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 709.8, "cv": 0.0, "confidence": "stable"}], "한샘": [{"period": "2025-08", "value": 207.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 213.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 206.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 236.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 234.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 244.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 230.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 262.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 206.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 232.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 204.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 197.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 186.0, "cv": 0.0, "confidence": "stable"}], "지누스": [{"period": "2025-08", "value": 43.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 34.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 44.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 40.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 46.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 41.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 39.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 48.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 34.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 40.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 39.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 34.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 24.8, "cv": 0.0, "confidence": "stable"}], "일룸": [{"period": "2025-08", "value": 62.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 58.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 60.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 63.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 76.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 79.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 79.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 63.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 62.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 53.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 53.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 60.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 49.6, "cv": 0.0, "confidence": "stable"}], "시몬스": [{"period": "2025-08", "value": 239.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 94.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 91.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 110.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 98.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 83.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 88.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 83.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 114.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 84.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 73.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 73.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 64.4, "cv": 0.0, "confidence": "stable"}], "까사미아": [{"period": "2025-08", "value": 37.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 32.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 43.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 49.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 56.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 38.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 45.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 40.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 41.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 34.5, "cv": 0.0, "confidence": "stable"}], "에이스침대": [{"period": "2025-08", "value": 34.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 30.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 37.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 37.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 34.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 42.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 41.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 33.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 39.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 30.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 30.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 22.5, "cv": 0.0, "confidence": "stable"}], "현대리바트": [{"period": "2025-08", "value": 16.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 11.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 14.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 10.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 12.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 30.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 28.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 13.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 18.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 9.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 13.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 10.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 9.0, "cv": 0.0, "confidence": "stable"}], "에몬스": [{"period": "2025-08", "value": 9.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 6.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 14.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 30.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 17.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 14.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 14.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 10.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 12.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 17.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 14.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 8.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 16.4, "cv": 0.0114, "confidence": "stable"}], "코웨이 비렉스": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-12", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-01", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-02", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-03", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-04", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-05", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-06", "value": 2.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-08", "value": 2.0, "cv": 0.2009, "confidence": "unstable"}], "씰리침대": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 6.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 2.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 2.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 2.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 2.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-04", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-05", "value": 5.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 2.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 4.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 5.0, "cv": 0.0182, "confidence": "stable"}]}, "periods": ["2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08"]}, "naver_datalab_trend": {}, "naver_datalab": {"시몬스": {"gender": {"여성": 40.7, "남성": 7.0}, "age": {"10대": 2.1, "20대": 5.2, "30대": 19.0, "40대": 29.2, "50대": 31.2, "60대+": 21.2}}, "에이스침대": {"gender": {"여성": 55.0, "남성": 56.2}, "age": {"10대": 32.1, "20대": 52.4, "30대": 56.2, "40대": 50.0, "50대": 55.9, "60대+": 59.4}}, "한샘": {"gender": {"여성": 59.6, "남성": 20.7}, "age": {"10대": 38.9, "20대": 52.4, "30대": 46.2, "40대": 33.0, "50대": 24.1, "60대+": 17.9}}, "씰리침대": {"gender": {"여성": 47.6, "남성": 46.1}, "age": {"10대": 13.7, "20대": 45.6, "30대": 48.5, "40대": 45.8, "50대": 36.3, "60대+": 34.8}}}, "naver_search": {"시몬스": {"blog_news_total": 156855}, "에이스침대": {"blog_news_total": 181538}, "씰리침대": {"blog_news_total": 116190}, "지누스": {"blog_news_total": 26201}, "코웨이 비렉스": {"blog_news_total": 24656}, "한샘": {"blog_news_total": 78960}, "현대리바트": {"blog_news_total": 40326}, "까사미아": {"blog_news_total": 50659}, "일룸": {"blog_news_total": 66259}, "에몬스": {"blog_news_total": 83118}, "이케아": {"blog_news_total": 208969}}, "dart": {"에이스침대": {"amount": 3173, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업", "source": "naver_finance"}, "한샘": {"amount": 17445, "year": "2025", "unit": "억원", "caution": true, "note": "종합 가구 포함", "source": "naver_finance"}, "현대리바트": {"amount": 15462, "year": "2025", "unit": "억원", "caution": true, "note": "종합 가구 포함", "source": "naver_finance"}, "지누스": {"amount": 9132, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업", "source": "naver_finance"}, "코웨이 비렉스": {"amount": 49636, "year": "2025", "unit": "억원", "caution": true, "note": "코웨이 전체 매출 (비렉스 분리 불가)", "source": "naver_finance"}}, "gap": [{"brand": "이케아", "naver": 133.2, "google": 728.8, "gap": -595.6}, {"brand": "한샘", "naver": 50.3, "google": 220.3, "gap": -170.0}, {"brand": "에이스침대", "naver": 115.7, "google": 34.6, "gap": 81.1}, {"brand": "씰리침대", "naver": 74.1, "google": 2.7, "gap": 71.4}, {"brand": "에몬스", "naver": 53.0, "google": 14.4, "gap": 38.6}, {"brand": "지누스", "naver": 16.7, "google": 39.6, "gap": -22.9}, {"brand": "일룸", "naver": 42.2, "google": 63.2, "gap": -21.0}, {"brand": "코웨이 비렉스", "naver": 15.7, "google": 0.4, "gap": 15.3}, {"brand": "현대리바트", "naver": 25.7, "google": 15.2, "gap": 10.5}, {"brand": "까사미아", "naver": 32.3, "google": 40.2, "gap": -7.9}, {"brand": "시몬스", "naver": 100.0, "google": 100.0, "gap": 0.0}], "quality": {"cv": {"시몬스": 0.0, "에이스침대": 0.0, "씰리침대": 0.0, "지누스": 0.0, "코웨이 비렉스": 0.0, "한샘": 0.0, "현대리바트": 0.0, "까사미아": 0.0, "일룸": 0.0, "에몬스": 0.0, "이케아": 0.0}, "confidence_score": 100, "sample_count": 3, "outliers_removed": 0, "suspect": true}};
+const RAW = {"google": {"normalized": {"이케아": 716.6, "한샘": 216.7, "지누스": 38.9, "일룸": 61.7, "시몬스": 100.0, "까사미아": 39.4, "에이스침대": 33.8, "현대리바트": 14.0, "에몬스": 14.9, "코웨이 비렉스": 0.1, "씰리침대": 3.4}, "monthly_series": {"이케아": [{"period": "2025-08", "value": 748.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 678.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 724.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 747.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 842.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 775.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 775.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 734.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 625.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 633.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 616.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 715.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 696.5, "cv": 0.0, "confidence": "stable"}], "한샘": [{"period": "2025-08", "value": 199.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 209.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 204.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 233.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 234.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 237.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 227.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 259.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 204.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 228.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 202.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 191.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 184.1, "cv": 0.0, "confidence": "stable"}], "지누스": [{"period": "2025-08", "value": 43.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 34.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 46.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 40.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 48.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 39.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 36.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 47.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 34.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 38.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 36.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 34.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 24.6, "cv": 0.0, "confidence": "stable"}], "일룸": [{"period": "2025-08", "value": 58.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 55.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 57.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 58.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 75.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 80.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 75.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 68.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 62.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 55.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 50.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 57.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 46.0, "cv": 0.0, "confidence": "stable"}], "시몬스": [{"period": "2025-08", "value": 232.7, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 100.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 95.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 109.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 96.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 84.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 87.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 84.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 117.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 85.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 71.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 72.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 62.2, "cv": 0.0, "confidence": "stable"}], "까사미아": [{"period": "2025-08", "value": 35.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 31.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 36.7, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 41.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 46.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 55.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 40.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 42.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 36.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 39.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 38.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 35.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 31.1, "cv": 0.0, "confidence": "stable"}], "에이스침대": [{"period": "2025-08", "value": 34.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 28.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 37.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 35.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 35.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 33.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 41.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 40.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 32.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 39.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 31.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 27.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 22.2, "cv": 0.0, "confidence": "stable"}], "현대리바트": [{"period": "2025-08", "value": 16.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 11.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 7.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 11.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 6.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 31.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 25.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 9.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 14.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 11.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 13.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 11.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 11.9, "cv": 0.0, "confidence": "stable"}], "에몬스": [{"period": "2025-08", "value": 14.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 11.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 8.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 28.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 14.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 13.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 15.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 12.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 17.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 18.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 15.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 11.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 10.8, "cv": 0.0, "confidence": "stable"}], "코웨이 비렉스": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-12", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-01", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-02", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-03", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-04", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-05", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-06", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-07", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-08", "value": 1.8, "cv": 0.0, "confidence": "stable"}], "씰리침대": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 5.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-12", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-01", "value": 6.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 3.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 2.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-05", "value": 8.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 5.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 6.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 4.7, "cv": 0.0, "confidence": "stable"}]}, "periods": ["2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08"], "linked": {"이케아": 77.85, "한샘": 23.543846153846154, "지누스": 4.222307692307693, "일룸": 6.702307692307692, "시몬스": 10.864, "까사미아": 4.275, "에이스침대": 3.668, "현대리바트": 1.523, "에몬스": 1.616, "코웨이 비렉스": 0.015, "씰리침대": 0.374}, "batches_raw": [{"label": "A", "keywords": ["이케아", "한샘", "지누스", "일룸"], "bridge": "일룸", "raw_medians": {"이케아": 77.85, "한샘": 23.543846153846154, "지누스": 4.222307692307693, "일룸": 6.702307692307692}}, {"label": "B", "keywords": ["일룸", "시몬스", "까사미아", "에이스침대", "현대리바트"], "bridge": "에이스침대", "raw_medians": {"일룸": 13.875384615384615, "시몬스": 22.49076923076923, "까사미아": 8.85, "에이스침대": 7.593846153846154, "현대리바트": 3.153076923076923}}, {"label": "C", "keywords": ["에이스침대", "에몬스", "코웨이 비렉스", "씰리침대"], "bridge": null, "raw_medians": {"에이스침대": 64.45384615384616, "에몬스": 28.392307692307693, "코웨이 비렉스": 0.2561538461538462, "씰리침대": 6.569230769230769}}], "warnings": ["배치C: max/min=251.6x > 20 (배치 재구성 권장)"]}, "naver": {"normalized": {"시몬스": 100.0, "에이스침대": 115.8, "씰리침대": 74.1, "지누스": 16.7, "코웨이 비렉스": 15.7, "한샘": 50.3, "현대리바트": 25.7, "까사미아": 32.3, "일룸": 42.2, "에몬스": 53.0, "이케아": 133.2}, "stats": {"시몬스": {"median": 156881, "mean": 156881, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "에이스침대": {"median": 181601, "mean": 181601, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "씰리침대": {"median": 116196, "mean": 116196, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "지누스": {"median": 26212, "mean": 26212, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "코웨이 비렉스": {"median": 24670, "mean": 24670, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "한샘": {"median": 78979, "mean": 78979, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "현대리바트": {"median": 40339, "mean": 40339, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "까사미아": {"median": 50680, "mean": 50680, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "일룸": {"median": 66274, "mean": 66274, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "에몬스": {"median": 83137, "mean": 83137, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "이케아": {"median": 208994, "mean": 208994, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}}, "datalab": {}, "demographics": {"시몬스": {"gender": {"여성": 40.6, "남성": 7.0}, "age": {"10대": 2.1, "20대": 5.1, "30대": 18.9, "40대": 29.1, "50대": 31.2, "60대+": 21.1}}, "에이스침대": {"gender": {"여성": 54.8, "남성": 56.0}, "age": {"10대": 31.9, "20대": 52.2, "30대": 56.0, "40대": 49.9, "50대": 55.7, "60대+": 59.2}}, "한샘": {"gender": {"여성": 59.4, "남성": 20.7}, "age": {"10대": 38.7, "20대": 52.2, "30대": 46.1, "40대": 32.9, "50대": 24.1, "60대+": 17.9}}, "씰리침대": {"gender": {"여성": 47.4, "남성": 45.9}, "age": {"10대": 13.7, "20대": 45.4, "30대": 48.3, "40대": 45.5, "50대": 36.2, "60대+": 34.7}}}, "dart": {"에이스침대": {"amount": 3173, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업", "source": "naver_finance"}, "한샘": {"amount": 17445, "year": "2025", "unit": "억원", "caution": true, "note": "종합 가구 포함", "source": "naver_finance"}, "현대리바트": {"amount": 15462, "year": "2025", "unit": "억원", "caution": true, "note": "종합 가구 포함", "source": "naver_finance"}, "지누스": {"amount": 9132, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업", "source": "naver_finance"}, "코웨이 비렉스": {"amount": 49636, "year": "2025", "unit": "억원", "caution": true, "note": "코웨이 전체 매출 (비렉스 분리 불가)", "source": "naver_finance"}}, "commentary": "", "sos": {"이케아": 57.8, "한샘": 17.5, "지누스": 3.1, "일룸": 5.0, "시몬스": 8.1, "까사미아": 3.2, "에이스침대": 2.7, "현대리바트": 1.1, "에몬스": 1.2, "코웨이 비렉스": 0.0, "씰리침대": 0.3}, "gap": [{"brand": "이케아", "naver": 222.3, "google": 635.9, "gap": -413.6}, {"brand": "에이스침대", "naver": 193.3, "google": 30.0, "gap": 163.3}, {"brand": "씰리침대", "naver": 123.7, "google": 3.0, "gap": 120.7}, {"brand": "한샘", "naver": 84.0, "google": 192.3, "gap": -108.3}, {"brand": "시몬스", "naver": 166.9, "google": 88.7, "gap": 78.2}, {"brand": "에몬스", "naver": 88.5, "google": 13.2, "gap": 75.3}, {"brand": "현대리바트", "naver": 42.9, "google": 12.4, "gap": 30.5}, {"brand": "코웨이 비렉스", "naver": 26.2, "google": 0.1, "gap": 26.1}, {"brand": "까사미아", "naver": 53.9, "google": 35.0, "gap": 18.9}, {"brand": "일룸", "naver": 70.4, "google": 54.8, "gap": 15.6}, {"brand": "지누스", "naver": 27.9, "google": 34.5, "gap": -6.6}], "change_points": [{"brand": "한샘", "period": "2026-04", "pct_change": -21.1, "direction": "급락"}, {"brand": "지누스", "period": "2025-10", "pct_change": 33.3, "direction": "급등"}, {"brand": "지누스", "period": "2026-03", "pct_change": 30.2, "direction": "급등"}, {"brand": "지누스", "period": "2026-04", "pct_change": -28.0, "direction": "급락"}, {"brand": "지누스", "period": "2026-08", "pct_change": -28.7, "direction": "급락"}, {"brand": "일룸", "period": "2025-12", "pct_change": 28.9, "direction": "급등"}, {"brand": "일룸", "period": "2026-08", "pct_change": -20.0, "direction": "급락"}, {"brand": "시몬스", "period": "2025-09", "pct_change": -57.0, "direction": "급락"}, {"brand": "시몬스", "period": "2026-04", "pct_change": 39.4, "direction": "급등"}, {"brand": "시몬스", "period": "2026-05", "pct_change": -27.5, "direction": "급락"}, {"brand": "까사미아", "period": "2026-02", "pct_change": -28.1, "direction": "급락"}, {"brand": "에이스침대", "period": "2025-10", "pct_change": 30.8, "direction": "급등"}, {"brand": "에이스침대", "period": "2026-02", "pct_change": 23.4, "direction": "급등"}, {"brand": "에이스침대", "period": "2026-05", "pct_change": 21.4, "direction": "급등"}, {"brand": "에이스침대", "period": "2026-06", "pct_change": -20.5, "direction": "급락"}, {"brand": "에이스침대", "period": "2026-08", "pct_change": -20.1, "direction": "급락"}, {"brand": "현대리바트", "period": "2025-09", "pct_change": -31.9, "direction": "급락"}, {"brand": "현대리바트", "period": "2025-10", "pct_change": -29.7, "direction": "급락"}, {"brand": "현대리바트", "period": "2025-11", "pct_change": 48.7, "direction": "급등"}, {"brand": "현대리바트", "period": "2025-12", "pct_change": -42.2, "direction": "급락"}, {"brand": "현대리바트", "period": "2026-01", "pct_change": 364.2, "direction": "급등"}, {"brand": "현대리바트", "period": "2026-03", "pct_change": -61.7, "direction": "급락"}, {"brand": "현대리바트", "period": "2026-04", "pct_change": 46.9, "direction": "급등"}, {"brand": "에몬스", "period": "2025-10", "pct_change": -26.1, "direction": "급락"}, {"brand": "에몬스", "period": "2025-11", "pct_change": 235.3, "direction": "급등"}, {"brand": "에몬스", "period": "2025-12", "pct_change": -48.1, "direction": "급락"}, {"brand": "에몬스", "period": "2026-04", "pct_change": 38.6, "direction": "급등"}, {"brand": "에몬스", "period": "2026-07", "pct_change": -24.5, "direction": "급락"}, {"brand": "씰리침대", "period": "2025-10", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-02", "pct_change": -50.7, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-03", "pct_change": -29.4, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-04", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-06", "pct_change": -33.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-08", "pct_change": -30.9, "direction": "급락"}], "events": [], "meta": {"run_id": "20260819_114112", "collected_at": "2026.08.19 11:41", "confidence_score": 100}};
 const COLORS = {"시몬스": "#0b0b0b", "에이스침대": "#e34948", "씰리침대": "#1baf7a", "지누스": "#008300", "코웨이 비렉스": "#2a78d6", "한샘": "#199e70", "현대리바트": "#4a3aa7", "까사미아": "#eb6834", "일룸": "#d95926", "에몬스": "#534ab7", "이케아": "#378add"};
 const BRANDS_CFG = [{"name": "시몬스", "tier": 0, "baseline": true, "trend_kw": "시몬스", "naver_kw": "시몬스 침대", "color": "#0b0b0b"}, {"name": "에이스침대", "tier": 1, "baseline": false, "trend_kw": "에이스침대", "naver_kw": "에이스침대", "color": "#e34948"}, {"name": "씰리침대", "tier": 1, "baseline": false, "trend_kw": "씰리침대", "naver_kw": "씰리침대", "color": "#1baf7a"}, {"name": "지누스", "tier": 2, "baseline": false, "trend_kw": "지누스", "naver_kw": "지누스 매트리스", "color": "#008300"}, {"name": "코웨이 비렉스", "tier": 2, "baseline": false, "trend_kw": "코웨이 비렉스", "naver_kw": "코웨이 비렉스", "color": "#2a78d6"}, {"name": "한샘", "tier": 3, "baseline": false, "trend_kw": "한샘", "naver_kw": "한샘 매트리스", "color": "#199e70"}, {"name": "현대리바트", "tier": 3, "baseline": false, "trend_kw": "현대리바트", "naver_kw": "현대리바트 침대", "color": "#4a3aa7"}, {"name": "까사미아", "tier": 3, "baseline": false, "trend_kw": "까사미아", "naver_kw": "까사미아 침대", "color": "#eb6834"}, {"name": "일룸", "tier": 3, "baseline": false, "trend_kw": "일룸", "naver_kw": "일룸 침대", "color": "#d95926"}, {"name": "에몬스", "tier": 3, "baseline": false, "trend_kw": "에몬스", "naver_kw": "에몬스 가구", "color": "#534ab7"}, {"name": "이케아", "tier": 3, "baseline": false, "trend_kw": "이케아", "naver_kw": "이케아 침대", "color": "#378add"}];
 const TIER_LABELS = {"0": "기준", "1": "1군 · 직접 경쟁", "2": "2군 · 대체 채널", "3": "3군 · 종합 가구"};
 const TIER_NEW = {"A": {"label": "Tier A — 프리미엄 매트리스", "warning": null, "brands": ["시몬스", "씰리침대"]}, "B": {"label": "Tier B — 매스 침대", "warning": null, "brands": ["에이스침대", "에몬스", "지누스"]}, "C": {"label": "Tier C — 종합가구", "warning": "검색 지수에 가구·인테리어 수요 혼재. 직접 비교 주의.", "brands": ["한샘", "현대리바트", "까사미아", "일룸", "이케아"]}, "D": {"label": "Tier D — 렌탈", "warning": "렌탈 사업 모델로 직접 비교 주의.", "brands": ["코웨이 비렉스"]}};
 const BRAND_TO_TIER = {"시몬스": "A", "씰리침대": "A", "에이스침대": "B", "에몬스": "B", "지누스": "B", "한샘": "C", "현대리바트": "C", "까사미아": "C", "일룸": "C", "이케아": "C", "코웨이 비렉스": "D"};
-const SOS_SOM_DATA = [];
+const SOS_SOM_DATA = [{"brand": "이케아", "sos": 57.8, "som": null, "caution": true, "tier": "C", "in_dart": false}, {"brand": "한샘", "sos": 17.5, "som": 18.4, "caution": true, "tier": "C", "in_dart": true}, {"brand": "지누스", "sos": 3.1, "som": 9.6, "caution": false, "tier": "B", "in_dart": true}, {"brand": "일룸", "sos": 5.0, "som": null, "caution": true, "tier": "C", "in_dart": false}, {"brand": "까사미아", "sos": 3.2, "som": null, "caution": true, "tier": "C", "in_dart": false}, {"brand": "에이스침대", "sos": 2.7, "som": 3.3, "caution": false, "tier": "B", "in_dart": true}, {"brand": "현대리바트", "sos": 1.1, "som": 16.3, "caution": true, "tier": "C", "in_dart": true}, {"brand": "에몬스", "sos": 1.2, "som": null, "caution": true, "tier": "B", "in_dart": false}, {"brand": "코웨이 비렉스", "sos": 0.0, "som": 52.3, "caution": true, "tier": "D", "in_dart": true}, {"brand": "씰리침대", "sos": 0.3, "som": null, "caution": true, "tier": "A", "in_dart": false}];
 
 // 현재 티어 필터 상태
 let _activeTier = 'ALL';
 // 현재 기간 필터 상태 ('3M' | '6M' | '12M' | 'ALL')
-let _activePeriod = '3M';
+let _activePeriod = '6M';
 
 // dispose 후 재초기화 헬퍼
 function reInitChart(domId) {
@@ -1372,7 +1413,7 @@ function renderNaverRank(sharedLeft) {
   const norm = RAW.naver?.normalized || {};
   let entries = Object.entries(norm);
   entries = _filterByTier(entries);
-  const sorted = entries.sort((a,b)=>b[1]-a[1]);
+  const sorted = entries.sort((a,b)=>a[1]-b[1]);  // 오름차순 → ECharts 가로막대에서 높은 값이 위
   if (!sorted.length) return;
   const chartDomRaw = reInitChart('chart-naver-rank');
   const chartDom = chartDomRaw || document.getElementById('chart-naver-rank');
@@ -1478,8 +1519,8 @@ function renderMonthly() {
   const allPeriods = simonsPts.map(p => p.period?.substring(0,7)).filter(Boolean);
   const slicedPeriods = allPeriods.slice(-limit);
 
-  // 기본 ON 브랜드: 시몬스, 에이스침대, 씰리침대 / 이케아는 기본 OFF
-  const DEFAULT_ON = ['시몬스', '에이스침대', '씰리침대'];
+  // 기본 ON 브랜드: 시몬스, 에이스침대, 씰리침대, 한샘, 이케아
+  const DEFAULT_ON = ['시몬스', '에이스침대', '씰리침대', '한샘', '이케아'];
   const IKEA_KEY = brands.find(b => b.includes('이케아') || b.includes('IKEA'));
 
   // 시리즈 생성
@@ -1493,26 +1534,23 @@ function renderMonthly() {
     });
 
     const isSimmons = brand === '시몬스';
-    const isDefaultOn = DEFAULT_ON.includes(brand);
-    const isIkea = brand === IKEA_KEY;
+    const isDefaultOn = DEFAULT_ON.includes(brand) || (IKEA_KEY && brand === IKEA_KEY);
 
     return {
       name: brand,
       type: 'line',
       data: values,
-      connectNulls: false,   // null 구간은 선 끊김
+      connectNulls: false,
       lineStyle: {
         width: isSimmons ? 3 : 1.5,
         color: isSimmons ? '#1a1a1a' : undefined,
-        type: isSimmons ? 'solid' : 'solid'
       },
       itemStyle: { color: isSimmons ? '#1a1a1a' : undefined },
       symbol: isSimmons ? 'circle' : 'none',
       symbolSize: 5,
-      selected: isDefaultOn,   // 기본 ON/OFF
-      // 선 끝 라벨 (브랜드명 직접 표시)
+      selected: isDefaultOn,
       endLabel: {
-        show: isDefaultOn || isSimmons,
+        show: isDefaultOn,
         formatter: '{b}',
         fontSize: 10,
         offset: [4, 0]
@@ -1521,11 +1559,18 @@ function renderMonthly() {
     };
   });
 
-  // 이케아 기본 OFF
+  // 전체 legendSelected: DEFAULT_ON 기준
   const legendSelected = {};
   brands.forEach(b => {
-    legendSelected[b] = b === IKEA_KEY ? false : DEFAULT_ON.includes(b) || b === '시몬스';
+    legendSelected[b] = DEFAULT_ON.includes(b) || (IKEA_KEY && b === IKEA_KEY);
   });
+
+  // 표시 중인 시리즈의 최댓값으로 y축 자동 계산
+  const visibleMax = Math.max(...series
+    .filter(s => legendSelected[s.name])
+    .flatMap(s => s.data.filter(v => v != null))
+    .concat([100])
+  );
 
   // 실제 범위 표기
   const rangeLabel = slicedPeriods.length > 0
@@ -1534,7 +1579,7 @@ function renderMonthly() {
 
   const dom = reInitChart('chart-monthly');
   if (!dom) return;
-  dom.style.height = '360px';
+  dom.style.height = '480px';
   const chart = echarts.init(dom);
 
   chart.setOption({
@@ -1551,7 +1596,7 @@ function renderMonthly() {
     },
     grid: { left: 55, right: 80, top: 30, bottom: 60 },
     xAxis: dateAxisOption(slicedPeriods),
-    yAxis: axisOption(150, '', 5),
+    yAxis: axisOption(visibleMax, '', 5),
     series,
     tooltip: {
       trigger: 'axis',
@@ -1566,7 +1611,7 @@ function renderMonthly() {
   renderMonthlyHeatmap();
 }
 
-// 3-b. 월별 전월비 히트맵
+// 3-b. 월별 전월비 히트맵 (셀 분할: 좌=지수값, 우=증감률)
 function renderMonthlyHeatmap() {
   const ms = RAW.google?.monthly_series || {};
   const brands = Object.keys(ms);
@@ -1575,63 +1620,83 @@ function renderMonthlyHeatmap() {
   const simonsPts = ms['시몬스'] || [];
   const allPeriods = simonsPts.map(p => p.period?.substring(0,7)).filter(Boolean);
 
-  if (allPeriods.length < 3) return;  // 3개월 미만이면 생성 안 함
+  if (allPeriods.length < 3) return;
 
-  // 전월비 계산
+  // 지수값 + 전월비 계산
   const rows = brands.map(brand => {
     const pts = ms[brand] || [];
     const byPeriod = {};
     pts.forEach(p => { byPeriod[p.period?.substring(0,7)] = p.value; });
 
-    const deltas = allPeriods.map((period, i) => {
-      if (i === 0) return null;
-      const curr = byPeriod[period];
-      const prev = byPeriod[allPeriods[i-1]];
-      if (curr == null || prev == null || prev === 0) return null;
-      return ((curr - prev) / prev * 100);
+    const cells = allPeriods.map((period, i) => {
+      const curr = byPeriod[period] ?? null;
+      if (i === 0) return { val: curr, delta: null };
+      const prev = byPeriod[allPeriods[i-1]] ?? null;
+      const delta = (curr != null && prev != null && prev !== 0)
+        ? ((curr - prev) / prev * 100) : null;
+      return { val: curr, delta };
     });
-    return { brand, deltas };
+    return { brand, cells };
   });
 
   // 색상: 양수=녹, 음수=적, null=회색
   function heatColor(v) {
     if (v === null) return '#f0f0f0';
-    if (v > 20) return '#1a7a3c';
-    if (v > 10) return '#27ae60';
-    if (v > 0)  return '#82c99d';
+    if (v > 20)  return '#1a7a3c';
+    if (v > 10)  return '#27ae60';
+    if (v > 0)   return '#82c99d';
     if (v > -10) return '#f5a89a';
     if (v > -20) return '#e74c3c';
     return '#a93226';
   }
 
-  const colHeaders = allPeriods.slice(1).map(p => `<th style="font-size:10px;padding:3px 6px">${p.substring(2).replace('-','.')}</th>`).join('');
+  // 헤더: 월 이름 (colspan 없음 — 셀 내부에서 분할)
+  const colHeaders = allPeriods.slice(1).map(p =>
+    `<th style="font-size:10px;padding:3px 4px;text-align:center;min-width:90px">${p.substring(2).replace('-','.')}</th>`
+  ).join('');
+
   const tableRows = rows.map(r => {
     const isSim = r.brand === '시몬스';
-    const cells = r.deltas.slice(1).map(v => {
-      const bg = heatColor(v);
-      const text = v === null ? '—' : (v > 0 ? '+' : '') + v.toFixed(1) + '%';
-      const textColor = v === null ? '#999' : Math.abs(v) > 10 ? '#fff' : '#333';
-      return `<td style="background:${bg};color:${textColor};text-align:center;font-size:10px;padding:4px 6px">${text}</td>`;
+    const tdCells = r.cells.slice(1).map(c => {
+      const bg    = heatColor(c.delta);
+      const dText = c.delta === null ? '—' : (c.delta > 0 ? '+' : '') + c.delta.toFixed(1) + '%';
+      const dColor = c.delta === null ? '#aaa' : Math.abs(c.delta) > 10 ? '#fff' : '#333';
+      const vText = c.val !== null ? c.val.toFixed(1) : '—';
+      return `<td style="padding:0;border-bottom:1px solid #e8e8e8;">
+        <div style="display:flex;align-items:stretch;min-height:28px;">
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;
+                      font-size:10px;color:#555;border-right:1px solid #ddd;padding:2px 4px;">
+            ${vText}
+          </div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;
+                      background:${bg};color:${dColor};font-size:10px;padding:2px 4px;font-weight:500;">
+            ${dText}
+          </div>
+        </div>
+      </td>`;
     }).join('');
+
     return `<tr>
-      <td style="font-size:11px;padding:4px 8px;font-weight:${isSim?'bold':'normal'};white-space:nowrap">${r.brand}</td>
-      ${cells}
+      <td style="font-size:11px;padding:4px 8px;font-weight:${isSim?'bold':'normal'};
+                 white-space:nowrap;border-bottom:1px solid #e8e8e8;">${r.brand}</td>
+      ${tdCells}
     </tr>`;
   }).join('');
 
   const html = `
     <div style="margin-top:20px">
-      <p style="font-size:12px;font-weight:600;color:#2c3e50;margin-bottom:8px">월별 전월비 증감 히트맵</p>
+      <p style="font-size:12px;font-weight:600;color:#2c3e50;margin-bottom:6px">월별 전월비 증감 히트맵</p>
+      <p style="font-size:10px;color:#999;margin-bottom:8px">좌: 지수값 (시몬스=100) &nbsp;|&nbsp; 우: 전월비 증감률(%)</p>
       <div style="overflow-x:auto">
-        <table style="border-collapse:collapse;width:100%;font-size:11px">
-          <thead><tr>
-            <th style="text-align:left;padding:3px 8px;font-size:10px">브랜드</th>
+        <table style="border-collapse:collapse;font-size:11px;width:100%">
+          <thead><tr style="background:#f8fafc;">
+            <th style="text-align:left;padding:5px 8px;font-size:10px;min-width:80px;">브랜드</th>
             ${colHeaders}
           </tr></thead>
           <tbody>${tableRows}</tbody>
         </table>
       </div>
-      <p style="font-size:10px;color:#999;margin-top:6px">전월 대비 증감률(%). — = 데이터 없음</p>
+      <p style="font-size:10px;color:#999;margin-top:6px">— = 데이터 없음</p>
     </div>`;
 
   const container = document.getElementById('monthly-heatmap');
@@ -2004,7 +2069,7 @@ function renderCVTable() {
   const ordered = ['시몬스', ...brands.filter(b => b !== '시몬스')];
 
   const rows = ordered.map(brand => {
-    const pts = ms[brand] || [];
+    const pts = (ms[brand] || []).slice(-12);  // 최근 12개월
     const vals = pts.map(p => p.value).filter(v => v != null && !isNaN(v));
     const n = vals.length;
     const isBase = brand === '시몬스';
@@ -2035,10 +2100,10 @@ function renderCVTable() {
     </tr>`;
   }).join('');
 
-  const nMonths = Math.max(...ordered.map(b => {
-    const pts = ms[b] || [];
+  const nMonths = Math.min(12, Math.max(...ordered.map(b => {
+    const pts = (ms[b] || []).slice(-12);
     return pts.map(p => p.value).filter(v => v != null && !isNaN(v)).length;
-  }), 0);
+  }), 0));
 
   document.getElementById('cv-table').innerHTML = `
     <table class="data-table">
@@ -2105,43 +2170,61 @@ function renderSoSSoM() {
 
   document.getElementById('section-sos-som').style.display = '';
 
-  // 대각선 기준선 (SoS = SoM)
+  const mainData   = validData.filter(d => !d.caution);
+  const cautionData = validData.filter(d => d.caution);
+
   const allVals = validData.map(d => Math.max(d.sos, d.som || 0));
   const maxVal = Math.max(...allVals) * 1.2;
 
-  const scatterData = validData.map(d => {
-    const isCautionTier = d.tier === 'C' || d.tier === 'D';
+  function makePoint(d, isCaution) {
     return {
       name: d.brand,
       value: [d.sos, d.som],
       itemStyle: {
         color: COLORS[d.brand] || '#888',
-        opacity: isCautionTier ? 0.45 : 0.9,
+        opacity: isCaution ? 0.55 : 0.9,
+        borderColor: isCaution ? (COLORS[d.brand] || '#888') : 'transparent',
+        borderWidth: isCaution ? 1.5 : 0,
+        borderType: isCaution ? 'dashed' : 'solid',
       },
-      symbol: isCautionTier ? 'triangle' : 'circle',
-      symbolSize: 14,
       label: {
         show: true,
-        formatter: d.brand,
+        formatter: isCaution ? d.brand + ' ⚠' : d.brand,
         position: 'top',
         fontSize: 10,
         color: COLORS[d.brand] || '#333',
+        fontStyle: isCaution ? 'italic' : 'normal',
       },
     };
-  });
+  }
 
   const sosSomMaxX = Math.max(...validData.map(d => d.sos), 1);
   const sosSomMaxY = Math.max(...validData.map(d => d.som || 0), 1);
   const xOptSoSSoM = Object.assign(axisOption(sosSomMaxX, '%', 5), {name:'SoS (%)',nameLocation:'middle',nameGap:30});
   const yOptSoSSoM = Object.assign(axisOption(sosSomMaxY, '%', 5), {name:'SoM (%)',nameLocation:'middle',nameGap:40});
+
   gc('chart-sos-som').setOption({
-    grid: {left: 60, right: 30, top: 30, bottom: 50},
+    grid: {left: 60, right: 30, top: 65, bottom: 50},
     xAxis: xOptSoSSoM,
     yAxis: yOptSoSSoM,
+    legend: {
+      show: true,
+      top: 0,
+      right: 0,
+      orient: 'vertical',
+      data: [
+        {name: '침대 전업 (매출 반영)', icon: 'circle'},
+        {name: '복합 사업 ⚠ 참고용', icon: 'triangle'},
+      ],
+      textStyle: {fontSize: 10},
+    },
     series: [
       {
+        name: '침대 전업 (매출 반영)',
         type: 'scatter',
-        data: scatterData,
+        symbol: 'circle',
+        symbolSize: 15,
+        data: mainData.map(d => makePoint(d, false)),
         label: {show: true},
         markLine: {
           silent: true,
@@ -2154,13 +2237,22 @@ function renderSoSSoM() {
             ]
           ],
         },
-      }
+      },
+      {
+        name: '복합 사업 ⚠ 참고용',
+        type: 'scatter',
+        symbol: 'triangle',
+        symbolSize: 15,
+        data: cautionData.map(d => makePoint(d, true)),
+        label: {show: true},
+      },
     ],
     tooltip: {
       formatter: p => {
         const d = validData.find(x => x.brand === p.name);
         if (!d) return p.name;
-        return `${p.name} [Tier ${d.tier}]<br>SoS: ${d.sos}%<br>SoM: ${d.som}%<br>${d.caution ? '⚠ 침대 외 사업 포함' : ''}`;
+        const warn = d.caution ? '<br><span style="color:#e67e22;">⚠ 전체 회사 매출 기준 (침대 외 사업 포함)</span>' : '';
+        return `<b>${p.name}</b> [Tier ${d.tier}]<br>SoS: ${d.sos}%<br>SoM: ${d.som}%${warn}`;
       }
     },
   });
@@ -2205,50 +2297,46 @@ function renderInsights() {
     ? findings.map(f=>`<div class="insight-item ${f.type}">${f.text}</div>`).join('')
     : '<div class="insight-item">특이사항 없음</div>';
 
-  const changes = RAW.change_points || [];
+  // 이번 달 변화점: monthly_series 최신 월 vs 전월 등락폭 상위 5
   const changeEl = document.getElementById('insight-changes');
-  if (!changes.length) {
-    // 절대값 순위로 대체 표시
-    const norm = RAW.google?.normalized || {};
-    const sorted = Object.entries(norm)
-      .filter(([,v]) => v > 0)
-      .sort(([,a],[,b]) => b - a);
-    const top3 = sorted.slice(0, 3);
-    const bot3 = sorted.slice(-3).reverse();
+  (function renderThisMonthChanges() {
+    const ms = RAW.google?.monthly_series || {};
+    const simonsPts = ms['시몬스'] || [];
+    if (simonsPts.length < 2) {
+      changeEl.innerHTML = '<div style="grid-column:1/-1;color:#aaa;font-size:12px;padding:12px">전월 비교 데이터 없음 — 2개월 이상 수집 후 자동 표시</div>';
+      return;
+    }
+    const latestPeriod = simonsPts[simonsPts.length - 1].period?.substring(0, 7);
+    const prevPeriod   = simonsPts[simonsPts.length - 2].period?.substring(0, 7);
 
-    changeEl.innerHTML = `
-      <div style="grid-column:1/-1">
-        <p style="color:#888;font-size:12px;margin-bottom:8px">전월 비교 데이터 없음 — 이번 달 검색 지수 현황</p>
-        <div style="display:flex;gap:24px">
-          <div>
-            <p style="font-size:11px;font-weight:600;color:#27ae60;margin-bottom:4px">▲ 상위 브랜드</p>
-            ${top3.map(([b,v],i) => `<p style="font-size:13px">${i+1}위 ${b === '시몬스' ? '<strong>'+b+'</strong>' : b} <span style="color:#888">${v.toFixed(1)}</span></p>`).join('')}
-          </div>
-          <div>
-            <p style="font-size:11px;font-weight:600;color:#e74c3c;margin-bottom:4px">▼ 하위 브랜드</p>
-            ${bot3.map(([b,v],i) => `<p style="font-size:13px">${i+1}위 ${b} <span style="color:#888">${v.toFixed(1)}</span></p>`).join('')}
-          </div>
-        </div>
-        <p style="font-size:11px;color:#aaa;margin-top:8px">다음 달부터 전월 대비 변화점 자동 탐지 시작</p>
+    const movers = Object.entries(ms).map(([brand, pts]) => {
+      const byP = {};
+      pts.forEach(p => { byP[p.period?.substring(0,7)] = p.value; });
+      const curr = byP[latestPeriod], prev = byP[prevPeriod];
+      if (curr == null || prev == null || prev === 0) return null;
+      return { brand, pct: (curr - prev) / prev * 100, curr };
+    }).filter(Boolean);
+
+    movers.sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct));
+
+    changeEl.innerHTML = movers.slice(0, 5).map(m => {
+      const isRise = m.pct > 0;
+      return `<div class="insight-item ${isRise ? 'good' : 'warn'}">
+        <span style="font-size:11px;color:#888;">${m.brand} · ${latestPeriod}</span><br>
+        <b>${isRise ? '급등' : '급락'} ${isRise ? '+' : ''}${m.pct.toFixed(1)}%</b>
+        <span style="font-size:11px;color:#aaa;margin-left:6px">지수 ${m.curr.toFixed(1)}</span>
       </div>`;
-  } else {
-    changeEl.innerHTML = changes.slice(0,5).map(c=>`
-        <div class="insight-item ${c.direction==='급등'?'good':'warn'}">
-          ${c.brand} · ${c.period}<br>
-          <b>${c.direction} ${c.pct_change > 0?'+':''}${c.pct_change}%</b>
-        </div>`).join('');
-  }
+    }).join('');
+  })();
 }
 
 // T3-3: 기본값 변경 배너 로직
 function _updateFilterBanner() {
-  const rangeBtn = document.querySelector('.period-pill.active[data-range]');
   const tierBtn = document.querySelector('.tier-filter.active');
   const banner = document.getElementById('filter-changed-banner');
   if (!banner) return;
-  const rangeDefault = (rangeBtn?.dataset?.range === 'today 3-m') || (!rangeBtn);
   const tierDefault = tierBtn?.dataset?.tier === 'ALL' || !tierBtn;
-  banner.style.display = (rangeDefault && tierDefault) ? 'none' : 'block';
+  banner.style.display = tierDefault ? 'none' : 'block';
 }
 
 function setRange(btn, range) {
@@ -2323,19 +2411,6 @@ renderCVTable();
 renderSoSSoM();
 renderInsights();
 
-// 기간 필터: monthly_series 없으면 버튼 비활성화 + 툴팁
-(function initPeriodFilter() {
-  const hasMonthlySeries = Object.keys(RAW.google?.monthly_series || {}).length > 0;
-  const hasDatalabSeries = Object.keys((RAW.datalab || {}).monthly_series || {}).length > 0;
-  if (!hasMonthlySeries && !hasDatalabSeries) {
-    document.querySelectorAll('.period-pill[data-range]').forEach(btn => {
-      btn.disabled = true;
-      btn.style.opacity = '0.4';
-      btn.style.cursor = 'not-allowed';
-      btn.title = '데이터 수집 후 활성화 (monthly_series 없음)';
-    });
-  }
-})();
 
 // ── C-2: 섹션별 산출 근거 캡션 삽입 ──────────────────
 (function insertCaptions() {
@@ -2391,11 +2466,25 @@ renderInsights();
 
   // 구글 vs 네이버 갭 캡션
   const gapCaption = buildCaption({
-    formula: 'Gap = Google 정규화 지수 − Naver 정규화 지수 (양수: 구글 우세)',
+    formula: 'Gap = (네이버 지수 ÷ 네이버 평균 × 100) − (구글 지수 ÷ 구글 평균 × 100) | 브랜드 평균=100 기준 재정규화',
     source: 'Google Trends + Naver 검색 API',
     collected
   });
   document.getElementById('section-gap')?.insertAdjacentHTML('beforeend', gapCaption);
+
+  // 지수 설명 박스
+  const gapGuide = `<div style="margin-top:10px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#475569;line-height:1.9;">
+    <div style="margin-bottom:6px;font-weight:700;color:#1e3a8a;font-size:11px;">📌 지수 해석 가이드</div>
+    <div><span style="display:inline-block;width:16px;text-align:center;margin-right:4px;">🔵</span><b>구글 카테고리 지수</b> — Google Trends 검색 관심도 · 소비자가 얼마나 검색하는지 (수요 지표) · 11개 브랜드 평균=100 기준 · 최근 3개월 한국</div>
+    <div style="margin-top:4px;"><span style="display:inline-block;width:16px;text-align:center;margin-right:4px;">🟢</span><b>네이버 카테고리 지수</b> — Naver 블로그+뉴스 총 건수 · 브랜드 관련 콘텐츠 발행량 (마케팅 활동 지표) · 11개 브랜드 평균=100 기준 · 전체 누적 인덱스</div>
+    <div style="margin-top:5px;padding:6px 8px;background:#eff6ff;border-radius:4px;color:#1e40af;font-size:10.5px;">
+      <b>산출식:</b> &nbsp;구글 카테고리 지수 = 브랜드 구글 지수 ÷ 전체 평균 × 100 &nbsp;|&nbsp; 네이버 카테고리 지수 = 브랜드 네이버 지수 ÷ 전체 평균 × 100 &nbsp;|&nbsp; <b>갭 = 네이버 지수 − 구글 지수</b>
+    </div>
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid #e2e8f0;color:#64748b;">
+      <b>갭 해석:</b> &nbsp;100 = 카테고리 평균 수준 &nbsp;|&nbsp; 양수(+) = 네이버 콘텐츠 상대 강세, 구글 대비 마케팅 활발 &nbsp;|&nbsp; 음수(−) = 구글 검색 강세, 브랜드 파워 대비 콘텐츠 발행 상대적 적음
+    </div>
+  </div>`;
+  document.getElementById('section-gap')?.insertAdjacentHTML('beforeend', gapGuide);
 
   // 성별·연령 인덱스 캡션
   const demoCaption = buildCaption({

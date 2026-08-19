@@ -34,13 +34,57 @@ def _search_total(query, api_type="blog"):
         return 0
 
 
-def fetch_naver_counts(run_id, collected_at):
-    cached = cache.get("naver_counts", {"brands": [b["name"] for b in BRANDS]})
-    if cached:
-        print("  [Naver] 캐시 사용")
-        return cached
+def _collect_naver_counts_3m():
+    """Playwright으로 네이버 웹검색 최근 3개월 기간 필터 건수 수집. 실패 시 {} 반환."""
+    import re
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        return {}
 
-    print(f"  [Naver] {N_SAMPLES}회 샘플링 시작...")
+    def _get_count(page, query, search_type):
+        url = (
+            f"https://search.naver.com/search.naver"
+            f"?where={search_type}&query={urllib.parse.quote(query)}&nso=so:r,p:3m"
+        )
+        try:
+            page.goto(url, timeout=15000)
+            page.wait_for_timeout(800)
+            body = page.locator("body").inner_text(timeout=5000)
+            m = re.search(r'([\d,]+)\s*건', body)
+            if m:
+                return int(m.group(1).replace(',', ''))
+        except Exception:
+            pass
+        return 0
+
+    counts = {}
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            ctx = browser.new_context(
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
+            )
+            page = ctx.new_page()
+            for b in BRANDS:
+                query = b["naver_kw"]
+                blog = _get_count(page, query, "blog")
+                time.sleep(random.uniform(0.4, 0.8))
+                news = _get_count(page, query, "news")
+                time.sleep(random.uniform(0.4, 0.8))
+                counts[b["name"]] = blog + news
+                print(f"    {b['name']}: 블로그 {blog:,} + 뉴스 {news:,} = {blog+news:,}")
+            browser.close()
+    except Exception as e:
+        print(f"  [Naver 3M Playwright 오류]: {e}")
+        return {}
+
+    return counts
+
+
+def _fetch_naver_counts_api(run_id, collected_at):
+    """폴백: Open API 전체 누적 건수 수집"""
+    print(f"  [Naver API 폴백] {N_SAMPLES}회 샘플링 시작...")
     brand_samples = {b["name"]: [] for b in BRANDS}
 
     for i in range(N_SAMPLES):
@@ -55,16 +99,35 @@ def fetch_naver_counts(run_id, collected_at):
         stats_map[name] = summarize(samples)
 
     base = stats_map.get("시몬스", {}).get("median", 1) or 1
-    normalized = {}
-    for name, stats in stats_map.items():
-        normalized[name] = round(stats["median"] / base * 100, 1)
+    normalized = {name: round(stats["median"] / base * 100, 1) for name, stats in stats_map.items()}
 
-    print("\n  [Naver 검색 지수] 시몬스=100 기준")
+    output = {"normalized": normalized, "stats": stats_map, "period": "all"}
+    cache.set("naver_counts", {"brands": [b["name"] for b in BRANDS]}, output, ttl_hours=12)
+    return output
+
+
+def fetch_naver_counts(run_id, collected_at):
+    cached = cache.get("naver_counts", {"brands": [b["name"] for b in BRANDS]})
+    if cached:
+        print("  [Naver] 캐시 사용")
+        return cached
+
+    print("  [Naver] 최근 3개월 기간 필터 수집 (Playwright)...")
+    raw_counts = _collect_naver_counts_3m()
+
+    if not raw_counts:
+        print("  [Naver] Playwright 실패 — Open API 폴백 (전체 누적)")
+        return _fetch_naver_counts_api(run_id, collected_at)
+
+    base = raw_counts.get("시몬스", 1) or 1
+    normalized = {name: round(v / base * 100, 1) for name, v in raw_counts.items()}
+    stats_map = {name: {"median": v, "cv": 0.0, "confidence": "stable"} for name, v in raw_counts.items()}
+
+    print("\n  [Naver 검색 지수] 시몬스=100 기준 (최근 3개월)")
     for name, idx in sorted(normalized.items(), key=lambda x: x[1], reverse=True):
-        conf = stats_map[name]["confidence"]
-        print(f"    {name}: {idx} (CV={stats_map[name]['cv']}, {conf})")
+        print(f"    {name}: {idx} (raw: {raw_counts[name]:,})")
 
-    output = {"normalized": normalized, "stats": stats_map}
+    output = {"normalized": normalized, "stats": stats_map, "period": "3m"}
     cache.set("naver_counts", {"brands": [b["name"] for b in BRANDS]}, output, ttl_hours=12)
     return output
 

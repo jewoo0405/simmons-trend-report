@@ -23,12 +23,13 @@ def _compute_kpi(data):
 
     sos_val = round(sos.get("시몬스", 0), 1)
 
-    # 구글 순위: linked 정렬
-    g_linked = google.get("linked", google.get("normalized", {}))
-    sorted_g = sorted(g_linked.items(), key=lambda x: x[1], reverse=True)
+    # 구글 순위: normalized 기준 (시몬스=100 보장)
+    g_norm = google.get("normalized", {})
+    sorted_g = sorted(g_norm.items(), key=lambda x: x[1], reverse=True)
     g_rank = next((i + 1 for i, (b, _) in enumerate(sorted_g) if b == "시몬스"), None)
     g_top = sorted_g[0] if sorted_g else ("—", 0)
-    gap_to_top = round(g_top[1] - 100, 1) if g_top[0] != "시몬스" else 0.0
+    simmons_val = g_norm.get("시몬스", 100)
+    gap_to_top = round(g_top[1] - simmons_val, 1) if g_top[0] != "시몬스" else 0.0
 
     # 네이버 순위: normalized 정렬
     n_norm = naver.get("normalized", {})
@@ -103,7 +104,7 @@ def _build_kpi_strip(kpi, prev_kpi, total_brands):
          d("g_rank", "위"), "Google Trends 정규화 지수 기준"),
         ("🌐", "네이버 노출 순위", f"{kpi['n_rank']}위 / {total_brands}",
          d("n_rank", "위"), "블로그+뉴스 건수 기준"),
-        ("📈", "1위 브랜드 대비 갭", f"-{kpi['gap_to_top']}pt",
+        ("📈", "1위 브랜드 대비 갭", f"-{kpi['gap_to_top']}pt" if kpi['gap_to_top'] > 0 else "1위",
          d("gap_to_top", "pt"), f"vs {kpi['g_top_brand']} (구글 지수 기준)"),
     ]
 
@@ -207,13 +208,12 @@ def _brand_colors():
 
 
 def _compute_sos_som(data):
-    """SoS vs SoM 산점도용 계산. caution=False 브랜드만 SoM 계산."""
+    """SoS vs SoM 산점도용 계산. caution 브랜드도 포함하되 참고용으로 표시."""
     sos = data.get("sos", {})
     dart = data.get("dart", {})
 
-    # caution=False 브랜드만 SoM 계산
-    valid_dart = {b: d for b, d in dart.items() if not d.get("caution", True)}
-    total_sales = sum(d["amount"] for d in valid_dart.values())
+    # 전체 dart 브랜드 합계 (caution 포함) — 공통 분모로 SoM% 산출
+    total_sales = sum(d["amount"] for d in dart.values() if d.get("amount"))
 
     result = []
     for brand, sos_val in sos.items():
@@ -224,8 +224,8 @@ def _compute_sos_som(data):
         tier = BRAND_TO_TIER_NEW.get(brand, "?")
         in_dart = brand in dart
         som_val = None
-        if not caution and total_sales > 0 and in_dart:
-            som_val = round(dart[brand]["amount"] / total_sales * 100, 1)
+        if in_dart and brand_dart.get("amount") and total_sales > 0:
+            som_val = round(brand_dart["amount"] / total_sales * 100, 1)
         result.append({
             "brand": brand,
             "sos": round(sos_val, 1),
@@ -344,6 +344,11 @@ def _build_appendix(collected_at):
           <td>카테고리 인덱스</td>
           <td style="font-family:monospace;">인덱스(B,G) = 브랜드값(B,G) / 카테고리평균(G) × 100</td>
           <td>성별·연령 인덱스 모드. 카테고리 평균=100 기준</td>
+        </tr>
+        <tr>
+          <td>구글 vs 네이버 갭</td>
+          <td style="font-family:monospace;">G_cat = G_지수 / avg(G전체) × 100<br>N_cat = N_지수 / avg(N전체) × 100<br>Gap = N_cat − G_cat</td>
+          <td>11개 브랜드 카테고리 평균=100 기준 재정규화 후 차이 산출. 양수=네이버 강세, 음수=구글 강세. 시몬스도 의미 있는 갭 표시.</td>
         </tr>"""
 
     # ④ 데이터 소스별 한계 카드
@@ -838,6 +843,16 @@ body {{
 .appendix-table td {{ padding: 7px 8px; border-bottom: 1px solid var(--border-light); vertical-align: top; }}
 .appendix-table tr:nth-child(even) td {{ background: var(--surface-2); }}
 
+/* ── 수집기간 칩 ────────────────────────────── */
+.period-chip {{
+  display: inline-flex; align-items: center;
+  height: 16px; padding: 0 6px;
+  background: #f1f5f9; border: 1px solid #e2e8f0;
+  border-radius: 10px; font-size: 10px; color: #64748b;
+  white-space: nowrap; font-weight: 500; margin-left: 6px;
+  vertical-align: middle;
+}}
+
 /* ── 소스 뱃지 ──────────────────────────────── */
 .src-badge {{ display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 4px; border-radius: 3px; margin-left: 3px; vertical-align: middle; }}
 .src-badge.gt {{ background: #4285f4; color: #fff; }}
@@ -938,15 +953,6 @@ body {{
 <nav id="sidebar">
 
   <div class="nav-section">
-    <div class="nav-label">기간 선택</div>
-    <div class="period-pills">
-      <button class="period-pill active" data-range="today 3-m" onclick="setRange(this,'today 3-m')">3개월</button>
-      <button class="period-pill" data-range="today 6-m" onclick="setRange(this,'today 6-m')">6개월</button>
-      <button class="period-pill" data-range="today 12-m" onclick="setRange(this,'today 12-m')">12개월</button>
-    </div>
-  </div>
-
-  <div class="nav-section">
     <div class="nav-label">티어 필터</div>
     <div class="tier-grid">
       <button class="tier-pill active tier-filter" data-tier="ALL" onclick="setTierFilter(this,'ALL')">전체</button>
@@ -1022,14 +1028,17 @@ body {{
     <div class="card">
       <div class="card-title">Share of Search
         <span class="source-badge badge-google">Google Trends</span>
+        <span class="period-chip">최근 3개월</span>
       </div>
       <div class="card-sub">브랜드별 구글 검색 점유율 (%) · SoS = 브랜드 지수 ÷ 전체 합계 × 100</div>
       <div id="chart-sos" style="height:280px;"></div>
       <div id="sos-table"></div>
     </div>
     <div class="card" id="section-gap">
-      <div class="card-title">구글 vs 네이버 갭 분석</div>
-      <div class="card-sub">네이버 지수 − 구글 지수 (양수=네이버 강세 / 음수=구글 강세)</div>
+      <div class="card-title">구글 vs 네이버 갭 분석
+        <span class="period-chip">최근 3개월</span>
+      </div>
+      <div class="card-sub">브랜드 카테고리 평균=100 기준 재정규화 후 네이버 지수 − 구글 지수 (양수=네이버 강세 / 음수=구글 강세)</div>
       <div id="chart-gap" style="height:320px;"></div>
     </div>
   </div>
@@ -1040,6 +1049,7 @@ body {{
       <div class="card-title">구글 검색 지수 순위
         <span class="source-badge badge-google">Google Trends</span>
         <span class="source-badge" style="background:#fff3e0;color:#e65100;" title="Tier C(종합가구)·D(렌탈) 브랜드는 가구·렌탈 수요 혼재로 직접 비교 주의">⚠ Tier C·D 비교 주의</span>
+        <span class="period-chip">최근 3개월</span>
       </div>
       <div class="card-sub" id="sub-google-rank">시몬스=100 기준 · 최근 3개월 한국</div>
       <div id="chart-google-rank" style="min-height:200px;"></div>
@@ -1055,8 +1065,9 @@ body {{
       <div class="card-title">네이버 콘텐츠 노출량
         <span class="source-badge badge-naver">Naver Search</span>
         <span class="source-badge" style="background:#fff3e0;color:#e65100;" title="Tier C(종합가구)·D(렌탈) 브랜드는 가구·렌탈 수요 혼재로 직접 비교 주의">⚠ Tier C·D 비교 주의</span>
+        <span class="period-chip">최근 3개월</span>
       </div>
-      <div class="card-sub" id="sub-naver-rank">시몬스=100 기준 · 블로그+뉴스 건수</div>
+      <div class="card-sub" id="sub-naver-rank">시몬스=100 기준 · 블로그+뉴스 건수 · 최근 3개월</div>
       <div id="chart-naver-rank" style="min-height:200px;"></div>
     </div>
   </div>
@@ -1066,6 +1077,7 @@ body {{
     <div class="card">
       <div class="card-title">월별 검색 트렌드 추이
         <span class="source-badge badge-google">Google Trends</span>
+        <span class="period-chip">최근 12개월</span>
       </div>
       <div class="card-sub">주요 브랜드 · 음영은 신뢰구간(CV) · 출처: Google Trends · 기준: 시몬스=100</div>
       <div id="chart-monthly" style="height:420px;"></div>
@@ -1090,6 +1102,7 @@ body {{
     <div class="card">
       <div class="card-title">성별 검색 관심도
         <span class="source-badge badge-naver">Naver DataLab</span>
+        <span class="period-chip">최근 1개월</span>
       </div>
       <div style="display:flex;gap:6px;margin-bottom:8px;">
         <button class="demo-toggle active" id="gender-toggle-norm" onclick="setGenderMode('norm')">브랜드 내 비율</button>
@@ -1101,6 +1114,7 @@ body {{
     <div class="card">
       <div class="card-title">연령대별 검색 관심도
         <span class="source-badge badge-naver">Naver DataLab</span>
+        <span class="period-chip">최근 1개월</span>
       </div>
       <div style="display:flex;gap:6px;margin-bottom:8px;">
         <button class="demo-toggle active" id="age-toggle-norm" onclick="setAgeMode('norm')">브랜드 내 비율</button>
@@ -1114,14 +1128,34 @@ body {{
   <!-- T2-3: SoS vs SoM 산점도 -->
   <div class="chart-row" id="section-sos-som" style="display:none;">
     <div class="card">
-      <div class="card-title">Share of Search vs Share of Market (ESOV 분석)</div>
-      <div class="card-sub">한샘·현대리바트·코웨이는 침대 외 사업 포함 — SoM 제외 (참고용)</div>
-      <div style="display:inline-block;margin:8px 0 12px;padding:7px 14px;background:#fff3f3;border:1px solid #f5c6c6;border-radius:6px;font-size:12px;color:#c0392b;line-height:1.6;">
-        ⚑ {simmons_sos_note}
+      <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:4px;">
+        <div style="flex:1;min-width:0;">
+          <div class="card-title">Share of Search vs Share of Market (ESOV 분석)</div>
+          <div class="card-sub">● 실선 원형: 침대 전업 브랜드 (지누스·에이스침대) &nbsp;|&nbsp; △ 삼각형: 침대 외 사업 포함 — 전체 매출 기준 (참고용)</div>
+          <div style="display:inline-block;margin:8px 0 0;padding:7px 14px;background:#fff3f3;border:1px solid #f5c6c6;border-radius:6px;font-size:12px;color:#c0392b;line-height:1.6;">
+            ⚑ {simmons_sos_note}
+          </div>
+        </div>
+        <div style="flex:0 0 730px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:11px 14px;font-size:11px;color:#475569;line-height:1.75;">
+          <div style="font-weight:700;color:#1e3a8a;margin-bottom:6px;font-size:11px;">📌 지표 해석 가이드</div>
+          <div style="margin-bottom:5px;">
+            <span style="font-weight:700;color:#334155;">SoS</span> — 비교군 전체 검색량 중 해당 브랜드 비중.
+            Google Trends 지수를 시몬스=100으로 정규화해 산출.
+          </div>
+          <div style="margin-bottom:5px;">
+            <span style="font-weight:700;color:#334155;">SoM</span> — DART 공시 매출 기준 점유율.
+            분모는 수집된 브랜드 매출 합계. 코웨이(전체 사업) 포함 시 SoM 53% 차지 → 나머지 브랜드 수치 하향 왜곡.
+          </div>
+          <div style="padding-top:6px;border-top:1px solid #e2e8f0;color:#64748b;">
+            <span style="font-weight:700;">대각선 (y=x)</span> — SoS=SoM 기준선.
+            <span style="color:#2563eb;">위쪽</span> = 매출 대비 검색 적음 (검색 투자 여력).
+            <span style="color:#dc2626;">아래쪽</span> = 검색 대비 매출 적음 (전환 효율 점검 필요).
+          </div>
+        </div>
       </div>
-      <div id="chart-sos-som" style="height:400px;"></div>
+      <div id="chart-sos-som" style="height:400px;margin-top:12px;"></div>
       <div style="font-size:10px;color:#999;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0;">
-        ※ SoM = DART 공시 매출 기준 (caution=false 브랜드만). 대각선 위 = 검색 과소 → 검색 투자 여력. 대각선 아래 = 검색 과잉.
+        ※ SoM = DART 공시 매출 기준. 대각선 위 = 검색 과소 → 검색 투자 여력. 대각선 아래 = 검색 과잉.
       </div>
       {_caption("Google Trends + 네이버 증권", collected_at)}
     </div>
@@ -1132,7 +1166,7 @@ body {{
     <div class="card">
       <div class="card-title">부록 — 데이터 신뢰도 상세 (CV 분석)</div>
       <div class="card-sub">CV≤0.05 안정(녹) · CV≤0.15 주의(주황) · CV&gt;0.15 불안정(빨강)
-        · 출처: Google Trends 월별 지수 · 기준: monthly_series 기반 변동계수
+        · 출처: Google Trends 월별 지수 · 기준: 최근 12개월 monthly_series 기반 변동계수
       </div>
       <div id="cv-table"></div>
       {_caption("Google Trends monthly_series", collected_at)}
@@ -1264,7 +1298,7 @@ const SOS_SOM_DATA = {sos_som_json};
 // 현재 티어 필터 상태
 let _activeTier = 'ALL';
 // 현재 기간 필터 상태 ('3M' | '6M' | '12M' | 'ALL')
-let _activePeriod = '3M';
+let _activePeriod = '6M';
 
 // dispose 후 재초기화 헬퍼
 function reInitChart(domId) {{
@@ -1610,7 +1644,7 @@ function renderNaverRank(sharedLeft) {{
   const norm = RAW.naver?.normalized || {{}};
   let entries = Object.entries(norm);
   entries = _filterByTier(entries);
-  const sorted = entries.sort((a,b)=>b[1]-a[1]);
+  const sorted = entries.sort((a,b)=>a[1]-b[1]);  // 오름차순 → ECharts 가로막대에서 높은 값이 위
   if (!sorted.length) return;
   const chartDomRaw = reInitChart('chart-naver-rank');
   const chartDom = chartDomRaw || document.getElementById('chart-naver-rank');
@@ -1716,8 +1750,8 @@ function renderMonthly() {{
   const allPeriods = simonsPts.map(p => p.period?.substring(0,7)).filter(Boolean);
   const slicedPeriods = allPeriods.slice(-limit);
 
-  // 기본 ON 브랜드: 시몬스, 에이스침대, 씰리침대 / 이케아는 기본 OFF
-  const DEFAULT_ON = ['시몬스', '에이스침대', '씰리침대'];
+  // 기본 ON 브랜드: 시몬스, 에이스침대, 씰리침대, 한샘, 이케아
+  const DEFAULT_ON = ['시몬스', '에이스침대', '씰리침대', '한샘', '이케아'];
   const IKEA_KEY = brands.find(b => b.includes('이케아') || b.includes('IKEA'));
 
   // 시리즈 생성
@@ -1731,26 +1765,23 @@ function renderMonthly() {{
     }});
 
     const isSimmons = brand === '시몬스';
-    const isDefaultOn = DEFAULT_ON.includes(brand);
-    const isIkea = brand === IKEA_KEY;
+    const isDefaultOn = DEFAULT_ON.includes(brand) || (IKEA_KEY && brand === IKEA_KEY);
 
     return {{
       name: brand,
       type: 'line',
       data: values,
-      connectNulls: false,   // null 구간은 선 끊김
+      connectNulls: false,
       lineStyle: {{
         width: isSimmons ? 3 : 1.5,
         color: isSimmons ? '#1a1a1a' : undefined,
-        type: isSimmons ? 'solid' : 'solid'
       }},
       itemStyle: {{ color: isSimmons ? '#1a1a1a' : undefined }},
       symbol: isSimmons ? 'circle' : 'none',
       symbolSize: 5,
-      selected: isDefaultOn,   // 기본 ON/OFF
-      // 선 끝 라벨 (브랜드명 직접 표시)
+      selected: isDefaultOn,
       endLabel: {{
-        show: isDefaultOn || isSimmons,
+        show: isDefaultOn,
         formatter: '{{b}}',
         fontSize: 10,
         offset: [4, 0]
@@ -1759,11 +1790,18 @@ function renderMonthly() {{
     }};
   }});
 
-  // 이케아 기본 OFF
+  // 전체 legendSelected: DEFAULT_ON 기준
   const legendSelected = {{}};
   brands.forEach(b => {{
-    legendSelected[b] = b === IKEA_KEY ? false : DEFAULT_ON.includes(b) || b === '시몬스';
+    legendSelected[b] = DEFAULT_ON.includes(b) || (IKEA_KEY && b === IKEA_KEY);
   }});
+
+  // 표시 중인 시리즈의 최댓값으로 y축 자동 계산
+  const visibleMax = Math.max(...series
+    .filter(s => legendSelected[s.name])
+    .flatMap(s => s.data.filter(v => v != null))
+    .concat([100])
+  );
 
   // 실제 범위 표기
   const rangeLabel = slicedPeriods.length > 0
@@ -1772,7 +1810,7 @@ function renderMonthly() {{
 
   const dom = reInitChart('chart-monthly');
   if (!dom) return;
-  dom.style.height = '360px';
+  dom.style.height = '480px';
   const chart = echarts.init(dom);
 
   chart.setOption({{
@@ -1789,7 +1827,7 @@ function renderMonthly() {{
     }},
     grid: {{ left: 55, right: 80, top: 30, bottom: 60 }},
     xAxis: dateAxisOption(slicedPeriods),
-    yAxis: axisOption(150, '', 5),
+    yAxis: axisOption(visibleMax, '', 5),
     series,
     tooltip: {{
       trigger: 'axis',
@@ -1804,7 +1842,7 @@ function renderMonthly() {{
   renderMonthlyHeatmap();
 }}
 
-// 3-b. 월별 전월비 히트맵
+// 3-b. 월별 전월비 히트맵 (셀 분할: 좌=지수값, 우=증감률)
 function renderMonthlyHeatmap() {{
   const ms = RAW.google?.monthly_series || {{}};
   const brands = Object.keys(ms);
@@ -1813,63 +1851,83 @@ function renderMonthlyHeatmap() {{
   const simonsPts = ms['시몬스'] || [];
   const allPeriods = simonsPts.map(p => p.period?.substring(0,7)).filter(Boolean);
 
-  if (allPeriods.length < 3) return;  // 3개월 미만이면 생성 안 함
+  if (allPeriods.length < 3) return;
 
-  // 전월비 계산
+  // 지수값 + 전월비 계산
   const rows = brands.map(brand => {{
     const pts = ms[brand] || [];
     const byPeriod = {{}};
     pts.forEach(p => {{ byPeriod[p.period?.substring(0,7)] = p.value; }});
 
-    const deltas = allPeriods.map((period, i) => {{
-      if (i === 0) return null;
-      const curr = byPeriod[period];
-      const prev = byPeriod[allPeriods[i-1]];
-      if (curr == null || prev == null || prev === 0) return null;
-      return ((curr - prev) / prev * 100);
+    const cells = allPeriods.map((period, i) => {{
+      const curr = byPeriod[period] ?? null;
+      if (i === 0) return {{ val: curr, delta: null }};
+      const prev = byPeriod[allPeriods[i-1]] ?? null;
+      const delta = (curr != null && prev != null && prev !== 0)
+        ? ((curr - prev) / prev * 100) : null;
+      return {{ val: curr, delta }};
     }});
-    return {{ brand, deltas }};
+    return {{ brand, cells }};
   }});
 
   // 색상: 양수=녹, 음수=적, null=회색
   function heatColor(v) {{
     if (v === null) return '#f0f0f0';
-    if (v > 20) return '#1a7a3c';
-    if (v > 10) return '#27ae60';
-    if (v > 0)  return '#82c99d';
+    if (v > 20)  return '#1a7a3c';
+    if (v > 10)  return '#27ae60';
+    if (v > 0)   return '#82c99d';
     if (v > -10) return '#f5a89a';
     if (v > -20) return '#e74c3c';
     return '#a93226';
   }}
 
-  const colHeaders = allPeriods.slice(1).map(p => `<th style="font-size:10px;padding:3px 6px">${{p.substring(2).replace('-','.')}}</th>`).join('');
+  // 헤더: 월 이름 (colspan 없음 — 셀 내부에서 분할)
+  const colHeaders = allPeriods.slice(1).map(p =>
+    `<th style="font-size:10px;padding:3px 4px;text-align:center;min-width:90px">${{p.substring(2).replace('-','.')}}</th>`
+  ).join('');
+
   const tableRows = rows.map(r => {{
     const isSim = r.brand === '시몬스';
-    const cells = r.deltas.slice(1).map(v => {{
-      const bg = heatColor(v);
-      const text = v === null ? '—' : (v > 0 ? '+' : '') + v.toFixed(1) + '%';
-      const textColor = v === null ? '#999' : Math.abs(v) > 10 ? '#fff' : '#333';
-      return `<td style="background:${{bg}};color:${{textColor}};text-align:center;font-size:10px;padding:4px 6px">${{text}}</td>`;
+    const tdCells = r.cells.slice(1).map(c => {{
+      const bg    = heatColor(c.delta);
+      const dText = c.delta === null ? '—' : (c.delta > 0 ? '+' : '') + c.delta.toFixed(1) + '%';
+      const dColor = c.delta === null ? '#aaa' : Math.abs(c.delta) > 10 ? '#fff' : '#333';
+      const vText = c.val !== null ? c.val.toFixed(1) : '—';
+      return `<td style="padding:0;border-bottom:1px solid #e8e8e8;">
+        <div style="display:flex;align-items:stretch;min-height:28px;">
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;
+                      font-size:10px;color:#555;border-right:1px solid #ddd;padding:2px 4px;">
+            ${{vText}}
+          </div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;
+                      background:${{bg}};color:${{dColor}};font-size:10px;padding:2px 4px;font-weight:500;">
+            ${{dText}}
+          </div>
+        </div>
+      </td>`;
     }}).join('');
+
     return `<tr>
-      <td style="font-size:11px;padding:4px 8px;font-weight:${{isSim?'bold':'normal'}};white-space:nowrap">${{r.brand}}</td>
-      ${{cells}}
+      <td style="font-size:11px;padding:4px 8px;font-weight:${{isSim?'bold':'normal'}};
+                 white-space:nowrap;border-bottom:1px solid #e8e8e8;">${{r.brand}}</td>
+      ${{tdCells}}
     </tr>`;
   }}).join('');
 
   const html = `
     <div style="margin-top:20px">
-      <p style="font-size:12px;font-weight:600;color:#2c3e50;margin-bottom:8px">월별 전월비 증감 히트맵</p>
+      <p style="font-size:12px;font-weight:600;color:#2c3e50;margin-bottom:6px">월별 전월비 증감 히트맵</p>
+      <p style="font-size:10px;color:#999;margin-bottom:8px">좌: 지수값 (시몬스=100) &nbsp;|&nbsp; 우: 전월비 증감률(%)</p>
       <div style="overflow-x:auto">
-        <table style="border-collapse:collapse;width:100%;font-size:11px">
-          <thead><tr>
-            <th style="text-align:left;padding:3px 8px;font-size:10px">브랜드</th>
+        <table style="border-collapse:collapse;font-size:11px;width:100%">
+          <thead><tr style="background:#f8fafc;">
+            <th style="text-align:left;padding:5px 8px;font-size:10px;min-width:80px;">브랜드</th>
             ${{colHeaders}}
           </tr></thead>
           <tbody>${{tableRows}}</tbody>
         </table>
       </div>
-      <p style="font-size:10px;color:#999;margin-top:6px">전월 대비 증감률(%). — = 데이터 없음</p>
+      <p style="font-size:10px;color:#999;margin-top:6px">— = 데이터 없음</p>
     </div>`;
 
   const container = document.getElementById('monthly-heatmap');
@@ -2242,7 +2300,7 @@ function renderCVTable() {{
   const ordered = ['시몬스', ...brands.filter(b => b !== '시몬스')];
 
   const rows = ordered.map(brand => {{
-    const pts = ms[brand] || [];
+    const pts = (ms[brand] || []).slice(-12);  // 최근 12개월
     const vals = pts.map(p => p.value).filter(v => v != null && !isNaN(v));
     const n = vals.length;
     const isBase = brand === '시몬스';
@@ -2273,10 +2331,10 @@ function renderCVTable() {{
     </tr>`;
   }}).join('');
 
-  const nMonths = Math.max(...ordered.map(b => {{
-    const pts = ms[b] || [];
+  const nMonths = Math.min(12, Math.max(...ordered.map(b => {{
+    const pts = (ms[b] || []).slice(-12);
     return pts.map(p => p.value).filter(v => v != null && !isNaN(v)).length;
-  }}), 0);
+  }}), 0));
 
   document.getElementById('cv-table').innerHTML = `
     <table class="data-table">
@@ -2343,43 +2401,61 @@ function renderSoSSoM() {{
 
   document.getElementById('section-sos-som').style.display = '';
 
-  // 대각선 기준선 (SoS = SoM)
+  const mainData   = validData.filter(d => !d.caution);
+  const cautionData = validData.filter(d => d.caution);
+
   const allVals = validData.map(d => Math.max(d.sos, d.som || 0));
   const maxVal = Math.max(...allVals) * 1.2;
 
-  const scatterData = validData.map(d => {{
-    const isCautionTier = d.tier === 'C' || d.tier === 'D';
+  function makePoint(d, isCaution) {{
     return {{
       name: d.brand,
       value: [d.sos, d.som],
       itemStyle: {{
         color: COLORS[d.brand] || '#888',
-        opacity: isCautionTier ? 0.45 : 0.9,
+        opacity: isCaution ? 0.55 : 0.9,
+        borderColor: isCaution ? (COLORS[d.brand] || '#888') : 'transparent',
+        borderWidth: isCaution ? 1.5 : 0,
+        borderType: isCaution ? 'dashed' : 'solid',
       }},
-      symbol: isCautionTier ? 'triangle' : 'circle',
-      symbolSize: 14,
       label: {{
         show: true,
-        formatter: d.brand,
+        formatter: isCaution ? d.brand + ' ⚠' : d.brand,
         position: 'top',
         fontSize: 10,
         color: COLORS[d.brand] || '#333',
+        fontStyle: isCaution ? 'italic' : 'normal',
       }},
     }};
-  }});
+  }}
 
   const sosSomMaxX = Math.max(...validData.map(d => d.sos), 1);
   const sosSomMaxY = Math.max(...validData.map(d => d.som || 0), 1);
   const xOptSoSSoM = Object.assign(axisOption(sosSomMaxX, '%', 5), {{name:'SoS (%)',nameLocation:'middle',nameGap:30}});
   const yOptSoSSoM = Object.assign(axisOption(sosSomMaxY, '%', 5), {{name:'SoM (%)',nameLocation:'middle',nameGap:40}});
+
   gc('chart-sos-som').setOption({{
-    grid: {{left: 60, right: 30, top: 30, bottom: 50}},
+    grid: {{left: 60, right: 30, top: 65, bottom: 50}},
     xAxis: xOptSoSSoM,
     yAxis: yOptSoSSoM,
+    legend: {{
+      show: true,
+      top: 0,
+      right: 0,
+      orient: 'vertical',
+      data: [
+        {{name: '침대 전업 (매출 반영)', icon: 'circle'}},
+        {{name: '복합 사업 ⚠ 참고용', icon: 'triangle'}},
+      ],
+      textStyle: {{fontSize: 10}},
+    }},
     series: [
       {{
+        name: '침대 전업 (매출 반영)',
         type: 'scatter',
-        data: scatterData,
+        symbol: 'circle',
+        symbolSize: 15,
+        data: mainData.map(d => makePoint(d, false)),
         label: {{show: true}},
         markLine: {{
           silent: true,
@@ -2392,13 +2468,22 @@ function renderSoSSoM() {{
             ]
           ],
         }},
-      }}
+      }},
+      {{
+        name: '복합 사업 ⚠ 참고용',
+        type: 'scatter',
+        symbol: 'triangle',
+        symbolSize: 15,
+        data: cautionData.map(d => makePoint(d, true)),
+        label: {{show: true}},
+      }},
     ],
     tooltip: {{
       formatter: p => {{
         const d = validData.find(x => x.brand === p.name);
         if (!d) return p.name;
-        return `${{p.name}} [Tier ${{d.tier}}]<br>SoS: ${{d.sos}}%<br>SoM: ${{d.som}}%<br>${{d.caution ? '⚠ 침대 외 사업 포함' : ''}}`;
+        const warn = d.caution ? '<br><span style="color:#e67e22;">⚠ 전체 회사 매출 기준 (침대 외 사업 포함)</span>' : '';
+        return `<b>${{p.name}}</b> [Tier ${{d.tier}}]<br>SoS: ${{d.sos}}%<br>SoM: ${{d.som}}%${{warn}}`;
       }}
     }},
   }});
@@ -2443,50 +2528,46 @@ function renderInsights() {{
     ? findings.map(f=>`<div class="insight-item ${{f.type}}">${{f.text}}</div>`).join('')
     : '<div class="insight-item">특이사항 없음</div>';
 
-  const changes = RAW.change_points || [];
+  // 이번 달 변화점: monthly_series 최신 월 vs 전월 등락폭 상위 5
   const changeEl = document.getElementById('insight-changes');
-  if (!changes.length) {{
-    // 절대값 순위로 대체 표시
-    const norm = RAW.google?.normalized || {{}};
-    const sorted = Object.entries(norm)
-      .filter(([,v]) => v > 0)
-      .sort(([,a],[,b]) => b - a);
-    const top3 = sorted.slice(0, 3);
-    const bot3 = sorted.slice(-3).reverse();
+  (function renderThisMonthChanges() {{
+    const ms = RAW.google?.monthly_series || {{}};
+    const simonsPts = ms['시몬스'] || [];
+    if (simonsPts.length < 2) {{
+      changeEl.innerHTML = '<div style="grid-column:1/-1;color:#aaa;font-size:12px;padding:12px">전월 비교 데이터 없음 — 2개월 이상 수집 후 자동 표시</div>';
+      return;
+    }}
+    const latestPeriod = simonsPts[simonsPts.length - 1].period?.substring(0, 7);
+    const prevPeriod   = simonsPts[simonsPts.length - 2].period?.substring(0, 7);
 
-    changeEl.innerHTML = `
-      <div style="grid-column:1/-1">
-        <p style="color:#888;font-size:12px;margin-bottom:8px">전월 비교 데이터 없음 — 이번 달 검색 지수 현황</p>
-        <div style="display:flex;gap:24px">
-          <div>
-            <p style="font-size:11px;font-weight:600;color:#27ae60;margin-bottom:4px">▲ 상위 브랜드</p>
-            ${{top3.map(([b,v],i) => `<p style="font-size:13px">${{i+1}}위 ${{b === '시몬스' ? '<strong>'+b+'</strong>' : b}} <span style="color:#888">${{v.toFixed(1)}}</span></p>`).join('')}}
-          </div>
-          <div>
-            <p style="font-size:11px;font-weight:600;color:#e74c3c;margin-bottom:4px">▼ 하위 브랜드</p>
-            ${{bot3.map(([b,v],i) => `<p style="font-size:13px">${{i+1}}위 ${{b}} <span style="color:#888">${{v.toFixed(1)}}</span></p>`).join('')}}
-          </div>
-        </div>
-        <p style="font-size:11px;color:#aaa;margin-top:8px">다음 달부터 전월 대비 변화점 자동 탐지 시작</p>
+    const movers = Object.entries(ms).map(([brand, pts]) => {{
+      const byP = {{}};
+      pts.forEach(p => {{ byP[p.period?.substring(0,7)] = p.value; }});
+      const curr = byP[latestPeriod], prev = byP[prevPeriod];
+      if (curr == null || prev == null || prev === 0) return null;
+      return {{ brand, pct: (curr - prev) / prev * 100, curr }};
+    }}).filter(Boolean);
+
+    movers.sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct));
+
+    changeEl.innerHTML = movers.slice(0, 5).map(m => {{
+      const isRise = m.pct > 0;
+      return `<div class="insight-item ${{isRise ? 'good' : 'warn'}}">
+        <span style="font-size:11px;color:#888;">${{m.brand}} · ${{latestPeriod}}</span><br>
+        <b>${{isRise ? '급등' : '급락'}} ${{isRise ? '+' : ''}}${{m.pct.toFixed(1)}}%</b>
+        <span style="font-size:11px;color:#aaa;margin-left:6px">지수 ${{m.curr.toFixed(1)}}</span>
       </div>`;
-  }} else {{
-    changeEl.innerHTML = changes.slice(0,5).map(c=>`
-        <div class="insight-item ${{c.direction==='급등'?'good':'warn'}}">
-          ${{c.brand}} · ${{c.period}}<br>
-          <b>${{c.direction}} ${{c.pct_change > 0?'+':''}}${{c.pct_change}}%</b>
-        </div>`).join('');
-  }}
+    }}).join('');
+  }})();
 }}
 
 // T3-3: 기본값 변경 배너 로직
 function _updateFilterBanner() {{
-  const rangeBtn = document.querySelector('.period-pill.active[data-range]');
   const tierBtn = document.querySelector('.tier-filter.active');
   const banner = document.getElementById('filter-changed-banner');
   if (!banner) return;
-  const rangeDefault = (rangeBtn?.dataset?.range === 'today 3-m') || (!rangeBtn);
   const tierDefault = tierBtn?.dataset?.tier === 'ALL' || !tierBtn;
-  banner.style.display = (rangeDefault && tierDefault) ? 'none' : 'block';
+  banner.style.display = tierDefault ? 'none' : 'block';
 }}
 
 function setRange(btn, range) {{
@@ -2561,19 +2642,6 @@ renderCVTable();
 renderSoSSoM();
 renderInsights();
 
-// 기간 필터: monthly_series 없으면 버튼 비활성화 + 툴팁
-(function initPeriodFilter() {{
-  const hasMonthlySeries = Object.keys(RAW.google?.monthly_series || {{}}).length > 0;
-  const hasDatalabSeries = Object.keys((RAW.datalab || {{}}).monthly_series || {{}}).length > 0;
-  if (!hasMonthlySeries && !hasDatalabSeries) {{
-    document.querySelectorAll('.period-pill[data-range]').forEach(btn => {{
-      btn.disabled = true;
-      btn.style.opacity = '0.4';
-      btn.style.cursor = 'not-allowed';
-      btn.title = '데이터 수집 후 활성화 (monthly_series 없음)';
-    }});
-  }}
-}})();
 
 // ── C-2: 섹션별 산출 근거 캡션 삽입 ──────────────────
 (function insertCaptions() {{
@@ -2629,11 +2697,25 @@ renderInsights();
 
   // 구글 vs 네이버 갭 캡션
   const gapCaption = buildCaption({{
-    formula: 'Gap = Google 정규화 지수 − Naver 정규화 지수 (양수: 구글 우세)',
+    formula: 'Gap = (네이버 지수 ÷ 네이버 평균 × 100) − (구글 지수 ÷ 구글 평균 × 100) | 브랜드 평균=100 기준 재정규화',
     source: 'Google Trends + Naver 검색 API',
     collected
   }});
   document.getElementById('section-gap')?.insertAdjacentHTML('beforeend', gapCaption);
+
+  // 지수 설명 박스
+  const gapGuide = `<div style="margin-top:10px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#475569;line-height:1.9;">
+    <div style="margin-bottom:6px;font-weight:700;color:#1e3a8a;font-size:11px;">📌 지수 해석 가이드</div>
+    <div><span style="display:inline-block;width:16px;text-align:center;margin-right:4px;">🔵</span><b>구글 카테고리 지수</b> — Google Trends 검색 관심도 · 소비자가 얼마나 검색하는지 (수요 지표) · 11개 브랜드 평균=100 기준 · 최근 3개월 한국</div>
+    <div style="margin-top:4px;"><span style="display:inline-block;width:16px;text-align:center;margin-right:4px;">🟢</span><b>네이버 카테고리 지수</b> — Naver 블로그+뉴스 총 건수 · 브랜드 관련 콘텐츠 발행량 (마케팅 활동 지표) · 11개 브랜드 평균=100 기준 · 전체 누적 인덱스</div>
+    <div style="margin-top:5px;padding:6px 8px;background:#eff6ff;border-radius:4px;color:#1e40af;font-size:10.5px;">
+      <b>산출식:</b> &nbsp;구글 카테고리 지수 = 브랜드 구글 지수 ÷ 전체 평균 × 100 &nbsp;|&nbsp; 네이버 카테고리 지수 = 브랜드 네이버 지수 ÷ 전체 평균 × 100 &nbsp;|&nbsp; <b>갭 = 네이버 지수 − 구글 지수</b>
+    </div>
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid #e2e8f0;color:#64748b;">
+      <b>갭 해석:</b> &nbsp;100 = 카테고리 평균 수준 &nbsp;|&nbsp; 양수(+) = 네이버 콘텐츠 상대 강세, 구글 대비 마케팅 활발 &nbsp;|&nbsp; 음수(−) = 구글 검색 강세, 브랜드 파워 대비 콘텐츠 발행 상대적 적음
+    </div>
+  </div>`;
+  document.getElementById('section-gap')?.insertAdjacentHTML('beforeend', gapGuide);
 
   // 성별·연령 인덱스 캡션
   const demoCaption = buildCaption({{

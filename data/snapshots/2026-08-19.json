@@ -1,7 +1,7 @@
 {
-  "collected_at": "2026-08-19T11:41:12+09:00",
+  "collected_at": "2026-08-19T08:17:31+09:00",
   "baseline": "시몬스",
-  "run_id": "20260819_114112",
+  "run_id": "20260819_081731",
   "google": {
     "batches": [
       {
@@ -1121,69 +1121,69 @@
   "gap": [
     {
       "brand": "이케아",
-      "naver": 222.3,
-      "google": 635.9,
-      "gap": -413.6
-    },
-    {
-      "brand": "에이스침대",
-      "naver": 193.3,
-      "google": 30.0,
-      "gap": 163.3
-    },
-    {
-      "brand": "씰리침대",
-      "naver": 123.7,
-      "google": 3.0,
-      "gap": 120.7
+      "naver": 133.2,
+      "google": 716.6,
+      "gap": -583.4
     },
     {
       "brand": "한샘",
-      "naver": 84.0,
-      "google": 192.3,
-      "gap": -108.3
+      "naver": 50.3,
+      "google": 216.7,
+      "gap": -166.4
     },
     {
-      "brand": "시몬스",
-      "naver": 166.9,
-      "google": 88.7,
-      "gap": 78.2
+      "brand": "에이스침대",
+      "naver": 115.8,
+      "google": 33.8,
+      "gap": 82.0
+    },
+    {
+      "brand": "씰리침대",
+      "naver": 74.1,
+      "google": 3.4,
+      "gap": 70.7
     },
     {
       "brand": "에몬스",
-      "naver": 88.5,
-      "google": 13.2,
-      "gap": 75.3
-    },
-    {
-      "brand": "현대리바트",
-      "naver": 42.9,
-      "google": 12.4,
-      "gap": 30.5
-    },
-    {
-      "brand": "코웨이 비렉스",
-      "naver": 26.2,
-      "google": 0.1,
-      "gap": 26.1
-    },
-    {
-      "brand": "까사미아",
-      "naver": 53.9,
-      "google": 35.0,
-      "gap": 18.9
-    },
-    {
-      "brand": "일룸",
-      "naver": 70.4,
-      "google": 54.8,
-      "gap": 15.6
+      "naver": 53.0,
+      "google": 14.9,
+      "gap": 38.1
     },
     {
       "brand": "지누스",
-      "naver": 27.9,
-      "google": 34.5,
-      "gap": -6.6
+      "naver": 16.7,
+      "google": 38.9,
+      "gap": -22.2
+    },
+    {
+      "brand": "일룸",
+      "naver": 42.2,
+      "google": 61.7,
+      "gap": -19.5
+    },
+    {
+      "brand": "코웨이 비렉스",
+      "naver": 15.7,
+      "google": 0.1,
+      "gap": 15.6
+    },
+    {
+      "brand": "현대리바트",
+      "naver": 25.7,
+      "google": 14.0,
+      "gap": 11.7
+    },
+    {
+      "brand": "까사미아",
+      "naver": 32.3,
+      "google": 39.4,
+      "gap": -7.1
+    },
+    {
+      "brand": "시몬스",
+      "naver": 100.0,
+      "google": 100.0,
+      "gap": 0.0
     }
   ],
   "keyword_version": "2026-08-v2",
