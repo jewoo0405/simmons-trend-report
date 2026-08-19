@@ -411,7 +411,7 @@ def _build_appendix(collected_at):
         <tr>
           <td>구글 vs 네이버 갭</td>
           <td style="font-family:monospace;">G_cat = G_지수 / avg(G전체) × 100<br>N_cat = N_지수 / avg(N전체) × 100<br>Gap = N_cat − G_cat</td>
-          <td>11개 브랜드 카테고리 평균=100 기준 재정규화 후 차이 산출. 양수=네이버 강세, 음수=구글 강세. 시몬스도 의미 있는 갭 표시.</td>
+          <td>콘텐츠 생산성 = 네이버 지수 ÷ 구글 지수 (각 카테고리 평균=100 재정규화). 100 이상 = 검색 수요 대비 콘텐츠 발행 과다, 100 미만 = 수요 대비 발행 부족. P1-2 옵션B 채택.</td>
         </tr>"""
 
     # ④ 데이터 소스별 한계 카드
@@ -1171,10 +1171,10 @@ body {{
       <div id="sos-table"></div>
     </div>
     <div class="card" id="section-gap">
-      <div class="card-title">구글 vs 네이버 갭 분석
+      <div class="card-title">검색 수요 대비 콘텐츠 발행량
         <span class="period-chip">최근 3개월</span>
       </div>
-      <div class="card-sub">브랜드 카테고리 평균=100 기준 재정규화 후 네이버 지수 − 구글 지수 (양수=네이버 강세 / 음수=구글 강세)</div>
+      <div class="card-sub">콘텐츠 생산성 = 네이버 블로그+뉴스 ÷ 구글 검색 지수 (카테고리 평균=100 재정규화 기준) — 검색 1단위당 콘텐츠 발행량. 높을수록 마케팅 물량 집중</div>
       <div id="chart-gap" style="height:320px;"></div>
     </div>
   </div>
@@ -1284,9 +1284,9 @@ body {{
             분모는 수집된 브랜드 매출 합계. 코웨이(전체 사업) 포함 시 SoM 53% 차지 → 나머지 브랜드 수치 하향 왜곡.
           </div>
           <div style="padding-top:6px;border-top:1px solid #e2e8f0;color:#64748b;">
-            <span style="font-weight:700;">대각선 (y=x)</span> — SoS=SoM 기준선.
-            <span style="color:#2563eb;">위쪽</span> = 매출 대비 검색 적음 (검색 투자 여력).
-            <span style="color:#dc2626;">아래쪽</span> = 검색 대비 매출 적음 (전환 효율 점검 필요).
+            <span style="font-weight:700;">대각선 (y=x)</span> — SoS = SoM 기준선.
+            <span style="color:#2563eb;">아래쪽 (SoS &gt; SoM)</span> = 양(+)의 ESOV — 미래 점유율 성장 여력, 브랜드 자산 선행 축적.
+            <span style="color:#dc2626;">위쪽 (SoS &lt; SoM)</span> = 음(−)의 ESOV — 검색 점유 열위, 브랜드 투자 필요.
           </div>
         </div>
       </div>
@@ -2612,9 +2612,13 @@ function renderSoSSoM() {{
       formatter: p => {{
         const d = mainData.find(x => x.brand === p.name);
         if (!d) return p.name;
+        // P1-4: ESOV = SoS - SoM. 양(+) = 점유율 성장 여력, 음(-) = 투자 필요
+        const esov = (d.sos != null && d.som != null) ? (d.sos - d.som).toFixed(1) : null;
+        const esovDir = esov !== null ? (parseFloat(esov) >= 0 ? '양(+) 브랜드 자산 축적' : '음(-) 투자 필요') : '';
+        const esovText = esov !== null ? `<br>ESOV: ${{parseFloat(esov)>=0?'+':''}}${{esov}}% — ${{esovDir}}` : '';
         const src = d.data_source === 'DART_audit_report' ? '<br><span style="font-size:10px;color:#666;">출처: DART 감사보고서</span>' : '';
         const note = d.som_note ? `<br><span style="font-size:10px;color:#b45309;">⚠ ${{d.som_note}}</span>` : '';
-        return `<b>${{p.name}}</b> [Tier ${{d.tier}}]<br>SoS(카테고리): ${{d.sos}}%<br>SoM: ${{d.som}}%${{src}}${{note}}`;
+        return `<b>${{p.name}}</b> [Tier ${{d.tier}}]<br>SoS(카테고리): ${{d.sos}}%<br>SoM: ${{d.som}}%${{esovText}}${{src}}${{note}}`;
       }}
     }},
   }});
@@ -2675,11 +2679,22 @@ function renderInsights() {{
   const findings = [];
   const sGap = gaps.find(x=>x.brand==='시몬스');
   if(sGap) {{
-    if(sGap.gap > 20) findings.push({{type:'good',text:`시몬스는 네이버에서 구글보다 ${{sGap.gap}}pt 높음 → 네이버 강세`}});
-    else if(sGap.gap < -20) findings.push({{type:'warn',text:`시몬스는 구글에서 네이버보다 ${{Math.abs(sGap.gap)}}pt 높음 → 네이버 보강 필요`}});
+    // P1-2: gap은 콘텐츠 생산성 지표 (네이버/구글 비율). 단순 pt 차이로 강세 판단 금지
+    const ratio = sGap.naver && sGap.google ? (sGap.naver / sGap.google).toFixed(2) : null;
+    if(ratio && parseFloat(ratio) > 1.3)
+      findings.push({{type:'good',text:`시몬스 콘텐츠 발행 집중도 높음 (구글 검색 1단위당 네이버 콘텐츠 ${{ratio}}배)`}});
+    else if(ratio && parseFloat(ratio) < 0.7)
+      findings.push({{type:'warn',text:`시몬스 콘텐츠 발행 부족 (구글 검색 대비 네이버 콘텐츠 ${{ratio}}배 수준)`}});
   }}
-  if(g_top !== '시몬스') findings.push({{type:'warn',text:`구글 1위 ${{g_top}} 집중 모니터링 필요`}});
-  if(n_top !== '시몬스') findings.push({{type:'warn',text:`네이버 1위 ${{n_top}} 집중 모니터링 필요`}});
+  // P2-3: Tier A/B 직접 경쟁 브랜드만 모니터링. 구글·네이버 중복 발견 병합
+  const tierAB = new Set(['에이스침대', '씰리침대', '지누스']);
+  const topCompetitors = [g_top, n_top].filter(b => tierAB.has(b));
+  const uniqueCompetitors = [...new Set(topCompetitors)];
+  if (uniqueCompetitors.length)
+    findings.push({{type:'warn',text:`직접 경쟁 모니터링: ${{uniqueCompetitors.join(', ')}} 검색 1위`}});
+  const topNonCompetitor = [g_top, n_top].find(b => !tierAB.has(b) && b !== '시몬스');
+  if (topNonCompetitor && !uniqueCompetitors.includes(topNonCompetitor))
+    findings.push({{type:'',text:`참고: 카테고리 전체 1위는 ${{topNonCompetitor}} (종합가구 — 직접 경쟁 아님)`}});
 
   document.getElementById('insight-findings').innerHTML = findings.length
     ? findings.map(f=>`<div class="insight-item ${{f.type}}">${{f.text}}</div>`).join('')
@@ -2882,24 +2897,24 @@ renderInsights();
   }});
   document.getElementById('section-trend')?.querySelector('.card')?.insertAdjacentHTML('beforeend', monthlyCaption);
 
-  // 구글 vs 네이버 갭 캡션
+  // 검색 수요 대비 콘텐츠 발행량 캡션 (P1-2 옵션B)
   const gapCaption = buildCaption({{
-    formula: 'Gap = (네이버 지수 ÷ 네이버 평균 × 100) − (구글 지수 ÷ 구글 평균 × 100) | 브랜드 평균=100 기준 재정규화',
-    source: 'Google Trends + Naver 검색 API',
+    formula: '콘텐츠 생산성 = (네이버 지수 ÷ 네이버 평균) ÷ (구글 지수 ÷ 구글 평균) × 100 | 값=100: 검색 수요 대비 발행량 일치',
+    source: 'Google Trends + Naver 검색 API (블로그+뉴스)',
     collected
   }});
   document.getElementById('section-gap')?.insertAdjacentHTML('beforeend', gapCaption);
 
-  // 지수 설명 박스
+  // 지수 설명 박스 (P1-2 재정의 반영)
   const gapGuide = `<div style="margin-top:10px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#475569;line-height:1.9;">
     <div style="margin-bottom:6px;font-weight:700;color:#1e3a8a;font-size:11px;">📌 지수 해석 가이드</div>
-    <div><span style="display:inline-block;width:16px;text-align:center;margin-right:4px;">🔵</span><b>구글 카테고리 지수</b> — Google Trends 검색 관심도 · 소비자가 얼마나 검색하는지 (수요 지표) · 11개 브랜드 평균=100 기준 · 최근 3개월 한국</div>
-    <div style="margin-top:4px;"><span style="display:inline-block;width:16px;text-align:center;margin-right:4px;">🟢</span><b>네이버 카테고리 지수</b> — Naver 블로그+뉴스 총 건수 · 브랜드 관련 콘텐츠 발행량 (마케팅 활동 지표) · 11개 브랜드 평균=100 기준 · 전체 누적 인덱스</div>
+    <div><span style="display:inline-block;width:16px;text-align:center;margin-right:4px;">🔵</span><b>구글 검색 수요</b> — Google Trends 검색 관심도 · 소비자가 얼마나 찾는가 (수요 지표) · 11개 브랜드 평균=100 재정규화 · 한국</div>
+    <div style="margin-top:4px;"><span style="display:inline-block;width:16px;text-align:center;margin-right:4px;">🟢</span><b>네이버 콘텐츠 공급</b> — 블로그+뉴스 총 건수 · 마케팅 물량 지표 (수요 지표 아님) · 11개 브랜드 평균=100 재정규화</div>
     <div style="margin-top:5px;padding:6px 8px;background:#eff6ff;border-radius:4px;color:#1e40af;font-size:10.5px;">
-      <b>산출식:</b> &nbsp;구글 카테고리 지수 = 브랜드 구글 지수 ÷ 전체 평균 × 100 &nbsp;|&nbsp; 네이버 카테고리 지수 = 브랜드 네이버 지수 ÷ 전체 평균 × 100 &nbsp;|&nbsp; <b>갭 = 네이버 지수 − 구글 지수</b>
+      <b>P1-2 재정의:</b> &nbsp;두 지표는 차원이 다름(수요 vs 공급) — 단순 뺄셈 불가. &nbsp;<b>콘텐츠 생산성 = 네이버 상대지수 ÷ 구글 상대지수</b>로 재정의. &nbsp;100 이상 = 수요 대비 콘텐츠 집중, 100 미만 = 발행 부족.
     </div>
     <div style="margin-top:6px;padding-top:6px;border-top:1px solid #e2e8f0;color:#64748b;">
-      <b>갭 해석:</b> &nbsp;100 = 카테고리 평균 수준 &nbsp;|&nbsp; 양수(+) = 네이버 콘텐츠 상대 강세, 구글 대비 마케팅 활발 &nbsp;|&nbsp; 음수(−) = 구글 검색 강세, 브랜드 파워 대비 콘텐츠 발행 상대적 적음
+      <b>해석:</b> &nbsp;높음 = 검색 1단위당 콘텐츠 많음 (마케팅 활발) &nbsp;|&nbsp; 낮음 = 검색 대비 콘텐츠 적음 (마케팅 여력) &nbsp;|&nbsp; ※ 직접 증감 비교 비권장 — 발행 플랫폼·방식 차이 있음
     </div>
   </div>`;
   document.getElementById('section-gap')?.insertAdjacentHTML('beforeend', gapGuide);
