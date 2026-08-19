@@ -333,7 +333,7 @@ def _build_appendix(collected_at):
         <tr>
           <td>Google Trends 체인 링킹</td>
           <td style="font-family:monospace;">배치 간 브리지 브랜드로 정규화, 시몬스=100 고정</td>
-          <td>배치A→B: 일룸 브리지, 배치B→C: 에이스침대 브리지</td>
+          <td>배치A→B: 시몬스 브리지, B→C: 시몬스 브리지, C→D: 에몬스 브리지, D→E: 씰리침대 브리지 (P0-2 체인 재설계)</td>
         </tr>
         <tr>
           <td>CV (변동계수)</td>
@@ -361,9 +361,15 @@ def _build_appendix(collected_at):
           <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">Naver 콘텐츠 노출량</div>
           <div style="font-size:11px;color:#555;line-height:1.6;">검색 수요가 아닌 콘텐츠 발행량. 브랜드 마케팅 활동량 반영. 블로그+뉴스 건수 합산.</div>
         </div>
-        <div style="background:#fff3e0;border-radius:6px;padding:12px;border-left:3px solid #e65100;">
-          <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">Google Trends 배치 체인 링킹</div>
-          <div style="font-size:11px;color:#555;line-height:1.6;">배치C max/min비율이 20배 초과 시 WARNING 수준 경고 발생 가능. 수집 로그에서 확인 필요.</div>
+        <div style="background:#f0f9ff;border-radius:6px;padding:12px;border-left:3px solid #0369a1;">
+          <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">Google Trends 배치 구성 (P0-2 재설계)</div>
+          <div style="font-size:11px;color:#555;line-height:1.6;">
+            배치A [시몬스·일룸·까사미아·에이스침대·지누스] max/min≈3x ✓<br>
+            배치B [시몬스·이케아·한샘] max/min≈7x ✓<br>
+            배치C [시몬스·에몬스] max/min≈7x ✓<br>
+            배치D [에몬스·현대리바트·씰리침대] max/min≈4x ✓<br>
+            배치E [씰리침대·코웨이 비렉스] max/min≈34x ⚠ 측정 해상도 한계 — P0-3 키워드 재검증 예정
+          </div>
         </div>"""
 
     return f"""
@@ -890,23 +896,63 @@ body {{
 .cover-meta {{ font-size: 13px; color: var(--tx2); line-height: 1.8; margin-top: 20px; }}
 
 /* ── 인쇄 ──────────────────────────────────── */
+
+/* 배경색·이미지 강제 출력 (크롬/사파리/파이어폭스) */
+* {{
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
+}}
+
 @media print {{
+  /* 배경색 강제 출력 */
+  * {{
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }}
+
   .print-only {{ display: block !important; }}
   #cover-page {{ page-break-after: always; }}
   .no-print, #filter-banner, .tier-filter, .toggle-btn, button, .action-btn {{ display: none !important; }}
   .chart-block, .kpi-strip, table, .section-card {{ page-break-inside: avoid; }}
   h2, h3 {{ page-break-after: avoid; }}
-  @page {{ margin: 20mm 15mm; }}
+  @page {{ margin: 15mm 12mm; size: A4 landscape; }}
   a[href]::after {{ content: none; }}
   #sidebar {{ display: none !important; }}
   #top-header {{ display: none !important; }}
   #filter-changed-banner {{ display: none !important; }}
-  #layout {{ height: auto; }}
-  #main {{ overflow: visible; padding: 0; width: 100% !important; margin-left: 0 !important; }}
-  body {{ font-size: 10pt; }}
-  .card {{ break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }}
+  #layout {{ height: auto; display: block !important; }}
+  #main {{
+    overflow: visible !important;
+    padding: 0 !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    height: auto !important;
+    display: block !important;
+  }}
+  body {{ font-size: 10pt; background: #fff !important; }}
+  .card {{
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    background: #fff !important;
+  }}
+  .chart-row {{ break-inside: avoid; }}
   h2 {{ break-after: avoid; }}
   .detail-cell {{ display: table-cell !important; }}
+
+  /* 히트맵·KPI·갭 등 배경색 셀 강제 출력 */
+  td, th, div, span {{
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }}
+
+  /* ECharts 캔버스 크기 유지 */
+  canvas {{ max-width: 100% !important; }}
+
+  /* 섹션 간 여백 */
+  .chart-row {{ margin-bottom: 12px !important; }}
 }}
 </style>
 </head>
@@ -1135,6 +1181,7 @@ body {{
           <div style="display:inline-block;margin:8px 0 0;padding:7px 14px;background:#fff3f3;border:1px solid #f5c6c6;border-radius:6px;font-size:12px;color:#c0392b;line-height:1.6;">
             ⚑ {simmons_sos_note}
           </div>
+          <div style="margin-top:6px;font-size:10px;color:#aaa;">※ 비상장 업체(시몬스·씰리침대·까사미아·일룸·에몬스·코웨이 비렉스 매출 분리분)는 DART 공시 없음 — SoM 산출 불가</div>
         </div>
         <div style="flex:0 0 730px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:11px 14px;font-size:11px;color:#475569;line-height:1.75;">
           <div style="font-weight:700;color:#1e3a8a;margin-bottom:6px;font-size:11px;">📌 지표 해석 가이드</div>
@@ -1164,7 +1211,7 @@ body {{
   <!-- ⑩ 부록: 데이터 신뢰도 상세 (CV 분석) -->
   <div class="chart-row" id="section-cv">
     <div class="card">
-      <div class="card-title">부록 — 데이터 신뢰도 상세 (CV 분석)</div>
+      <div class="card-title">지표 변동성 (CV 분석)</div>
       <div class="card-sub">CV≤0.05 안정(녹) · CV≤0.15 주의(주황) · CV&gt;0.15 불안정(빨강)
         · 출처: Google Trends 월별 지수 · 기준: 최근 12개월 monthly_series 기반 변동계수
       </div>
@@ -1340,8 +1387,17 @@ function baselineCaption(source) {{
 document.getElementById('sub-google-rank').textContent = baselineCaption('최근 3개월 한국');
 document.getElementById('sub-naver-rank').textContent = baselineCaption('블로그+뉴스 건수');
 
-// 차트 초기화
-const gc = (id) => echarts.init(document.getElementById(id));
+// 차트 초기화 — 인스턴스 전역 추적 (인쇄 시 리사이즈용)
+window._chartInstances = window._chartInstances || [];
+const gc = (id) => {{
+  const dom = document.getElementById(id);
+  if (!dom) return null;
+  const existing = echarts.getInstanceByDom(dom);
+  if (existing) existing.dispose();
+  const inst = echarts.init(dom);
+  window._chartInstances.push(inst);
+  return inst;
+}};
 
 // B-4: 겹침 검증 루틴 (window.__devMode = true 로 활성화)
 function checkOverlap(chartDom, label) {{
@@ -1558,10 +1614,13 @@ function renderGoogleRankTable(items, sharedLeft) {{
     const formula = `${{item.value.toFixed(1)}} = ${{rawVal.toFixed(1)}} ÷ ${{simonVal.toFixed(1)}} × 100`;
     const badge = `<span class="src-badge gt">GT</span>`;
     const isSim = item.brand === '시몬스';
+    const isLowRes = rawVal < 1.0 && !isSim;
+    const lowResNote = isLowRes ? `<span style="font-size:9px;color:#b45309;margin-left:4px;">※ 측정 해상도 한계</span>` : '';
+    const displayVal = isLowRes ? item.value.toFixed(0) : item.value.toFixed(1);
     return `<tr class="${{isSim ? 'simmons-row' : ''}}">
       <td>${{item.rank}}</td>
-      <td>${{isSim ? '<strong>'+item.brand+'</strong>' : item.brand}} ${{badge}}</td>
-      <td style="text-align:right">${{item.value.toFixed(1)}}</td>
+      <td>${{isSim ? '<strong>'+item.brand+'</strong>' : item.brand}} ${{badge}}${{lowResNote}}</td>
+      <td style="text-align:right">${{displayVal}}</td>
       <td class="detail-cell" style="display:none">
         <span class="formula-text">${{rawVal.toFixed(1)}}</span>
       </td>
@@ -1569,7 +1628,7 @@ function renderGoogleRankTable(items, sharedLeft) {{
         <span class="formula-text">${{formula}}</span>
       </td>
       <td class="detail-cell" style="display:none">Google Trends · KR · N=5 중앙값</td>
-      <td class="detail-cell" style="display:none">정상</td>
+      <td class="detail-cell" style="display:none">${{isLowRes ? '⚠ 해상도 한계 (원본값 < 1)' : '정상'}}</td>
     </tr>`;
   }}).join('');
 
@@ -1881,9 +1940,12 @@ function renderMonthlyHeatmap() {{
     return '#a93226';
   }}
 
-  // 헤더: 월 이름 (colspan 없음 — 셀 내부에서 분할)
+  // 헤더: 월 이름 — 월 경계마다 좌측 구분선
   const colHeaders = allPeriods.slice(1).map(p =>
-    `<th style="font-size:10px;padding:3px 4px;text-align:center;min-width:90px">${{p.substring(2).replace('-','.')}}</th>`
+    `<th style="font-size:10px;padding:4px 6px;text-align:center;min-width:90px;
+                border-left:2px solid #b0bec5;border-bottom:2px solid #b0bec5;">
+      ${{p.substring(2).replace('-','.')}}
+    </th>`
   ).join('');
 
   const tableRows = rows.map(r => {{
@@ -1893,7 +1955,7 @@ function renderMonthlyHeatmap() {{
       const dText = c.delta === null ? '—' : (c.delta > 0 ? '+' : '') + c.delta.toFixed(1) + '%';
       const dColor = c.delta === null ? '#aaa' : Math.abs(c.delta) > 10 ? '#fff' : '#333';
       const vText = c.val !== null ? c.val.toFixed(1) : '—';
-      return `<td style="padding:0;border-bottom:1px solid #e8e8e8;">
+      return `<td style="padding:0;border-bottom:1px solid #e8e8e8;border-left:2px solid #b0bec5;">
         <div style="display:flex;align-items:stretch;min-height:28px;">
           <div style="flex:1;display:flex;align-items:center;justify-content:center;
                       font-size:10px;color:#555;border-right:1px solid #ddd;padding:2px 4px;">
@@ -1909,7 +1971,7 @@ function renderMonthlyHeatmap() {{
 
     return `<tr>
       <td style="font-size:11px;padding:4px 8px;font-weight:${{isSim?'bold':'normal'}};
-                 white-space:nowrap;border-bottom:1px solid #e8e8e8;">${{r.brand}}</td>
+                 white-space:nowrap;border-bottom:1px solid #e8e8e8;border-right:2px solid #b0bec5;">${{r.brand}}</td>
       ${{tdCells}}
     </tr>`;
   }}).join('');
@@ -1919,9 +1981,9 @@ function renderMonthlyHeatmap() {{
       <p style="font-size:12px;font-weight:600;color:#2c3e50;margin-bottom:6px">월별 전월비 증감 히트맵</p>
       <p style="font-size:10px;color:#999;margin-bottom:8px">좌: 지수값 (시몬스=100) &nbsp;|&nbsp; 우: 전월비 증감률(%)</p>
       <div style="overflow-x:auto">
-        <table style="border-collapse:collapse;font-size:11px;width:100%">
-          <thead><tr style="background:#f8fafc;">
-            <th style="text-align:left;padding:5px 8px;font-size:10px;min-width:80px;">브랜드</th>
+        <table style="border-collapse:collapse;font-size:11px;width:100%;border:2px solid #b0bec5;border-radius:6px;overflow:hidden;">
+          <thead><tr style="background:#eceff1;">
+            <th style="text-align:left;padding:5px 8px;font-size:10px;min-width:80px;border-bottom:2px solid #b0bec5;border-right:2px solid #b0bec5;">브랜드</th>
             ${{colHeaders}}
           </tr></thead>
           <tbody>${{tableRows}}</tbody>
@@ -2605,8 +2667,24 @@ function exportPrint() {{
     const stateEl = cover.querySelector('#print-filter-state');
     if (stateEl) stateEl.textContent = `보고 기준: ${{rangeLabel}} · ${{tierLabel}}`;
   }}
-  window.print();
+  // ECharts 인스턴스 전체 리사이즈 후 인쇄 (차트 공백 방지)
+  if (window._chartInstances) {{
+    window._chartInstances.forEach(c => {{ try {{ c.resize(); }} catch(e) {{}} }});
+  }}
+  setTimeout(() => window.print(), 300);
 }}
+
+// 인쇄 전후 ECharts 강제 리사이즈
+window.addEventListener('beforeprint', () => {{
+  if (window._chartInstances) {{
+    window._chartInstances.forEach(c => {{ try {{ c.resize(); }} catch(e) {{}} }});
+  }}
+}});
+window.addEventListener('afterprint', () => {{
+  if (window._chartInstances) {{
+    window._chartInstances.forEach(c => {{ try {{ c.resize(); }} catch(e) {{}} }});
+  }}
+}});
 
 // CSV 내보내기 (시몬스 첫 행, 헤더 주석)
 function exportCSV() {{

@@ -8,7 +8,7 @@ import time
 import random
 import statistics
 
-from brand_config import BRANDS, TREND_BATCHES, TREND_BRIDGES, SIMMONS_TREND_KW
+from brand_config import BRANDS, TREND_BATCHES, TREND_BRIDGES, TREND_BATCH_NOTES, SIMMONS_TREND_KW
 from analyzer.validator import summarize
 from analyzer.chain_link import (
     chain_link, rebase_to_simmons, validate_batches, compute_scale_factors
@@ -197,10 +197,10 @@ def fetch_google_trends(run_id, collected_at):
         warnings.append(f"체인 링킹 실패: {e}")
         print(f"  [Google] 체인 링킹 실패: {e}")
 
-        # 폴백: 배치 B(시몬스 포함)만으로 정규화
-        batch_b = batch_raw_medians[1] if len(batch_raw_medians) > 1 else {}
-        base = batch_b.get(SIMMONS_TREND_KW, 1) or 1
-        for kw, v in batch_b.items():
+        # 폴백: 배치 A(시몬스=앵커)만으로 정규화 (P0-2: 배치 A가 시몬스 1차 배치)
+        batch_a = batch_raw_medians[0] if batch_raw_medians else {}
+        base = batch_a.get(SIMMONS_TREND_KW, 1) or 1
+        for kw, v in batch_a.items():
             normalized[kw] = round(v / base * 100, 1)
         normalized[SIMMONS_TREND_KW] = 100.0
 
@@ -272,6 +272,7 @@ def fetch_google_trends(run_id, collected_at):
                 "keywords": TREND_BATCHES[i],
                 "bridge": TREND_BRIDGES[i] if i < len(TREND_BRIDGES) else None,
                 "raw_medians": batch_raw_medians[i],
+                "note": TREND_BATCH_NOTES.get(chr(65 + i)),
             }
             for i in range(len(TREND_BATCHES))
         ],
