@@ -40,6 +40,10 @@ def _compute_kpi(data):
     bed_norm = {b: v for b, v in g_norm.items() if b in BED_SPECIALISTS}
     sorted_bed = sorted(bed_norm.items(), key=lambda x: x[1], reverse=True)
     g_rank_bed = next((i + 1 for i, (b, _) in enumerate(sorted_bed) if b == "시몬스"), None)
+    bed_top = sorted_bed[0] if sorted_bed else ("—", 0)
+    # 침대 전업 1위 대비 갭 (P2-1c: 이케아 같은 Tier C 브랜드 기준 제거)
+    gap_to_bed_top = round(bed_top[1] - simmons_val, 1) if bed_top[0] != "시몬스" else 0.0
+    bed_top_brand = bed_top[0]
 
     # 네이버 순위: normalized 정렬
     n_norm = naver.get("normalized", {})
@@ -54,6 +58,8 @@ def _compute_kpi(data):
         "n_rank": n_rank,
         "g_top_brand": g_top[0],
         "gap_to_top": gap_to_top,
+        "gap_to_bed_top": gap_to_bed_top,
+        "bed_top_brand": bed_top_brand,
         "total_brands": len(sorted_g),
         "bed_brands": len(sorted_bed),
     }
@@ -135,8 +141,10 @@ def _build_kpi_strip(kpi, prev_kpi, total_brands):
          d("g_rank", "위"), _rank_note),
         ("🌐", "네이버 노출 순위", f"{kpi['n_rank']}위 / {total_brands}",
          d("n_rank", "위"), "블로그+뉴스 건수 기준"),
-        ("📈", "1위 브랜드 대비 갭", f"-{kpi['gap_to_top']}pt" if kpi['gap_to_top'] > 0 else "1위",
-         d("gap_to_top", "pt"), f"vs {kpi['g_top_brand']} (구글 지수 기준)"),
+        ("📈", "침대 전업 1위 대비 갭",
+         f"-{kpi['gap_to_bed_top']}pt" if kpi.get('gap_to_bed_top', 0) > 0 else "1위",
+         d("gap_to_bed_top", "pt"),
+         f"vs {kpi.get('bed_top_brand','—')} (침대 전업 구글 지수 기준)"),
     ]
 
     items = ""
@@ -174,10 +182,15 @@ def _build_action_table(data, kpi):
     demo = data.get("demographics", {})
     simmons_demo = demo.get("시몬스", {})
     age = simmons_demo.get("age", {})
-    young = round((age.get("20대", 0) + age.get("30대", 0)), 1)
+    # P2-2: 실측 20대+30대 합산 (소수점 1자리 정밀도 유지)
+    young = round(age.get("20대", 0) + age.get("30대", 0), 1)
+    ace_demo = data.get("demographics", {}).get("에이스침대", {})
+    ace_age = ace_demo.get("age", {})
+    ace_young = round(ace_age.get("20대", 0) + ace_age.get("30대", 0), 1)
     if young < 30:
+        ace_cmp = f" vs 에이스침대 {ace_young}%" if ace_young > 0 else ""
         actions.append((
-            f"20~30대 검색 비중 제고 (현재 {young}%, 에이스침대 대비 저조)",
+            f"20~30대 검색 비중 제고 (현재 {young}%{ace_cmp})",
             '<a href="#section-demo">연령대별 검색 관심도</a>',
             "마케팅팀", "2026 Q4", "높음"
         ))
@@ -209,7 +222,7 @@ def _build_action_table(data, kpi):
 
     actions.append((
         "네이버 쿠키 만료 전 갱신 (3개월 주기 정기 점검)",
-        '<a href="#section-cv">데이터 신뢰도 상세</a>',
+        '<a href="#section-cv">지표 변동성 (CV 분석)</a>',
         "CS팀", "3개월 주기", "낮음"
     ))
 
@@ -1213,9 +1226,16 @@ body {{
     <div class="card">
       <div class="card-title">월별 검색 트렌드 추이
         <span class="source-badge badge-google">Google Trends</span>
-        <span class="period-chip">최근 12개월</span>
+        <span class="period-chip" id="trend-period-chip">최근 N개월</span>
+        <span style="margin-left:12px;font-size:11px;font-weight:400;color:#555;">
+          보기:
+          <button id="trend-mode-abs" onclick="setTrendMode('abs')"
+            style="margin-left:4px;padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#0b0b0b;color:#fff;">절대값</button>
+          <button id="trend-mode-rel" onclick="setTrendMode('rel')"
+            style="padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#fff;color:#333;">추세(시작=100)</button>
+        </span>
       </div>
-      <div class="card-sub">주요 브랜드 · 음영은 신뢰구간(CV) · 출처: Google Trends · 기준: 시몬스=100</div>
+      <div class="card-sub" id="trend-mode-sub">주요 브랜드 · 음영은 신뢰구간(CV) · 기준: 시몬스=100 (절대값 모드)</div>
       <div id="chart-monthly" style="height:420px;"></div>
       <div id="monthly-heatmap"></div>
     </div>
@@ -1299,7 +1319,7 @@ body {{
     </div>
   </div>
 
-  <!-- ⑩ 부록: 데이터 신뢰도 상세 (CV 분석) -->
+  <!-- ⑩ 부록: 지표 변동성 (CV 분석) -->
   <div class="chart-row" id="section-cv">
     <div class="card">
       <div class="card-title">지표 변동성 (CV 분석)</div>
@@ -1439,6 +1459,21 @@ const IS_PARTIAL_MONTH = {_is_partial_js};
 let _activeTier = 'ALL';
 // 현재 기간 필터 상태 ('3M' | '6M' | '12M' | 'ALL')
 let _activePeriod = '6M';
+// P2-5: 라인차트 모드 ('abs'=절대값 | 'rel'=시작점=100 재기준화)
+let _trendMode = 'abs';
+
+function setTrendMode(mode) {{
+  _trendMode = mode;
+  document.getElementById('trend-mode-abs').style.background = mode === 'abs' ? '#0b0b0b' : '#fff';
+  document.getElementById('trend-mode-abs').style.color     = mode === 'abs' ? '#fff' : '#333';
+  document.getElementById('trend-mode-rel').style.background = mode === 'rel' ? '#0b0b0b' : '#fff';
+  document.getElementById('trend-mode-rel').style.color     = mode === 'rel' ? '#fff' : '#333';
+  const sub = document.getElementById('trend-mode-sub');
+  if (sub) sub.textContent = mode === 'abs'
+    ? '주요 브랜드 · 음영은 신뢰구간(CV) · 기준: 시몬스=100 (절대값 모드)'
+    : '각 브랜드 시계열 시작점=100 재기준화 · 방향성·추세 비교 (절대 규모 비교 불가)';
+  renderMonthly();
+}}
 
 // dispose 후 재초기화 헬퍼
 function reInitChart(domId) {{
@@ -1902,19 +1937,35 @@ function renderMonthly() {{
   const allPeriods = simonsPts.map(p => p.period?.substring(0,7)).filter(Boolean);
   const slicedPeriods = allPeriods.slice(-limit);
 
+  // P2-1a: 실제 기간 레이블 동적 표시
+  const chip = document.getElementById('trend-period-chip');
+  if (chip && slicedPeriods.length > 0) {{
+    const from = slicedPeriods[0];
+    const to = slicedPeriods[slicedPeriods.length - 1];
+    chip.textContent = slicedPeriods.length + '개월 (' + from + ' ~ ' + to + ')';
+  }}
+
   // 기본 ON 브랜드: 시몬스, 에이스침대, 씰리침대, 한샘, 이케아
   const DEFAULT_ON = ['시몬스', '에이스침대', '씰리침대', '한샘', '이케아'];
   const IKEA_KEY = brands.find(b => b.includes('이케아') || b.includes('IKEA'));
+
+  // P2-5: rel 모드 = 각 브랜드 첫 유효값=100으로 재기준화
+  function rebaseToStart(values) {{
+    const firstVal = values.find(v => v != null);
+    if (!firstVal) return values;
+    return values.map(v => v != null ? Math.round(v / firstVal * 100 * 10) / 10 : null);
+  }}
 
   // 시리즈 생성
   const series = brands.map(brand => {{
     const pts = ms[brand] || [];
     // 기간 필터링
     const filtered = pts.filter(p => slicedPeriods.includes(p.period?.substring(0,7)));
-    const values = slicedPeriods.map(period => {{
+    const rawValues = slicedPeriods.map(period => {{
       const pt = filtered.find(p => p.period?.substring(0,7) === period);
-      return pt ? pt.value : null;  // 결측은 null (선 끊김)
+      return pt ? pt.value : null;
     }});
+    const values = _trendMode === 'rel' ? rebaseToStart(rawValues) : rawValues;
 
     const isSimmons = brand === '시몬스';
     const isDefaultOn = DEFAULT_ON.includes(brand) || (IKEA_KEY && brand === IKEA_KEY);
@@ -2022,14 +2073,16 @@ function renderMonthlyHeatmap() {{
     return {{ brand, cells }};
   }});
 
-  // 색상: 양수=녹, 음수=적, null=회색
-  function heatColor(v) {{
-    if (v === null) return '#f0f0f0';
-    if (v > 20)  return '#1a7a3c';
-    if (v > 10)  return '#27ae60';
-    if (v > 0)   return '#82c99d';
-    if (v > -10) return '#f5a89a';
-    if (v > -20) return '#e74c3c';
+  // P2-4: 색상 스케일 ±100% 클리핑. 원본 지수 < 10 구간은 무채색 처리.
+  function heatColor(v, rawVal) {{
+    if (v === null) return 'transparent';   // 미수집 — 투명 (0.0과 구분)
+    if (rawVal !== null && rawVal < 10) return '#e8e8e8';  // 저신호 구간: 회색
+    const clipped = Math.max(-100, Math.min(100, v));  // ±100% 클리핑
+    if (clipped > 20)  return '#1a7a3c';
+    if (clipped > 10)  return '#27ae60';
+    if (clipped > 0)   return '#82c99d';
+    if (clipped > -10) return '#f5a89a';
+    if (clipped > -20) return '#e74c3c';
     return '#a93226';
   }}
 
@@ -2044,12 +2097,22 @@ function renderMonthlyHeatmap() {{
   const tableRows = rows.map(r => {{
     const isSim = r.brand === '시몬스';
     const tdCells = r.cells.slice(1).map(c => {{
-      const bg    = heatColor(c.delta);
-      const dText = c.delta === null ? '—' : (c.delta > 0 ? '+' : '') + c.delta.toFixed(1) + '%';
-      const dColor = c.delta === null ? '#aaa' : Math.abs(c.delta) > 10 ? '#fff' : '#333';
-      const vText = c.val !== null ? c.val.toFixed(1) : '—';
+      // P2-4: 0.0(측정됨, 값 작음) vs null(미수집) 구분
+      const isNoData = c.val === null;   // 미수집
+      const isZeroish = !isNoData && c.val !== null && c.val < 0.05;  // 측정됨 but ≈0
+      const bg = heatColor(c.delta, c.val);
+      const clippedDelta = c.delta !== null ? Math.max(-100, Math.min(100, c.delta)) : null;
+      const dText = c.delta === null
+        ? (isNoData ? '미수집' : '—')
+        : (clippedDelta > 0 ? '+' : '') + clippedDelta.toFixed(1) + '%'
+          + (Math.abs(c.delta) > 100 ? '*' : '');  // 클리핑 표시
+      const isLowSignal = c.val !== null && c.val < 10;
+      const dColor = c.delta === null ? '#bbb' : isLowSignal ? '#999' : Math.abs(c.delta) > 10 ? '#fff' : '#333';
+      // 미수집: 빗금, 0.0: 회색 이탤릭, 정상: 수치
+      const vText = isNoData ? '—' : isZeroish ? '<i style="color:#bbb;">0.0</i>' : c.val.toFixed(1);
+      const cellBg = isNoData ? 'repeating-linear-gradient(45deg,#f8f8f8,#f8f8f8 3px,#ececec 3px,#ececec 6px)' : '';
       return `<td style="padding:0;border-bottom:1px solid #e8e8e8;border-left:2px solid #b0bec5;">
-        <div style="display:flex;align-items:stretch;min-height:28px;">
+        <div style="display:flex;align-items:stretch;min-height:28px;background:${{cellBg}};">
           <div style="flex:1;display:flex;align-items:center;justify-content:center;
                       font-size:10px;color:#555;border-right:1px solid #ddd;padding:2px 4px;">
             ${{vText}}
@@ -2082,7 +2145,7 @@ function renderMonthlyHeatmap() {{
           <tbody>${{tableRows}}</tbody>
         </table>
       </div>
-      <p style="font-size:10px;color:#999;margin-top:6px">— = 데이터 없음</p>
+      <p style="font-size:10px;color:#999;margin-top:6px">— = 미수집 (빗금) &nbsp;|&nbsp; <i>0.0</i> = 측정됨(≈0) &nbsp;|&nbsp; 회색 셀 = 원본 지수 &lt; 10 (저신호 구간, 강조 제거) &nbsp;|&nbsp; * = ±100% 클리핑</p>
     </div>`;
 
   const container = document.getElementById('monthly-heatmap');
@@ -2661,18 +2724,31 @@ function renderInsights() {{
   const g_top = g_rank[0]?.[0] || '-';
   const n_top = n_rank[0]?.[0] || '-';
 
+  // P2-1e: "구글 지수: 100 (기준점)" 제거 — 시몬스=100 정규화라 정보량 0
+  // 대신 침대 전업 내 순위와 콘텐츠 생산성 표시
+  const bedBrands = BRANDS_CFG.filter(b => b.category === 'bed_specialist');
+  const bedNorm = Object.fromEntries(bedBrands.map(b => [b.name, norm_g[b.name]||0]));
+  const bedSorted = Object.entries(bedNorm).sort((a,b)=>b[1]-a[1]);
+  const bedPos = bedSorted.findIndex(x=>x[0]==='시몬스')+1;
+  const bedTop = bedSorted[0]?.[0] || '-';
+  const gapToBedTop = bedSorted[0] && bedSorted[0][0] !== '시몬스'
+    ? (bedSorted[0][1] - (norm_g['시몬스']||100)).toFixed(1) : '0';
+  const nSimmons = norm_n['시몬스'] || 0;
+  const gSimmons = norm_g['시몬스'] || 100;
+  const contentProd = gSimmons > 0 ? (nSimmons / gSimmons).toFixed(2) : '-';
+
   document.getElementById('insight-simmons').innerHTML = `
     <div class="insight-item ${{g_pos<=3?'good':'warn'}}">
-      구글 순위: <b>${{g_pos}}위 / 11개</b><br>
-      1위: ${{g_top}}
+      전체 구글 순위: <b>${{g_pos}}위 / 11개</b><br>
+      침대 전업 순위: <b>${{bedPos}}위 / ${{bedBrands.length}}개</b>
     </div>
-    <div class="insight-item ${{n_pos<=3?'good':'warn'}}">
-      네이버 순위: <b>${{n_pos}}위 / 11개</b><br>
-      1위: ${{n_top}}
+    <div class="insight-item ${{bedPos===1?'good':'warn'}}">
+      침대 전업 1위: ${{bedTop}}<br>
+      갭: ${{bedSorted[0]?.[0]!=='시몬스' ? '-'+gapToBedTop+'pt' : '시몬스 1위'}}
     </div>
     <div class="insight-item">
-      구글 지수: <b>100</b> (기준점)<br>
-      네이버 지수: <b>${{norm_n['시몬스']||0}}</b>
+      콘텐츠 생산성: <b>${{contentProd}}배</b><br>
+      <span style="font-size:10px;color:#888;">네이버 콘텐츠 / 구글 검색 비율</span>
     </div>`;
 
   const gaps = RAW.gap || [];
@@ -2921,7 +2997,7 @@ renderInsights();
 
   // 성별·연령 인덱스 캡션
   const demoCaption = buildCaption({{
-    formula: '인덱스 = (브랜드 비율 ÷ 카테고리 평균) × 100 (100 초과: 해당 세그먼트 과대색인)',
+    formula: '비율(%) 모드: 브랜드 내 성별·연령 구성비 합계=100% | 인덱스 모드: 브랜드 비율 ÷ 카테고리 평균 × 100 (100 초과: 과대색인)',
     source: 'Naver DataLab',
     collected,
     note: '카테고리 평균 = 11개 브랜드 단순 평균'
