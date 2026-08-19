@@ -18,6 +18,7 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 from datetime import datetime
+from calendar import monthrange
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -179,11 +180,19 @@ def update_index():
 
 def run():
     db.init_db()
-    run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-    collected_at = datetime.now().strftime("%Y-%m-%dT%H:%M:%S+09:00")
-    collected_date = datetime.now().strftime("%Y-%m-%d")
-    report_month = datetime.now().strftime("%Y년 %m월")
-    collected_display = datetime.now().strftime("%Y.%m.%d %H:%M")
+    now = datetime.now()
+    run_id = now.strftime("%Y%m%d_%H%M%S")
+    collected_at = now.strftime("%Y-%m-%dT%H:%M:%S+09:00")
+    collected_date = now.strftime("%Y-%m-%d")
+    report_month = now.strftime("%Y년 %m월")
+    collected_display = now.strftime("%Y.%m.%d %H:%M")
+
+    # P0-1: 미완결 월 감지 (수집일이 해당 월의 마지막 날이 아니면 부분 집계)
+    last_day_of_month = monthrange(now.year, now.month)[1]
+    is_partial_month = now.day < last_day_of_month
+    partial_day = now.day if is_partial_month else None
+    if is_partial_month:
+        print(f"  ⚠ 미완결 월 감지: {now.month}월 {now.day}일 (마지막 날: {last_day_of_month}일)")
 
     print(f"\n{'='*50}")
     print(f"  시몬스 브랜드 트렌드 분석 시작")
@@ -279,7 +288,8 @@ def run():
     }
 
     # 보고서 생성
-    html = build_dashboard(payload, report_month, collected_display, conf_score)
+    html = build_dashboard(payload, report_month, collected_display, conf_score,
+                           is_partial_month=is_partial_month, partial_day=partial_day)
     fname = f"report_{datetime.now().strftime('%Y_%m')}.html"
     fpath = os.path.join(OUTPUT_DIR, fname)
     with open(fpath, "w", encoding="utf-8") as f:

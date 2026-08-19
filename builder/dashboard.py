@@ -208,23 +208,28 @@ def _brand_colors():
 
 
 def _compute_sos_som(data):
-    """SoS vs SoM 산점도용 계산. caution 브랜드도 포함하되 참고용으로 표시."""
+    """SoS vs SoM 산점도용 계산.
+    P0-3: SoM 분모를 침대 전업(non-caution) 브랜드 매출 합계로 한정.
+          caution 브랜드(복합 사업)는 전사 매출이 침대 시장을 대표하지 않으므로 SoM=None.
+    """
     sos = data.get("sos", {})
     dart = data.get("dart", {})
 
-    # 전체 dart 브랜드 합계 (caution 포함) — 공통 분모로 SoM% 산출
-    total_sales = sum(d["amount"] for d in dart.values() if d.get("amount"))
+    # P0-3: SoM 분모 = 침대 전업(non-caution) 브랜드 매출 합계만 사용
+    total_sales = sum(d["amount"] for d in dart.values()
+                      if d.get("amount") and not d.get("caution", True))
 
     result = []
     for brand, sos_val in sos.items():
         if brand == "시몬스":
-            continue  # 비상장 — SoM 없음
+            continue  # 별도 처리 (시몬스 SoM은 P1-3에서 추가)
         brand_dart = dart.get(brand, {})
         caution = brand_dart.get("caution", True)
         tier = BRAND_TO_TIER_NEW.get(brand, "?")
         in_dart = brand in dart
         som_val = None
-        if in_dart and brand_dart.get("amount") and total_sales > 0:
+        # P0-3: caution 브랜드는 SoM 미산출 (전사 매출로 침대 시장 대표 불가)
+        if not caution and in_dart and brand_dart.get("amount") and total_sales > 0:
             som_val = round(brand_dart["amount"] / total_sales * 100, 1)
         result.append({
             "brand": brand,
@@ -477,7 +482,8 @@ def _build_appendix(collected_at):
   </div>"""
 
 
-def build_dashboard(data, report_month, collected_at, confidence_score):
+def build_dashboard(data, report_month, collected_at, confidence_score,
+                    is_partial_month=False, partial_day=None):
     colors = _brand_colors()
     data_json = json.dumps(data, ensure_ascii=False)
     colors_json = json.dumps(colors, ensure_ascii=False)
@@ -493,6 +499,22 @@ def build_dashboard(data, report_month, collected_at, confidence_score):
 
     conf_color = "#2e7d32" if confidence_score >= 70 else "#e65100" if confidence_score >= 40 else "#c62828"
     conf_label = "안정" if confidence_score >= 70 else "주의" if confidence_score >= 40 else "불안정"
+
+    # P0-1: 미완결 월 배너 HTML
+    _partial_banner_html = ""
+    if is_partial_month and partial_day:
+        # 직전 완결 월 계산
+        _rm_date = datetime.strptime(report_month, "%Y년 %m월")
+        _prev_ym = (_rm_date.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
+        _partial_banner_html = (
+            f'<div id="partial-month-banner" style="background:#fff3cd;border-bottom:2px solid #e6a817;'
+            f'padding:8px 24px;font-size:12px;color:#856404;position:sticky;top:52px;z-index:100;">'
+            f'⚠ {report_month}은 1~{partial_day}일 부분 집계 데이터입니다. '
+            f'전월비 증감률 해석에 주의하십시오. '
+            f'아래 &ldquo;변화점&rdquo; 섹션은 직전 완결 월({_prev_ym}) 기준으로 표시됩니다.'
+            f'</div>'
+        )
+    _is_partial_js = "true" if is_partial_month else "false"
 
     # KPI 계산 및 전월 비교
     kpi = _compute_kpi(data)
@@ -976,6 +998,7 @@ body {{
 <div id="filter-changed-banner" style="display:none; background:#fff3e0; border-bottom:2px solid #e65100; padding:6px 24px; font-size:12px; color:#e65100; position:sticky; top:52px; z-index:99;">
   ※ 기본 보고 기준(최근 3개월 · 전체 브랜드)에서 변경됨 — 인쇄 시 표지에 자동 기록됩니다
 </div>
+{_partial_banner_html}
 
 <!-- 상단 헤더 -->
 <div id="top-header">
@@ -1047,7 +1070,7 @@ body {{
   <!-- ③ 이번 달 변화점 (T1-1) -->
   <div class="chart-row">
     <div class="card">
-      <div class="section-title">이번 달 변화점</div>
+      <div class="section-title" id="section-changes-title">이번 달 변화점</div>
       <div id="insight-changes"
            style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
       </div>
@@ -1201,8 +1224,9 @@ body {{
         </div>
       </div>
       <div id="chart-sos-som" style="height:400px;margin-top:12px;"></div>
+      <div id="sos-som-caution-ref"></div>
       <div style="font-size:10px;color:#999;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0;">
-        ※ SoM = DART 공시 매출 기준. 대각선 위 = 검색 과소 → 검색 투자 여력. 대각선 아래 = 검색 과잉.
+        ※ SoM = DART 공시 매출 기준, 침대 전업 브랜드 합산. 복합 사업 브랜드(한샘·현대리바트·코웨이비렉스)는 전사 매출 혼재로 SoM 제외.
       </div>
       {_caption("Google Trends + 네이버 증권", collected_at)}
     </div>
@@ -1341,6 +1365,7 @@ const TIER_LABELS = {tier_labels_json};
 const TIER_NEW = {tier_new_json};
 const BRAND_TO_TIER = {brand_to_tier_json};
 const SOS_SOM_DATA = {sos_som_json};
+const IS_PARTIAL_MONTH = {_is_partial_js};
 
 // 현재 티어 필터 상태
 let _activeTier = 'ALL';
@@ -2458,66 +2483,40 @@ function renderDatalab() {{
 // T2-3: SoS vs SoM 산점도
 function renderSoSSoM() {{
   const data = SOS_SOM_DATA;
-  const validData = data.filter(d => d.som !== null && d.som !== undefined);
-  if (!validData.length) return;
+  // P0-3: SoM 산출 브랜드(non-caution)만 scatter에 표시
+  const mainData = data.filter(d => d.som !== null && d.som !== undefined && !d.caution);
+  const cautionData = data.filter(d => d.caution);
+  if (!mainData.length) return;
 
   document.getElementById('section-sos-som').style.display = '';
 
-  const mainData   = validData.filter(d => !d.caution);
-  const cautionData = validData.filter(d => d.caution);
+  const maxVal = Math.max(...mainData.map(d => Math.max(d.sos, d.som || 0))) * 1.2;
 
-  const allVals = validData.map(d => Math.max(d.sos, d.som || 0));
-  const maxVal = Math.max(...allVals) * 1.2;
-
-  function makePoint(d, isCaution) {{
+  function makePoint(d) {{
     return {{
       name: d.brand,
       value: [d.sos, d.som],
-      itemStyle: {{
-        color: COLORS[d.brand] || '#888',
-        opacity: isCaution ? 0.55 : 0.9,
-        borderColor: isCaution ? (COLORS[d.brand] || '#888') : 'transparent',
-        borderWidth: isCaution ? 1.5 : 0,
-        borderType: isCaution ? 'dashed' : 'solid',
-      }},
-      label: {{
-        show: true,
-        formatter: isCaution ? d.brand + ' ⚠' : d.brand,
-        position: 'top',
-        fontSize: 10,
-        color: COLORS[d.brand] || '#333',
-        fontStyle: isCaution ? 'italic' : 'normal',
-      }},
+      itemStyle: {{color: COLORS[d.brand] || '#888', opacity: 0.9}},
+      label: {{show: true, formatter: d.brand, position: 'top', fontSize: 10, color: COLORS[d.brand] || '#333'}},
     }};
   }}
 
-  const sosSomMaxX = Math.max(...validData.map(d => d.sos), 1);
-  const sosSomMaxY = Math.max(...validData.map(d => d.som || 0), 1);
+  const sosSomMaxX = Math.max(...mainData.map(d => d.sos), 1);
+  const sosSomMaxY = Math.max(...mainData.map(d => d.som || 0), 1);
   const xOptSoSSoM = Object.assign(axisOption(sosSomMaxX, '%', 5), {{name:'SoS (%)',nameLocation:'middle',nameGap:30}});
   const yOptSoSSoM = Object.assign(axisOption(sosSomMaxY, '%', 5), {{name:'SoM (%)',nameLocation:'middle',nameGap:40}});
 
   gc('chart-sos-som').setOption({{
-    grid: {{left: 60, right: 30, top: 65, bottom: 50}},
+    grid: {{left: 60, right: 30, top: 40, bottom: 50}},
     xAxis: xOptSoSSoM,
     yAxis: yOptSoSSoM,
-    legend: {{
-      show: true,
-      top: 0,
-      right: 0,
-      orient: 'vertical',
-      data: [
-        {{name: '침대 전업 (매출 반영)', icon: 'circle'}},
-        {{name: '복합 사업 ⚠ 참고용', icon: 'triangle'}},
-      ],
-      textStyle: {{fontSize: 10}},
-    }},
     series: [
       {{
-        name: '침대 전업 (매출 반영)',
+        name: '침대 전업',
         type: 'scatter',
         symbol: 'circle',
         symbolSize: 15,
-        data: mainData.map(d => makePoint(d, false)),
+        data: mainData.map(d => makePoint(d)),
         label: {{show: true}},
         markLine: {{
           silent: true,
@@ -2531,24 +2530,41 @@ function renderSoSSoM() {{
           ],
         }},
       }},
-      {{
-        name: '복합 사업 ⚠ 참고용',
-        type: 'scatter',
-        symbol: 'triangle',
-        symbolSize: 15,
-        data: cautionData.map(d => makePoint(d, true)),
-        label: {{show: true}},
-      }},
     ],
     tooltip: {{
       formatter: p => {{
-        const d = validData.find(x => x.brand === p.name);
+        const d = mainData.find(x => x.brand === p.name);
         if (!d) return p.name;
-        const warn = d.caution ? '<br><span style="color:#e67e22;">⚠ 전체 회사 매출 기준 (침대 외 사업 포함)</span>' : '';
-        return `<b>${{p.name}}</b> [Tier ${{d.tier}}]<br>SoS: ${{d.sos}}%<br>SoM: ${{d.som}}%${{warn}}`;
+        return `<b>${{p.name}}</b> [Tier ${{d.tier}}]<br>SoS: ${{d.sos}}%<br>SoM: ${{d.som}}%`;
       }}
     }},
   }});
+
+  // P0-3: caution 브랜드 참고 테이블 (SoS만 표시)
+  const refEl = document.getElementById('sos-som-caution-ref');
+  if (refEl && cautionData.length) {{
+    const rows = cautionData.map(d =>
+      `<tr>
+        <td style="padding:4px 8px;font-size:11px;color:${{COLORS[d.brand]||'#555'}};font-weight:600;">${{d.brand}}</td>
+        <td style="padding:4px 8px;font-size:11px;text-align:right;">${{d.sos.toFixed(1)}}%</td>
+        <td style="padding:4px 8px;font-size:11px;color:#999;">—</td>
+        <td style="padding:4px 8px;font-size:10px;color:#b45309;">전사 매출 혼재 (SoM 산출 불가)</td>
+      </tr>`
+    ).join('');
+    refEl.innerHTML = `
+      <div style="margin-top:12px;font-size:11px;color:#888;font-weight:600;margin-bottom:4px;">복합 사업 브랜드 참고 (SoS만 산출)</div>
+      <table style="width:100%;border-collapse:collapse;border:1px solid #eee;">
+        <thead>
+          <tr style="background:#f9f9f9;">
+            <th style="padding:4px 8px;font-size:10px;font-weight:600;text-align:left;color:#555;">브랜드</th>
+            <th style="padding:4px 8px;font-size:10px;font-weight:600;text-align:right;color:#555;">SoS</th>
+            <th style="padding:4px 8px;font-size:10px;font-weight:600;color:#555;">SoM</th>
+            <th style="padding:4px 8px;font-size:10px;font-weight:600;color:#555;">비고</th>
+          </tr>
+        </thead>
+        <tbody>${{rows}}</tbody>
+      </table>`;
+  }}
 }}
 
 // 11. 인사이트 패널
@@ -2590,17 +2606,31 @@ function renderInsights() {{
     ? findings.map(f=>`<div class="insight-item ${{f.type}}">${{f.text}}</div>`).join('')
     : '<div class="insight-item">특이사항 없음</div>';
 
-  // 이번 달 변화점: monthly_series 최신 월 vs 전월 등락폭 상위 5
+  // 이번 달 변화점: monthly_series 등락폭 상위 5
+  // P0-1: 미완결 월이면 N-2 vs N-3 (직전 완결 월 기준)으로 전환
   const changeEl = document.getElementById('insight-changes');
+  const changesTitleEl = document.getElementById('section-changes-title');
   (function renderThisMonthChanges() {{
     const ms = RAW.google?.monthly_series || {{}};
     const simonsPts = ms['시몬스'] || [];
-    if (simonsPts.length < 2) {{
-      changeEl.innerHTML = '<div style="grid-column:1/-1;color:#aaa;font-size:12px;padding:12px">전월 비교 데이터 없음 — 2개월 이상 수집 후 자동 표시</div>';
+    const minLen = IS_PARTIAL_MONTH ? 3 : 2;
+    if (simonsPts.length < minLen) {{
+      changeEl.innerHTML = '<div style="grid-column:1/-1;color:#aaa;font-size:12px;padding:12px">전월 비교 데이터 없음 — ' + minLen + '개월 이상 수집 후 자동 표시</div>';
       return;
     }}
-    const latestPeriod = simonsPts[simonsPts.length - 1].period?.substring(0, 7);
-    const prevPeriod   = simonsPts[simonsPts.length - 2].period?.substring(0, 7);
+
+    let latestPeriod, prevPeriod, titleText;
+    if (IS_PARTIAL_MONTH) {{
+      // N-2(직전 완결 월) vs N-3
+      latestPeriod = simonsPts[simonsPts.length - 2].period?.substring(0, 7);
+      prevPeriod   = simonsPts[simonsPts.length - 3].period?.substring(0, 7);
+      titleText = `지난달 변화점 (${{latestPeriod}}) — 이번달 부분 집계`;
+    }} else {{
+      latestPeriod = simonsPts[simonsPts.length - 1].period?.substring(0, 7);
+      prevPeriod   = simonsPts[simonsPts.length - 2].period?.substring(0, 7);
+      titleText = '이번 달 변화점';
+    }}
+    if (changesTitleEl) changesTitleEl.textContent = titleText;
 
     const movers = Object.entries(ms).map(([brand, pts]) => {{
       const byP = {{}};
