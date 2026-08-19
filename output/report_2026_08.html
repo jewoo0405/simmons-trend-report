@@ -391,6 +391,90 @@ body {
 .cover-month { font-size: 22px; color: var(--tx2); font-weight: 600; }
 .cover-meta { font-size: 13px; color: var(--tx2); line-height: 1.8; margin-top: 20px; }
 
+/* ── 분석 패널 모달 ────────────────────────── */
+.analysis-overlay {
+  display: none; position: fixed; inset: 0; z-index: 3000;
+  background: rgba(0,0,0,.55); backdrop-filter: blur(3px);
+  justify-content: center; align-items: flex-start;
+  padding: 32px 16px; overflow-y: auto;
+}
+.analysis-overlay.open { display: flex; }
+.analysis-box {
+  background: #fff; border-radius: 12px; width: 100%; max-width: 880px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.3); display: flex; flex-direction: column;
+  font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+}
+.analysis-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 18px 24px 14px; border-bottom: 1px solid #e8e8e8;
+  position: sticky; top: 0; background: #fff;
+  border-radius: 12px 12px 0 0; z-index: 1;
+}
+.analysis-header h2 {
+  flex: 1; margin: 0; font-size: 17px; font-weight: 700; color: #1a1a2e;
+}
+.analysis-header .ah-sub { font-size: 12px; color: #888; margin-left: 8px; font-weight: 400; }
+.an-print-btn {
+  background: #1a1a2e; color: #fff; border: none; border-radius: 6px;
+  padding: 8px 15px; font-size: 12.5px; cursor: pointer; font-weight: 600; white-space: nowrap;
+}
+.an-print-btn:hover { background: #2d2d5e; }
+.an-close-btn {
+  background: none; border: 1.5px solid #ddd; border-radius: 6px;
+  padding: 7px 12px; font-size: 14px; cursor: pointer; color: #666; line-height: 1;
+}
+.an-close-btn:hover { background: #f5f5f5; }
+.analysis-body { padding: 24px 28px 32px; }
+.an-section { margin-bottom: 28px; }
+.an-section h3 {
+  font-size: 14.5px; font-weight: 700; color: #1a1a2e;
+  border-left: 4px solid #e74c3c; padding-left: 11px; margin: 0 0 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.an-section h3 .an-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%; background: #1a1a2e;
+  color: #fff; font-size: 11px; font-weight: 800; flex-shrink: 0;
+}
+.an-section p { font-size: 13px; line-height: 1.9; color: #333; margin: 0 0 8px; }
+.an-highlight {
+  background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px;
+  padding: 12px 16px; margin: 10px 0; font-size: 13px; color: #4e342e; line-height: 1.8;
+}
+.an-warn {
+  background: #fff3e0; border-left: 4px solid #f57c00;
+  padding: 11px 15px; margin: 10px 0; font-size: 13px; color: #4e342e; line-height: 1.8;
+  border-radius: 0 6px 6px 0;
+}
+.an-kpi-row {
+  display: flex; gap: 12px; flex-wrap: wrap; margin: 12px 0;
+}
+.an-kpi-card {
+  flex: 1; min-width: 140px; background: #f7f9ff; border: 1px solid #dde3f5;
+  border-radius: 8px; padding: 12px 14px; text-align: center;
+}
+.an-kpi-card .akc-label { font-size: 11px; color: #666; margin-bottom: 4px; }
+.an-kpi-card .akc-val { font-size: 22px; font-weight: 800; color: #1a1a2e; line-height: 1.1; }
+.an-kpi-card .akc-sub { font-size: 11px; color: #888; margin-top: 3px; }
+.an-kpi-card.akc-accent { background: #1a1a2e; border-color: #1a1a2e; }
+.an-kpi-card.akc-accent .akc-label { color: #aab4d4; }
+.an-kpi-card.akc-accent .akc-val { color: #fff; }
+.an-kpi-card.akc-accent .akc-sub { color: #8899cc; }
+.an-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 10px; }
+.an-table th {
+  background: #1a1a2e; color: #fff; padding: 9px 11px; text-align: left; font-weight: 600;
+}
+.an-table td { padding: 9px 11px; border-bottom: 1px solid #eee; color: #333; vertical-align: top; }
+.an-table tr:nth-child(even) td { background: #f9f9f9; }
+.an-tag {
+  display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 10px;
+  font-weight: 700; white-space: nowrap;
+}
+.an-tag-r { background: #fce4ec; color: #c0392b; }
+.an-tag-o { background: #fff3e0; color: #e65100; }
+.an-tag-g { background: #e8f5e9; color: #2e7d32; }
+.an-divider { border: none; border-top: 1px solid #eee; margin: 24px 0; }
+
 /* ── 인쇄 ──────────────────────────────────── */
 
 /* 배경색·이미지 강제 출력 (크롬/사파리/파이어폭스) */
@@ -515,9 +599,181 @@ body {
     <div class="nav-label">내보내기</div>
     <button class="action-btn" onclick="exportCSV()">↓ CSV 다운로드</button>
     <button class="action-btn" onclick="exportPrint()">⎙ 인쇄 / PDF</button>
+    <button class="action-btn" onclick="openAnalysis()" style="background:#1a1a2e;color:#fff;border-color:#1a1a2e;margin-top:5px;">📋 분석 내용 보기</button>
   </div>
 
 </nav>
+
+<!-- ── 전략 분석 모달 ───────────────────────────────────── -->
+<div id="analysis-overlay" class="analysis-overlay" onclick="overlayClick(event)">
+  <div class="analysis-box" id="analysis-box">
+
+    <!-- 헤더 -->
+    <div class="analysis-header">
+      <h2>시몬스 브랜드 트렌드 — 전략 분석<span class="ah-sub">2026년 08월</span></h2>
+      <button class="an-print-btn" onclick="printAnalysis()">⎙ PDF 인쇄</button>
+      <button class="an-close-btn" onclick="closeAnalysis()">✕</button>
+    </div>
+
+    <!-- 본문 -->
+    <div class="analysis-body">
+
+      <!-- KPI 카드 요약 -->
+      <div class="an-kpi-row">
+        <div class="an-kpi-card akc-accent">
+          <div class="akc-label">침대 전업 SoS</div>
+          <div class="akc-val">56.8%</div>
+          <div class="akc-sub">목표 60% · 갭 3.2%p</div>
+        </div>
+        <div class="an-kpi-card">
+          <div class="akc-label">전체 SoS</div>
+          <div class="akc-val">8.1%</div>
+          <div class="akc-sub">11개 브랜드 전체 기준</div>
+        </div>
+        <div class="an-kpi-card">
+          <div class="akc-label">SoM (시장점유율)</div>
+          <div class="akc-val">20.8%</div>
+          <div class="akc-sub">DART 감사보고서 기준</div>
+        </div>
+        <div class="an-kpi-card">
+          <div class="akc-label">ESOV 갭</div>
+          <div class="akc-val" style="color:#27ae60;">+36.0%p</div>
+          <div class="akc-sub">SoS − SoM (양수 = 성장 여력)</div>
+        </div>
+      </div>
+
+      <hr class="an-divider">
+
+      <!-- 1. 포지셔닝 진단 -->
+      <div class="an-section">
+        <h3><span class="an-num">1</span>브랜드 포지셔닝 진단 — 우리가 어디 서 있는가</h3>
+        <p><strong>침대 전업 카테고리에서 시몬스는 검색 점유율 1위</strong>입니다. 에이스침대·씰리침대·지누스와 합산한 분모 기준으로 시몬스가 <strong>56.8%</strong>를 점유합니다. 직접 경쟁사 4개를 합쳤을 때 시몬스가 절반 이상을 차지한다는 수치를 객관적으로 제시합니다.</p>
+        <div class="an-highlight">
+          ✅ 이케아(구글 지수 716) · 한샘(216)이 검색량은 높지만, <strong>침대 전업 경쟁에서 시몬스는 압도적 1위</strong>입니다.<br>
+          ⚠ 전체 홈퍼니싱 시장에서는 3위 — 브랜드 경쟁 범위를 어디로 설정하느냐에 따라 전략이 달라집니다.
+        </div>
+        <p>브랜드 회의, 임원 보고, 대외 커뮤니케이션에서 시몬스의 시장 지위를 <strong>감이 아닌 숫자로</strong> 설명할 수 있습니다.</p>
+      </div>
+
+      <!-- 2. ESOV 분석 -->
+      <div class="an-section">
+        <h3><span class="an-num">2</span>ESOV 분석 — 성장하고 있는가, 방어하고 있는가</h3>
+        <p>Binet &amp; Field의 광고효과 이론에 따르면, <strong>SoS &gt; SoM 상태(양의 ESOV)가 지속되면 시장점유율이 장기적으로 SoS 수준으로 수렴하며 상승</strong>합니다.</p>
+        <div class="an-highlight" style="background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;">
+          📈 시몬스 SoS 56.8% &gt; SoM 20.8% → ESOV <strong>+36.0%p</strong><br>
+          현재 마케팅이 효과를 내고 있고, <strong>지금 방향이 맞다</strong>는 데이터 증거입니다.
+        </div>
+        <p>반대로 에이스침대는 SoS·SoM이 균형에 가깝다면 이미 포화 단계에 가깝다는 의미입니다. 시몬스는 <strong>성장 구간</strong>에, 에이스침대는 <strong>방어 구간</strong>에 있을 가능성이 높습니다. 이 분석으로 마케팅 예산 증감 의사결정에 "우리가 어느 단계에 있는지"를 수치로 설명할 수 있습니다.</p>
+      </div>
+
+      <!-- 3. KPI 목표 -->
+      <div class="an-section">
+        <h3><span class="an-num">3</span>KPI 목표 관리 — 얼마나 더 가야 하는가</h3>
+        <p>침대 전업 카테고리 SoS <strong>현재 56.8% → 목표 60%</strong> (갭 3.2%p). 이 3.2%p를 채우려면 에이스침대·지누스·씰리침대 중 어느 브랜드의 검색을 잠식해야 하는지를 월별로 추적할 수 있습니다.</p>
+        <div class="an-highlight">
+          📊 매달 이 수치가 <strong>오르면</strong> → 마케팅이 성과를 내는 중<br>
+          📊 매달 이 수치가 <strong>떨어지면</strong> → 경쟁사 캠페인·이슈에 반응해야 한다는 신호
+        </div>
+        <p>"우리 마케팅 효과를 어떻게 측정할 것인가"라는 질문에 대한 <strong>단일 KPI</strong>를 제공합니다.</p>
+      </div>
+
+      <!-- 4. 연령대 분포 -->
+      <div class="an-section">
+        <h3><span class="an-num">4</span>연령대 분포 — 미래 고객이 오고 있는가</h3>
+        <div class="an-warn">
+          ⚠ <strong>시몬스 20+30대 검색 비중 24.0%</strong> vs 에이스침대 108.2%<br>
+          시몬스를 검색하는 20대 비중이 에이스침대의 절반 수준입니다.
+        </div>
+        <p>시몬스의 현재 고객층은 <strong>40~60대 중심</strong>입니다. 이 고객들이 10년 후 은퇴하면 검색 기반 자체가 줄어듭니다. <strong>지금 20~30대 유입이 없으면 5~10년 후 브랜드 노후화 위험</strong>이 데이터로 실증됩니다.</p>
+        <p>마케팅팀은 이 데이터를 근거로 "MZ세대 타겟 캠페인"의 필요성을 경영진에게 <strong>에이스침대 대비 %차이로</strong> 제시할 수 있습니다. 막연한 트렌드가 아니라 정량 근거입니다.</p>
+      </div>
+
+      <!-- 5. 콘텐츠 생산성 -->
+      <div class="an-section">
+        <h3><span class="an-num">5</span>콘텐츠 생산성 — 검색 수요를 제대로 받아내고 있는가</h3>
+        <p>Google 검색 수요 대비 네이버 콘텐츠 발행량 비율(카테고리 평균=100 재정규화)을 브랜드별로 비교합니다.</p>
+        <div class="an-highlight">
+          ▸ 검색 수요 &gt;&gt; 콘텐츠 발행량 → 검색 수요를 경쟁사에 빼앗기는 중<br>
+          ▸ 검색 대비 콘텐츠 과잉 → 마케팅 예산이 필요 이상 집중된 상태
+        </div>
+        <p>이 지표로 콘텐츠 마케팅팀이 <strong>어느 브랜드·키워드에 콘텐츠를 더 써야 하는지 우선순위</strong>를 정할 수 있습니다.</p>
+      </div>
+
+      <!-- 6. 변화점 감지 -->
+      <div class="an-section">
+        <h3><span class="an-num">6</span>변화점 감지 — 무슨 일이 생겼는가</h3>
+        <p>월별 검색 트렌드에서 급등·급락(±20% 이상)을 자동 감지합니다. 예를 들어:</p>
+        <div class="an-highlight">
+          ▸ 특정 월 에이스침대 검색 급등 → 신제품 출시? 가격 프로모션? 사건?<br>
+          ▸ 시몬스 검색 일시 급락 → 부정 이슈? 경쟁사 이벤트 흡수?
+        </div>
+        <p>사후에 발견하는 것이 아니라 <strong>보고서가 나오는 시점에 자동으로 목록화</strong>되어 원인을 즉시 조사할 수 있습니다. CS팀 입장에서는 고객 문의가 늘기 전에 이슈를 인지하는 <strong>조기 경보 시스템</strong>으로 작동합니다.</p>
+      </div>
+
+      <!-- 7. 데이터 투명성 -->
+      <div class="an-section">
+        <h3><span class="an-num">7</span>데이터 투명성 — 이 숫자를 믿을 수 있는가</h3>
+        <p>누군가 이 숫자에 "어디서 나온 거야?"라고 물었을 때 대답할 수 있는 근거가 보고서 안에 있습니다.</p>
+        <div class="an-highlight">
+          ✅ <strong>수집 기간 자동 표시</strong> — "최근 12개월"처럼 실제와 다른 표기 없음<br>
+          ✅ <strong>부분 집계 배너</strong> — 월 중간 수집 데이터인지 명시<br>
+          ✅ <strong>caution 브랜드 분리</strong> — 가구 전체 매출이 섞인 브랜드는 SoM에서 제외·별도 표기<br>
+          ✅ <strong>배치 정규화 비율 공개</strong> — Google Trends 체인 링킹 방식·신뢰도 부록 명시
+        </div>
+        <p>경영진 보고 및 마케팅 대행사 회의에서 <strong>신뢰도</strong>를 높이는 요소입니다.</p>
+      </div>
+
+      <hr class="an-divider">
+
+      <!-- 8. 실무 활용 요약 -->
+      <div class="an-section">
+        <h3><span class="an-num">8</span>실무 활용 요약</h3>
+        <table class="an-table">
+          <thead>
+            <tr><th>상황</th><th>이 보고서로 할 수 있는 것</th><th>중요도</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>경영진 보고</strong></td>
+              <td>SoS 56.8%, SoM 20.8%, ESOV +36.0%p → 현재 마케팅 방향이 맞다는 증거</td>
+              <td><span class="an-tag an-tag-r">높음</span></td>
+            </tr>
+            <tr>
+              <td><strong>예산 협의</strong></td>
+              <td>KPI 60% 목표까지 3.2%p 남음 → 추가 투자의 논거</td>
+              <td><span class="an-tag an-tag-r">높음</span></td>
+            </tr>
+            <tr>
+              <td><strong>MZ 캠페인 기획</strong></td>
+              <td>20대 비중 에이스침대 대비 열위 → 젊은층 타겟 필요성의 정량 근거</td>
+              <td><span class="an-tag an-tag-r">높음</span></td>
+            </tr>
+            <tr>
+              <td><strong>콘텐츠팀 방향</strong></td>
+              <td>검색 수요 대비 콘텐츠 생산성 비율 → 어느 키워드에 집중할지 우선순위</td>
+              <td><span class="an-tag an-tag-o">중간</span></td>
+            </tr>
+            <tr>
+              <td><strong>이슈 모니터링</strong></td>
+              <td>변화점 자동 감지 → 경쟁사 이상 신호 조기 포착</td>
+              <td><span class="an-tag an-tag-o">중간</span></td>
+            </tr>
+            <tr>
+              <td><strong>월간 루틴 의사결정</strong></td>
+              <td>매월 5일 자동 발송 → 데이터 없이 감으로 결정하던 것을 수치 기반으로 전환</td>
+              <td><span class="an-tag an-tag-g">기반</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:14px;font-size:12px;color:#888;">
+          핵심 요약: <strong>"시몬스는 침대 전업에서 검색 1위인데, 매출 점유율은 아직 그만큼 오지 않았다."</strong><br>
+          이 갭이 위협인지 기회인지를 매달 추적하면서, 마케팅 투자를 어디에 얼마나 해야 할지 근거를 만드는 것이 이 대시보드의 존재 이유입니다.
+        </p>
+      </div>
+
+    </div><!-- /analysis-body -->
+  </div><!-- /analysis-box -->
+</div><!-- /analysis-overlay -->
 
 <!-- 메인 콘텐츠 (결론 우선 → 근거 데이터) -->
 <div id="main">
@@ -1118,7 +1374,7 @@ const BRANDS_CFG = [{"name": "시몬스", "tier": 0, "baseline": true, "category
 const TIER_LABELS = {"0": "기준", "1": "1군 · 직접 경쟁", "2": "2군 · 대체 채널", "3": "3군 · 종합 가구"};
 const TIER_NEW = {"A": {"label": "Tier A — 프리미엄 매트리스", "warning": null, "brands": ["시몬스", "씰리침대"]}, "B": {"label": "Tier B — 매스 침대", "warning": null, "brands": ["에이스침대", "에몬스", "지누스"]}, "C": {"label": "Tier C — 종합가구", "warning": "검색 지수에 가구·인테리어 수요 혼재. 직접 비교 주의.", "brands": ["한샘", "현대리바트", "까사미아", "일룸", "이케아"]}, "D": {"label": "Tier D — 렌탈", "warning": "렌탈 사업 모델로 직접 비교 주의.", "brands": ["코웨이 비렉스"]}};
 const BRAND_TO_TIER = {"시몬스": "A", "씰리침대": "A", "에이스침대": "B", "에몬스": "B", "지누스": "B", "한샘": "C", "현대리바트": "C", "까사미아": "C", "일룸": "C", "이케아": "C", "코웨이 비렉스": "D"};
-const SOS_SOM_DATA = [{"brand": "시몬스", "sos": 56.8, "sos_total": 8.1, "sos_cat": 56.8, "som": 20.8, "caution": false, "tier": "A", "in_dart": true, "is_simmons": true, "data_source": "DART_audit_report", "som_note": null}, {"brand": "씰리침대", "sos": 1.9, "sos_total": 0.3, "sos_cat": 1.9, "som": null, "caution": true, "tier": "A", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "일룸", "sos": 5.0, "sos_total": 5.0, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "코웨이 비렉스", "sos": 0.0, "sos_total": 0.0, "sos_cat": null, "som": null, "caution": true, "tier": "D", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "에이스침대", "sos": 19.2, "sos_total": 2.7, "sos_cat": 19.2, "som": 20.4, "caution": false, "tier": "B", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "지누스", "sos": 22.1, "sos_total": 3.1, "sos_cat": 22.1, "som": 58.7, "caution": false, "tier": "B", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": "글로벌 매출 기준 — SoS(국내)와 지역 범위 불일치"}, {"brand": "에몬스", "sos": 1.2, "sos_total": 1.2, "sos_cat": null, "som": null, "caution": true, "tier": "B", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "한샘", "sos": 17.5, "sos_total": 17.5, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "까사미아", "sos": 3.2, "sos_total": 3.2, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "현대리바트", "sos": 1.1, "sos_total": 1.1, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "이케아", "sos": 57.8, "sos_total": 57.8, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}];
+const SOS_SOM_DATA = [{"brand": "씰리침대", "sos": 1.9, "sos_total": 0.3, "sos_cat": 1.9, "som": null, "caution": true, "tier": "A", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "시몬스", "sos": 56.8, "sos_total": 8.1, "sos_cat": 56.8, "som": 20.8, "caution": false, "tier": "A", "in_dart": true, "is_simmons": true, "data_source": "DART_audit_report", "som_note": null}, {"brand": "지누스", "sos": 22.1, "sos_total": 3.1, "sos_cat": 22.1, "som": 58.7, "caution": false, "tier": "B", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": "글로벌 매출 기준 — SoS(국내)와 지역 범위 불일치"}, {"brand": "일룸", "sos": 5.0, "sos_total": 5.0, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "까사미아", "sos": 3.2, "sos_total": 3.2, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "에몬스", "sos": 1.2, "sos_total": 1.2, "sos_cat": null, "som": null, "caution": true, "tier": "B", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "한샘", "sos": 17.5, "sos_total": 17.5, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "에이스침대", "sos": 19.2, "sos_total": 2.7, "sos_cat": 19.2, "som": 20.4, "caution": false, "tier": "B", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "현대리바트", "sos": 1.1, "sos_total": 1.1, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "이케아", "sos": 57.8, "sos_total": 57.8, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "코웨이 비렉스", "sos": 0.0, "sos_total": 0.0, "sos_cat": null, "som": null, "caution": true, "tier": "D", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}];
 const SOS_CATEGORY = {"이케아": null, "한샘": null, "지누스": 22.1, "일룸": null, "시몬스": 56.8, "까사미아": null, "에이스침대": 19.2, "현대리바트": null, "에몬스": null, "코웨이 비렉스": null, "씰리침대": 1.9};
 const IS_PARTIAL_MONTH = true;
 
@@ -2539,6 +2795,72 @@ function exportPrint() {
     window._chartInstances.forEach(c => { try { c.resize(); } catch(e) {} });
   }
   setTimeout(() => window.print(), 300);
+}
+
+// ── 전략 분석 모달 ──────────────────────────────────────────────────────
+function openAnalysis() {
+  document.getElementById('analysis-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeAnalysis() {
+  document.getElementById('analysis-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function overlayClick(e) {
+  if (e.target === document.getElementById('analysis-overlay')) closeAnalysis();
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAnalysis(); });
+
+function printAnalysis() {
+  const box = document.getElementById('analysis-box');
+  if (!box) return;
+
+  // 인쇄 전용 새 창 열기 (기존 대시보드 인쇄 CSS와 충돌 없음)
+  const win = window.open('', '_blank', 'width=900,height=700');
+  win.document.write(`<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8">
+<title>시몬스 브랜드 트렌드 — 전략 분석</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans KR','Malgun Gothic',sans-serif; color: #222; background:#fff; padding:12mm 14mm; font-size:13px; }
+  h2 { font-size:18px; font-weight:800; color:#1a1a2e; margin-bottom:6px; }
+  .ah-sub { font-size:12px; color:#888; margin-left:8px; font-weight:400; }
+  .an-print-btn, .an-close-btn { display:none; }
+  .analysis-header { display:flex; align-items:center; border-bottom:2px solid #1a1a2e; padding-bottom:10px; margin-bottom:18px; }
+  .an-kpi-row { display:flex; gap:10px; flex-wrap:wrap; margin:14px 0; }
+  .an-kpi-card { flex:1; min-width:120px; border:1px solid #dde3f5; border-radius:8px; padding:10px 12px; text-align:center; background:#f7f9ff; }
+  .akc-label { font-size:10.5px; color:#666; margin-bottom:3px; }
+  .akc-val { font-size:20px; font-weight:800; color:#1a1a2e; line-height:1.1; }
+  .akc-sub { font-size:10px; color:#888; margin-top:2px; }
+  .an-kpi-card.akc-accent { background:#1a1a2e; border-color:#1a1a2e; }
+  .akc-accent .akc-label { color:#aab4d4; }
+  .akc-accent .akc-val { color:#fff; }
+  .akc-accent .akc-sub { color:#8899cc; }
+  .an-divider { border:none; border-top:1px solid #ddd; margin:18px 0; }
+  .an-section { margin-bottom:20px; page-break-inside:avoid; }
+  .an-section h3 { font-size:13.5px; font-weight:700; color:#1a1a2e; border-left:4px solid #e74c3c; padding-left:10px; margin-bottom:10px; display:flex; align-items:center; gap:7px; }
+  .an-num { display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#1a1a2e; color:#fff; font-size:10px; font-weight:800; flex-shrink:0; }
+  .an-section p { font-size:12.5px; line-height:1.85; color:#333; margin-bottom:7px; }
+  .an-highlight { background:#fff8e1; border:1px solid #ffe082; border-radius:6px; padding:10px 14px; margin:8px 0; font-size:12.5px; color:#4e342e; line-height:1.75; }
+  .an-warn { background:#fff3e0; border-left:4px solid #f57c00; padding:9px 13px; margin:8px 0; font-size:12.5px; color:#4e342e; line-height:1.75; border-radius:0 5px 5px 0; }
+  .an-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:8px; }
+  .an-table th { background:#1a1a2e; color:#fff; padding:8px 10px; text-align:left; font-weight:600; }
+  .an-table td { padding:8px 10px; border-bottom:1px solid #eee; color:#333; vertical-align:top; }
+  .an-table tr:nth-child(even) td { background:#f9f9f9; }
+  .an-tag { display:inline-block; font-size:10.5px; padding:2px 6px; border-radius:8px; font-weight:700; white-space:nowrap; }
+  .an-tag-r { background:#fce4ec; color:#c0392b; }
+  .an-tag-o { background:#fff3e0; color:#e65100; }
+  .an-tag-g { background:#e8f5e9; color:#2e7d32; }
+  @media print { @page { size:A4 portrait; margin:12mm 14mm; } body { padding:0; } }
+</style>
+</head><body>`
+  + box.innerHTML
+  + `</body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(() => { win.print(); }, 400);
 }
 
 // 인쇄 전후 ECharts 강제 리사이즈
