@@ -22,18 +22,21 @@ TIER_NEW = {
 BRAND_TO_TIER_NEW = {brand: k for k, v in TIER_NEW.items() for brand in v["brands"]}
 
 BRANDS = [
-    {"name": "시몬스",       "tier": 0, "baseline": True,  "trend_kw": "시몬스",        "naver_kw": "시몬스 침대",       "color": "#0b0b0b"},
-    {"name": "에이스침대",   "tier": 1, "baseline": False, "trend_kw": "에이스침대",    "naver_kw": "에이스침대",         "color": "#e34948"},
-    {"name": "씰리침대",     "tier": 1, "baseline": False, "trend_kw": "씰리침대",      "naver_kw": "씰리침대",           "color": "#1baf7a"},
-    {"name": "지누스",       "tier": 2, "baseline": False, "trend_kw": "지누스",         "naver_kw": "지누스 매트리스",    "color": "#008300"},
-    {"name": "코웨이 비렉스","tier": 2, "baseline": False, "trend_kw": "코웨이 비렉스", "naver_kw": "코웨이 비렉스",      "color": "#2a78d6"},
-    {"name": "한샘",         "tier": 3, "baseline": False, "trend_kw": "한샘",           "naver_kw": "한샘 매트리스",      "color": "#199e70"},
-    {"name": "현대리바트",   "tier": 3, "baseline": False, "trend_kw": "현대리바트",    "naver_kw": "현대리바트 침대",    "color": "#4a3aa7"},
-    {"name": "까사미아",     "tier": 3, "baseline": False, "trend_kw": "까사미아",      "naver_kw": "까사미아 침대",      "color": "#eb6834"},
-    {"name": "일룸",         "tier": 3, "baseline": False, "trend_kw": "일룸",           "naver_kw": "일룸 침대",          "color": "#d95926"},
-    {"name": "에몬스",       "tier": 3, "baseline": False, "trend_kw": "에몬스",         "naver_kw": "에몬스 가구",        "color": "#534ab7"},
-    {"name": "이케아",       "tier": 3, "baseline": False, "trend_kw": "이케아",         "naver_kw": "이케아 침대",        "color": "#378add"},
+    {"name": "시몬스",       "tier": 0, "baseline": True,  "category": "bed_specialist",   "trend_kw": "시몬스",        "naver_kw": "시몬스 침대",       "color": "#0b0b0b"},
+    {"name": "에이스침대",   "tier": 1, "baseline": False, "category": "bed_specialist",   "trend_kw": "에이스침대",    "naver_kw": "에이스침대",         "color": "#e34948"},
+    {"name": "씰리침대",     "tier": 1, "baseline": False, "category": "bed_specialist",   "trend_kw": "씰리침대",      "naver_kw": "씰리침대",           "color": "#1baf7a"},
+    {"name": "지누스",       "tier": 2, "baseline": False, "category": "bed_specialist",   "trend_kw": "지누스",         "naver_kw": "지누스 매트리스",    "color": "#008300"},
+    {"name": "코웨이 비렉스","tier": 2, "baseline": False, "category": "general_furniture","trend_kw": "코웨이 비렉스", "naver_kw": "코웨이 비렉스",      "color": "#2a78d6"},
+    {"name": "한샘",         "tier": 3, "baseline": False, "category": "general_furniture","trend_kw": "한샘",           "naver_kw": "한샘 매트리스",      "color": "#199e70"},
+    {"name": "현대리바트",   "tier": 3, "baseline": False, "category": "general_furniture","trend_kw": "현대리바트",    "naver_kw": "현대리바트 침대",    "color": "#4a3aa7"},
+    {"name": "까사미아",     "tier": 3, "baseline": False, "category": "general_furniture","trend_kw": "까사미아",      "naver_kw": "까사미아 침대",      "color": "#eb6834"},
+    {"name": "일룸",         "tier": 3, "baseline": False, "category": "general_furniture","trend_kw": "일룸",           "naver_kw": "일룸 침대",          "color": "#d95926"},
+    {"name": "에몬스",       "tier": 3, "baseline": False, "category": "general_furniture","trend_kw": "에몬스",         "naver_kw": "에몬스 가구",        "color": "#534ab7"},
+    {"name": "이케아",       "tier": 3, "baseline": False, "category": "general_furniture","trend_kw": "이케아",         "naver_kw": "이케아 침대",        "color": "#378add"},
 ]
+
+# 침대 전업 브랜드 집합 (P1-1 SoS 카테고리 기준 분모)
+BED_SPECIALISTS = {b["name"] for b in BRANDS if b["category"] == "bed_specialist"}
 
 TIER_LABELS = {
     0: "기준",

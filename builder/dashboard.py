@@ -18,10 +18,14 @@ _KPI_DIRECTION = {
 def _compute_kpi(data):
     """현재 월 KPI 계산 — 시몬스=100 기준"""
     sos = data.get("sos", {})
+    sos_category = data.get("sos_category", {})
     google = data.get("google", {})
     naver = data.get("naver", {})
 
     sos_val = round(sos.get("시몬스", 0), 1)
+    # P1-1: 침대 전업 카테고리 기준 SoS
+    sos_cat_raw = sos_category.get("시몬스")
+    sos_cat_val = round(sos_cat_raw, 1) if sos_cat_raw is not None else None
 
     # 구글 순위: normalized 기준 (시몬스=100 보장)
     g_norm = google.get("normalized", {})
@@ -31,6 +35,12 @@ def _compute_kpi(data):
     simmons_val = g_norm.get("시몬스", 100)
     gap_to_top = round(g_top[1] - simmons_val, 1) if g_top[0] != "시몬스" else 0.0
 
+    # 침대 전업 내 순위 (시몬스, 에이스침대, 씰리침대, 지누스)
+    from brand_config import BED_SPECIALISTS
+    bed_norm = {b: v for b, v in g_norm.items() if b in BED_SPECIALISTS}
+    sorted_bed = sorted(bed_norm.items(), key=lambda x: x[1], reverse=True)
+    g_rank_bed = next((i + 1 for i, (b, _) in enumerate(sorted_bed) if b == "시몬스"), None)
+
     # 네이버 순위: normalized 정렬
     n_norm = naver.get("normalized", {})
     sorted_n = sorted(n_norm.items(), key=lambda x: x[1], reverse=True)
@@ -38,11 +48,14 @@ def _compute_kpi(data):
 
     return {
         "sos": sos_val,
+        "sos_cat": sos_cat_val,
         "g_rank": g_rank,
+        "g_rank_bed": g_rank_bed,
         "n_rank": n_rank,
         "g_top_brand": g_top[0],
         "gap_to_top": gap_to_top,
         "total_brands": len(sorted_g),
+        "bed_brands": len(sorted_bed),
     }
 
 
@@ -97,11 +110,29 @@ def _build_kpi_strip(kpi, prev_kpi, total_brands):
     """KPI 스트립 HTML 생성"""
     d = lambda k, u="": _delta_html(kpi, prev_kpi, k, u)
 
+    # P1-1: SoS 카테고리 기준이 있으면 주(主) 지표로 표시, 전체 기준은 보조
+    _sos_cat = kpi.get("sos_cat")
+    _sos_display = f"{_sos_cat}%" if _sos_cat else f"{kpi['sos']}%"
+    _sos_note = (
+        f"침대 전업 기준 {_sos_cat}% · 전체 기준 {kpi['sos']}%"
+        if _sos_cat else "브랜드별 구글 검색 점유율 합산 기준"
+    )
+    _g_rank_bed = kpi.get("g_rank_bed")
+    _bed_brands = kpi.get("bed_brands", 4)
+    _rank_display = (
+        f"{kpi['g_rank']}위 / {total_brands}"
+        if not _g_rank_bed
+        else f"전체 {kpi['g_rank']}위 / {total_brands}"
+    )
+    _rank_note = (
+        f"침대 전업 {_g_rank_bed}위 / {_bed_brands} · Google Trends 기준"
+        if _g_rank_bed else "Google Trends 정규화 지수 기준"
+    )
     cards = [
-        ("📊", "Share of Search", f"{kpi['sos']}%", d("sos", "%p"),
-         "브랜드별 구글 검색 점유율 합산 기준"),
-        ("🔍", "구글 검색 순위", f"{kpi['g_rank']}위 / {total_brands}",
-         d("g_rank", "위"), "Google Trends 정규화 지수 기준"),
+        ("📊", "SoS — 침대 전업", _sos_display, d("sos_cat", "%p") if _sos_cat else d("sos", "%p"),
+         _sos_note),
+        ("🔍", "구글 검색 순위", _rank_display,
+         d("g_rank", "위"), _rank_note),
         ("🌐", "네이버 노출 순위", f"{kpi['n_rank']}위 / {total_brands}",
          d("n_rank", "위"), "블로그+뉴스 건수 기준"),
         ("📈", "1위 브랜드 대비 갭", f"-{kpi['gap_to_top']}pt" if kpi['gap_to_top'] > 0 else "1위",
@@ -161,9 +192,17 @@ def _build_action_table(data, kpi):
             "디지털마케팅팀", "2026 Q3", "중간"
         ))
 
-    if sos_val < 10:
+    # P1-5: SoS 목표를 침대 전업 카테고리 기준으로 재설정
+    sos_cat_val = kpi.get("sos_cat")
+    if sos_cat_val is not None and sos_cat_val < 60:
         actions.append((
-            f"Share of Search 10% 목표 설정 (현재 {sos_val}%)",
+            f"침대 전업 카테고리 SoS 60% 목표 설정 (현재 {sos_cat_val}% · 보조: 전체 SoS {sos_val}% 유지)",
+            '<a href="#section-sos">Share of Search</a>',
+            "브랜드팀", "2027 Q1", "중간"
+        ))
+    elif sos_val < 10:
+        actions.append((
+            f"침대 전업 카테고리 SoS 60% 목표 설정 (현재 전체 기준 {sos_val}%)",
             '<a href="#section-sos">Share of Search</a>',
             "브랜드팀", "2027 Q1", "중간"
         ))
@@ -210,34 +249,53 @@ def _brand_colors():
 def _compute_sos_som(data):
     """SoS vs SoM 산점도용 계산.
     P0-3: SoM 분모를 침대 전업(non-caution) 브랜드 매출 합계로 한정.
-          caution 브랜드(복합 사업)는 전사 매출이 침대 시장을 대표하지 않으므로 SoM=None.
+    P1-1: SoS는 카테고리 기준(sos_category) 우선 사용, 없으면 전체 기준(sos) 폴백.
+    P1-3: 시몬스 포함 — DART 감사보고서 수동 입력값 사용.
+          지누스 주의: 글로벌 매출 기준 → SoS(국내)와 지역 범위 불일치.
     """
-    sos = data.get("sos", {})
+    sos_cat = data.get("sos_category", {})
+    sos_total = data.get("sos", {})
     dart = data.get("dart", {})
 
-    # P0-3: SoM 분모 = 침대 전업(non-caution) 브랜드 매출 합계만 사용
+    # SoM 분모 = 침대 전업(non-caution) 브랜드 매출 합계 (시몬스 포함)
     total_sales = sum(d["amount"] for d in dart.values()
                       if d.get("amount") and not d.get("caution", True))
 
+    # 시몬스는 sos_total에만 있고 sos_category에도 있어야 정상
+    all_brands = set(sos_total) | set(dart)
+
     result = []
-    for brand, sos_val in sos.items():
-        if brand == "시몬스":
-            continue  # 별도 처리 (시몬스 SoM은 P1-3에서 추가)
+    for brand in all_brands:
+        sos_val_cat = sos_cat.get(brand)   # None이면 비전업 or 데이터 없음
+        sos_val_total = sos_total.get(brand, 0)
+        # ESOV에 사용할 SoS: 카테고리 기준 우선
+        sos_val = sos_val_cat if sos_val_cat is not None else sos_val_total
+
         brand_dart = dart.get(brand, {})
         caution = brand_dart.get("caution", True)
         tier = BRAND_TO_TIER_NEW.get(brand, "?")
         in_dart = brand in dart
         som_val = None
-        # P0-3: caution 브랜드는 SoM 미산출 (전사 매출로 침대 시장 대표 불가)
+
+        # caution 브랜드는 SoM 미산출
         if not caution and in_dart and brand_dart.get("amount") and total_sales > 0:
             som_val = round(brand_dart["amount"] / total_sales * 100, 1)
+
+        # 지누스 SoM 지역 불일치 경고
+        zinus_note = "글로벌 매출 기준 — SoS(국내)와 지역 범위 불일치" if brand == "지누스" else None
+
         result.append({
             "brand": brand,
             "sos": round(sos_val, 1),
+            "sos_total": round(sos_val_total, 1),
+            "sos_cat": round(sos_val_cat, 1) if sos_val_cat is not None else None,
             "som": som_val,
             "caution": caution,
             "tier": tier,
             "in_dart": in_dart,
+            "is_simmons": brand == "시몬스",
+            "data_source": brand_dart.get("source"),
+            "som_note": zinus_note,
         })
     return result
 
@@ -491,9 +549,18 @@ def build_dashboard(data, report_month, collected_at, confidence_score,
     tier_labels_json = json.dumps({str(k): v for k, v in TIER_LABELS.items()}, ensure_ascii=False)
     tier_new_json = json.dumps(TIER_NEW, ensure_ascii=False)
     brand_to_tier_json = json.dumps(BRAND_TO_TIER_NEW, ensure_ascii=False)
-    sos_som_json = json.dumps(_compute_sos_som(data), ensure_ascii=False)
-    _simmons_sos = round(data.get("sos", {}).get("시몬스", 0), 1)
-    simmons_sos_note = f'시몬스 SoS: <strong>{_simmons_sos}%</strong> · SoM 산출 불가 (비상장 — DART 공시 없음)'
+    sos_som_data = _compute_sos_som(data)
+    sos_som_json = json.dumps(sos_som_data, ensure_ascii=False)
+    sos_category_json = json.dumps(data.get("sos_category", {}), ensure_ascii=False)
+    _simmons_sos_total = round(data.get("sos", {}).get("시몬스", 0), 1)
+    _simmons_sos_cat = round(data.get("sos_category", {}).get("시몬스") or 0, 1)
+    _simmons_som_entry = next((d for d in sos_som_data if d["brand"] == "시몬스"), {})
+    _simmons_som = _simmons_som_entry.get("som")
+    simmons_sos_note = (
+        f'시몬스 SoS: <strong>{_simmons_sos_cat}%</strong> (침대 전업 기준)'
+        f' / {_simmons_sos_total}% (전체)'
+        + (f' · SoM: <strong>{_simmons_som}%</strong> (DART 감사보고서)' if _simmons_som else ' · SoM 산출 불가')
+    )
     sample_count = data.get('quality', {}).get('sample_count', 3)
     sample_count_label = f"{sample_count}회 수집"
 
@@ -1365,6 +1432,7 @@ const TIER_LABELS = {tier_labels_json};
 const TIER_NEW = {tier_new_json};
 const BRAND_TO_TIER = {brand_to_tier_json};
 const SOS_SOM_DATA = {sos_som_json};
+const SOS_CATEGORY = {sos_category_json};
 const IS_PARTIAL_MONTH = {_is_partial_js};
 
 // 현재 티어 필터 상태
@@ -2484,6 +2552,7 @@ function renderDatalab() {{
 function renderSoSSoM() {{
   const data = SOS_SOM_DATA;
   // P0-3: SoM 산출 브랜드(non-caution)만 scatter에 표시
+  // P1-3: 시몬스 포함 (DART 감사보고서 수동 입력)
   const mainData = data.filter(d => d.som !== null && d.som !== undefined && !d.caution);
   const cautionData = data.filter(d => d.caution);
   if (!mainData.length) return;
@@ -2493,17 +2562,27 @@ function renderSoSSoM() {{
   const maxVal = Math.max(...mainData.map(d => Math.max(d.sos, d.som || 0))) * 1.2;
 
   function makePoint(d) {{
+    const isSimmons = d.is_simmons;
     return {{
       name: d.brand,
       value: [d.sos, d.som],
-      itemStyle: {{color: COLORS[d.brand] || '#888', opacity: 0.9}},
-      label: {{show: true, formatter: d.brand, position: 'top', fontSize: 10, color: COLORS[d.brand] || '#333'}},
+      symbol: isSimmons ? 'pin' : 'circle',
+      symbolSize: isSimmons ? 22 : 15,
+      itemStyle: {{color: COLORS[d.brand] || '#888', opacity: 0.95}},
+      label: {{
+        show: true,
+        formatter: isSimmons ? d.brand + ' ★' : d.brand,
+        position: 'top',
+        fontSize: isSimmons ? 11 : 10,
+        fontWeight: isSimmons ? 'bold' : 'normal',
+        color: COLORS[d.brand] || '#333',
+      }},
     }};
   }}
 
   const sosSomMaxX = Math.max(...mainData.map(d => d.sos), 1);
   const sosSomMaxY = Math.max(...mainData.map(d => d.som || 0), 1);
-  const xOptSoSSoM = Object.assign(axisOption(sosSomMaxX, '%', 5), {{name:'SoS (%)',nameLocation:'middle',nameGap:30}});
+  const xOptSoSSoM = Object.assign(axisOption(sosSomMaxX, '%', 5), {{name:'SoS-카테고리 (%)',nameLocation:'middle',nameGap:30}});
   const yOptSoSSoM = Object.assign(axisOption(sosSomMaxY, '%', 5), {{name:'SoM (%)',nameLocation:'middle',nameGap:40}});
 
   gc('chart-sos-som').setOption({{
@@ -2514,8 +2593,6 @@ function renderSoSSoM() {{
       {{
         name: '침대 전업',
         type: 'scatter',
-        symbol: 'circle',
-        symbolSize: 15,
         data: mainData.map(d => makePoint(d)),
         label: {{show: true}},
         markLine: {{
@@ -2535,7 +2612,9 @@ function renderSoSSoM() {{
       formatter: p => {{
         const d = mainData.find(x => x.brand === p.name);
         if (!d) return p.name;
-        return `<b>${{p.name}}</b> [Tier ${{d.tier}}]<br>SoS: ${{d.sos}}%<br>SoM: ${{d.som}}%`;
+        const src = d.data_source === 'DART_audit_report' ? '<br><span style="font-size:10px;color:#666;">출처: DART 감사보고서</span>' : '';
+        const note = d.som_note ? `<br><span style="font-size:10px;color:#b45309;">⚠ ${{d.som_note}}</span>` : '';
+        return `<b>${{p.name}}</b> [Tier ${{d.tier}}]<br>SoS(카테고리): ${{d.sos}}%<br>SoM: ${{d.som}}%${{src}}${{note}}`;
       }}
     }},
   }});

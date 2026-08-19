@@ -1,9 +1,25 @@
 def share_of_search(brand_medians):
-    """브랜드별 검색 점유율 (%) 계산"""
+    """브랜드별 검색 점유율 — 전체 11개 브랜드 합계 기준 (SoS_total)"""
     total = sum(brand_medians.values())
     if total == 0:
         return {k: 0.0 for k in brand_medians}
     return {k: round(v / total * 100, 1) for k, v in brand_medians.items()}
+
+
+def share_of_search_category(brand_medians, bed_specialists):
+    """브랜드별 카테고리 기준 SoS — 침대 전업 브랜드 합계만 분모 (SoS_category).
+    P1-1: 분모 이원화. 결과에는 모든 브랜드 포함하되, 침대 전업이 아닌 브랜드는 None.
+    """
+    specialist_total = sum(v for k, v in brand_medians.items() if k in bed_specialists)
+    if specialist_total == 0:
+        return {k: None for k in brand_medians}
+    result = {}
+    for k, v in brand_medians.items():
+        if k in bed_specialists:
+            result[k] = round(v / specialist_total * 100, 1)
+        else:
+            result[k] = None
+    return result
 
 
 def detect_change_points(series, threshold=20):

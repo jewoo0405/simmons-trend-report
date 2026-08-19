@@ -165,6 +165,19 @@ def fetch_dart_revenues(target_year=None):
 
         browser.close()
 
+    # P1-3: 시몬스(주) 수동 입력 — DART 감사보고서 (비상장, 외부감사 대상)
+    # 출처: DART 전자공시 감사보고서 | 기준: 2025 사업연도 | 매출: 3,239억원
+    if "시몬스" not in results:
+        results["시몬스"] = {
+            "amount": 3239,
+            "year": "2025",
+            "unit": "억원",
+            "caution": False,
+            "note": "매트리스 전업 (비상장, 감사보고서 기준)",
+            "source": "DART_audit_report",
+        }
+        print("    시몬스: 3,239억원 (2025, DART 감사보고서 수동 입력)")
+
     if results:
         cache.set("naver_revenue", cache_key, results, ttl_hours=24 * 7)
     return results

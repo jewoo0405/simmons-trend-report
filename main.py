@@ -30,9 +30,9 @@ from collector.naver_datalab_api import fetch_datalab_trends
 from collector.dart_collector import fetch_dart_revenues
 from collector.commentary import generate_commentary
 from analyzer.validator import overall_confidence_score
-from analyzer.stats import share_of_search, detect_change_points, naver_google_gap
+from analyzer.stats import share_of_search, share_of_search_category, detect_change_points, naver_google_gap
 from builder.dashboard import build_dashboard
-from brand_config import KEYWORD_VERSION
+from brand_config import KEYWORD_VERSION, BED_SPECIALISTS
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "output")
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
@@ -225,7 +225,9 @@ def run():
     naver_norm = naver_data.get("normalized", {})
     naver_stats = naver_data.get("stats", {})
 
-    sos = share_of_search({k: v for k, v in google_norm.items() if v > 0} or naver_norm)
+    _google_for_sos = {k: v for k, v in google_norm.items() if v > 0} or naver_norm
+    sos = share_of_search(_google_for_sos)
+    sos_category = share_of_search_category(_google_for_sos, BED_SPECIALISTS)
 
     # 변화점 탐지
     change_points = []
@@ -277,6 +279,7 @@ def run():
         "dart": dart_data,
         "commentary": commentary,
         "sos": sos,
+        "sos_category": sos_category,
         "gap": gap,
         "change_points": change_points,
         "events": events,
