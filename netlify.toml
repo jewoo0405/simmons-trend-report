@@ -1,3 +1,8 @@
 [build]
   command = ""
-  publish = "."
+  publish = "output"
+
+[[redirects]]
+  from = "/"
+  to = "/report_2026_08.html"
+  status = 302

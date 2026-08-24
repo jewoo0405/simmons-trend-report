@@ -109,8 +109,8 @@ def _collect_naver_counts_3m():
 
 
 def _fetch_naver_counts_api(run_id, collected_at):
-    """폴백: Open API 전체 누적 건수 수집"""
-    print(f"  [Naver API 폴백] {N_SAMPLES}회 샘플링 시작...")
+    """Naver Search API로 블로그+뉴스 전체 누적 건수 수집 (시몬스=100 정규화)"""
+    print(f"  [Naver Search API] {N_SAMPLES}회 샘플링...")
     brand_samples = {b["name"]: [] for b in BRANDS}
 
     for i in range(N_SAMPLES):
@@ -118,7 +118,8 @@ def _fetch_naver_counts_api(run_id, collected_at):
         for b in BRANDS:
             blog = _search_total(b["naver_kw"], "blog")
             news = _search_total(b["naver_kw"], "news")
-            brand_samples[b["name"]].append(blog + news)
+            total = (blog if isinstance(blog, int) else 0) + (news if isinstance(news, int) else 0)
+            brand_samples[b["name"]].append(total)
 
     stats_map = {}
     for name, samples in brand_samples.items():
@@ -126,8 +127,16 @@ def _fetch_naver_counts_api(run_id, collected_at):
 
     base = stats_map.get("시몬스", {}).get("median", 1) or 1
     normalized = {name: round(stats["median"] / base * 100, 1) for name, stats in stats_map.items()}
+    unmeasurable = [name for name, stats in stats_map.items() if stats.get("median", 0) == 0]
 
-    output = {"normalized": normalized, "stats": stats_map, "period": "all"}
+    print("\n  [Naver 검색 지수] 시몬스=100 기준 (전체 누적)")
+    for name, idx in sorted(normalized.items(), key=lambda x: x[1], reverse=True):
+        print(f"    {name}: {idx} (raw: {stats_map[name].get('median', 0):,.0f})")
+    if unmeasurable:
+        print(f"  [Naver] 측정 불가: {', '.join(unmeasurable)}")
+
+    output = {"normalized": normalized, "stats": stats_map, "period": "all",
+              "unmeasurable": unmeasurable}
     cache.set("naver_counts", {"brands": [b["name"] for b in BRANDS]}, output, ttl_hours=12)
     return output
 
@@ -167,47 +176,8 @@ def fetch_naver_counts(run_id, collected_at):
         print("  [Naver] 캐시 사용")
         return cached
 
-    print("  [Naver] 최근 3개월 기간 필터 수집 (Playwright)...")
-    raw_counts = _collect_naver_counts_3m()
-
-    if not raw_counts:
-        print("  [Naver] Playwright 실패 — Open API 폴백 (전체 누적)")
-        return _fetch_naver_counts_api(run_id, collected_at)
-
-    # Sanity check: 중앙값 20배 초과 브랜드는 직전 스냅샷 값으로 대체
-    # 직전 스냅샷도 이상치면 0 처리 (누적 오류 방지)
-    suspects = _sanity_check(raw_counts)
-    if suspects:
-        prev = _load_prev_naver_counts()
-        for name in suspects:
-            prev_val = prev.get(name, 0)
-            # 직전 스냅샷도 이상치인지 재검증
-            test_counts = dict(raw_counts)
-            test_counts[name] = prev_val
-            if prev_val > 0 and name not in _sanity_check(test_counts):
-                print(f"  ⚠ [Sanity] {name} {raw_counts[name]:,} → 직전 스냅샷 {prev_val:,} 으로 대체")
-                raw_counts[name] = prev_val
-            else:
-                print(f"  ⚠ [Sanity] {name} {raw_counts[name]:,} 이상치 (직전 스냅샷도 이상치 또는 없음) → 0 처리")
-                raw_counts[name] = 0
-
-    base = raw_counts.get("시몬스", 1) or 1
-    normalized = {name: round(v / base * 100, 1) for name, v in raw_counts.items()}
-    stats_map = {name: {"median": v, "cv": 0.0, "confidence": "stable"} for name, v in raw_counts.items()}
-
-    print("\n  [Naver 검색 지수] 시몬스=100 기준 (최근 3개월)")
-    for name, idx in sorted(normalized.items(), key=lambda x: x[1], reverse=True):
-        print(f"    {name}: {idx} (raw: {raw_counts[name]:,})")
-
-    # 최종 0값 브랜드 = 측정 불가 (파싱 오류 or 네이버 건수 미표기)
-    unmeasurable = [name for name, v in raw_counts.items() if v == 0]
-    if unmeasurable:
-        print(f"  [Naver] 측정 불가 확정: {', '.join(unmeasurable)}")
-
-    output = {"normalized": normalized, "stats": stats_map, "period": "3m",
-              "unmeasurable": unmeasurable}
-    cache.set("naver_counts", {"brands": [b["name"] for b in BRANDS]}, output, ttl_hours=12)
-    return output
+    print("  [Naver] Search API로 블로그+뉴스 건수 수집...")
+    return _fetch_naver_counts_api(run_id, collected_at)
 
 
 COOKIE_FILE = os.path.join(os.path.dirname(__file__), "..", "naver_cookies.json")

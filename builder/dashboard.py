@@ -164,6 +164,59 @@ def _build_kpi_strip(kpi, prev_kpi, total_brands):
     return f'<div class="kpi-strip">{items}</div>{footnote}'
 
 
+def _build_strategy_kpi(esov, sos_cat, som, yoy_pct, yoy_curr, yoy_prev):
+    """전략 KPI 행: ESOV + YoY SoS 변화율"""
+
+    # ── ESOV 카드 ──
+    if esov is not None:
+        esov_sign = "+" if esov >= 0 else ""
+        esov_color = "#1b5e20" if esov >= 5 else "#2e7d32" if esov >= 0 else "#c62828"
+        esov_bg    = "#e8f5e9" if esov >= 0 else "#ffebee"
+        esov_arrow = "▲" if esov >= 0 else "▼"
+        esov_status = "SoS > SoM — 성장 여력 확보" if esov >= 0 else "SoS < SoM — 브랜드 투자 필요"
+        esov_val_html = (f'<span style="font-size:28px;font-weight:800;color:{esov_color};">'
+                         f'{esov_arrow} {esov_sign}{esov}%p</span>')
+        esov_note = f"SoS {sos_cat}% − SoM {som}% · {esov_status}"
+    else:
+        esov_bg = "#f5f5f5"
+        esov_val_html = '<span style="font-size:18px;color:#999;">SoM 산출 불가</span>'
+        esov_note = "DART 비상장 또는 복합 사업 브랜드"
+
+    # ── YoY 카드 ──
+    if yoy_pct is not None:
+        yoy_sign  = "+" if yoy_pct >= 0 else ""
+        yoy_color = "#1b5e20" if yoy_pct >= 10 else "#2e7d32" if yoy_pct >= 0 else "#c62828"
+        yoy_bg    = "#e8f5e9" if yoy_pct >= 0 else "#ffebee"
+        yoy_arrow = "▲" if yoy_pct >= 0 else "▼"
+        yoy_val_html = (f'<span style="font-size:28px;font-weight:800;color:{yoy_color};">'
+                        f'{yoy_arrow} {yoy_sign}{yoy_pct}%</span>')
+        yoy_note = f"SoS 전년 동기 대비 · {yoy_curr} vs {yoy_prev}"
+    else:
+        yoy_bg = "#f5f5f5"
+        yoy_val_html = '<span style="font-size:18px;color:#999;">12개월 데이터 부족</span>'
+        yoy_note = "월별 데이터 13개월 이상 축적 후 표시"
+
+    return f"""
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
+  <div style="background:{esov_bg};border-radius:10px;padding:16px 20px;border:1px solid rgba(0,0,0,0.06);">
+    <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+      ESOV — Excess Share of Voice
+    </div>
+    {esov_val_html}
+    <div style="font-size:10px;color:#666;margin-top:6px;line-height:1.5;">{esov_note}</div>
+    <div style="font-size:9px;color:#999;margin-top:4px;">Binet &amp; Field: 양(+)의 ESOV 유지 시 장기 시장점유율 상승 수렴</div>
+  </div>
+  <div style="background:{yoy_bg};border-radius:10px;padding:16px 20px;border:1px solid rgba(0,0,0,0.06);">
+    <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+      SoS 전년 동기 대비 (YoY)
+    </div>
+    {yoy_val_html}
+    <div style="font-size:10px;color:#666;margin-top:6px;line-height:1.5;">{yoy_note}</div>
+    <div style="font-size:9px;color:#999;margin-top:4px;">Google Trends · 시몬스 검색 관심도 전년 동월 대비 증감률</div>
+  </div>
+</div>"""
+
+
 def _build_action_table(data, kpi):
     """권고 액션 테이블 — 실제 데이터 근거 기반 자동 생성"""
     sos_val = kpi["sos"]
@@ -553,6 +606,192 @@ def _build_appendix(collected_at):
   </div>"""
 
 
+# ── 가격 비교 테이블 정적 데이터 (2026년 8월 공식몰 조사, 퀸(Q) 기준) ──────────
+_PRICE_TABLE_DATA = [
+    # (브랜드명, 연매출 표시, 매출 비고, [(제품명, 가격(원), 등급)])
+    ("시몬스", "3,295억", "침대 전문", [
+        ("뷰티레스트 블랙 로렌", 12_650_000, "프리미엄"),
+        ("뷰티레스트 젤몬",      10_120_000, "프리미엄"),
+        ("뷰티레스트 에디슨",     6_770_000, "프리미엄"),
+        ("뷰티레스트 버나드",     3_800_000, "프리미엄"),
+        ("뷰티레스트 마르코니",   2_870_000, "프리미엄"),
+    ]),
+    ("에이스침대", "3,260억", "침대 전문", [
+        ("로얄에이스 90s", 5_902_000, "프리미엄"),
+        ("로얄에이스 60th Special", 3_444_000, "프리미엄"),
+        ("하이브리드 테크 레드", 3_437_000, "프리미엄"),
+        ("에이스타임", 1_735_000, "중가"),
+        ("클럽에이스 III", 1_678_000, "중가"),
+    ]),
+    ("씰리침대", "811억", "침대 전문", [
+        ("포스처피딕 베루스", 3_890_000, "프리미엄"),
+        ("포스처피딕 에드가 2 플러쉬", 3_390_000, "프리미엄"),
+        ("포스처피딕 메리미 2", 2_290_000, "프리미엄"),
+        ("비욘드 2", 1_890_000, "중가"),
+        ("아델", 1_290_000, "중가"),
+    ]),
+    ("지누스", "3,876억", "연결 기준", [
+        ("클라우드 럭스S 하이브리드", 708_400, "중가"),
+        ("클라우드 메모리폼", 418_000, "보급"),
+        ("그린티 럭스 스프링", 227_000, "보급"),
+        ("그린티 럭스 메모리폼", 211_000, "보급"),
+        ("베이직 메모리폼", 148_900, "보급"),
+    ]),
+    ("코웨이 비렉스", "코웨이 전체\n4조3,101억", "렌털 서비스", [
+        ("비렉스 S8+ (퀸·7년약정)", "월 102,900", "중가"),
+        ("비렉스 S6+ (퀸·7년약정)", "월 81,900", "중가"),
+    ]),
+    ("한샘", "1조9,000억", "가구 종합", [
+        ("밸런스S 필로우탑", 1_329_000, "중가"),
+        ("밸런스S 유로탑", 919_000, "중가"),
+        ("밸런스S 슬림탑", 679_000, "중가"),
+        ("노뜨 메모리폼탑", 479_000, "보급"),
+        ("노뜨 컴포트 포켓스프링", 339_000, "보급"),
+    ]),
+    ("현대리바트", "1조8,700억", "가구 종합", [
+        ("엔슬립 시그니처", 1_144_000, "중가"),
+        ("엔슬립 프리마", 1_014_000, "중가"),
+        ("엔슬립 호텔형", 856_000, "중가"),
+    ]),
+    ("까사미아", "2,695억", "가구 종합", [
+        ("마테라소 포레스트 클라우드", 3_900_000, "프리미엄"),
+        ("마테라소 포레스트 블랑쉬", 3_200_000, "프리미엄"),
+        ("마테라소 포레스트 베이", 2_900_000, "프리미엄"),
+        ("마테라소 포레스트 브리즈", 2_400_000, "프리미엄"),
+        ("마테라소 포레스트 모스", 1_900_000, "중가"),
+    ]),
+    ("일룸", "3,551억", "가구 종합", [
+        ("헤이븐 시그니처", 2_750_000, "프리미엄"),
+        ("헤이븐 디럭스", 1_850_000, "중가"),
+        ("헤이븐 슬림", 1_250_000, "중가"),
+    ]),
+    ("에몬스", "1,744억", "가구 종합", [
+        ("앤리브H 포켓스프링", 1_490_000, "중가"),
+        ("앤리브M 메모리폼", 1_490_000, "중가"),
+    ]),
+    ("이케아", "6,393억", "종합 유통", [
+        ("MAUSUND (천연 라텍스)", 999_000, "중가"),
+        ("VATNESTRÖM (포켓스프링)", 899_000, "중가"),
+        ("VÅGSTRANDA (포켓스프링)", 599_000, "보급"),
+        ("ÅNNELAND (하이브리드)", 549_000, "보급"),
+        ("VALEVÅG (포켓스프링)", 379_000, "보급"),
+    ]),
+]
+
+# ── YouTube 공식 채널 구독자 수 정적 데이터 (2026년 8월 직접 조사) ──────────────
+_YOUTUBE_STATIC_DATA = {
+    "시몬스":        {"subs": 21_000,  "channel": "@simmonskorea",      "note": ""},
+    "에이스침대":    {"subs": 38_000,  "channel": "@ACEBED",             "note": ""},
+    "씰리침대":      {"subs": None,    "channel": "@씰리침대-b6n",       "note": "미확인"},
+    "지누스":        {"subs": 2_000,   "channel": "ZINUS Korea",         "note": ""},
+    "코웨이 비렉스": {"subs": 210_000, "channel": "@Cowaystory",         "note": "코웨이 전채널"},
+    "한샘":          {"subs": 118_000, "channel": "@hanssem.official",   "note": ""},
+    "현대리바트":    {"subs": 20_900,  "channel": "@hyundailivart",      "note": ""},
+    "까사미아":      {"subs": 2_040,   "channel": "신세계까사",           "note": ""},
+    "일룸":          {"subs": 29_100,  "channel": "@iloom_official",     "note": ""},
+    "에몬스":        {"subs": 3_460,   "channel": "EMONSstyle1",         "note": ""},
+    "이케아":        {"subs": 54_400,  "channel": "@IKEAKorea",          "note": ""},
+}
+
+_TIER_STYLE = {
+    "프리미엄": ("border-left:3px solid #b8860b; background:#fffde7;", "#7b5e00"),
+    "중가":     ("border-left:3px solid #546e7a; background:#fff;",    "#37474f"),
+    "보급":     ("border-left:3px solid #43a047; background:#f1f8e9;", "#2e7d32"),
+}
+
+def _build_price_table():
+    col_w = 155  # px per brand column
+
+    # ── 헤더 행 ──
+    th_base = ("padding:10px 12px;text-align:left;vertical-align:bottom;"
+               "font-size:12px;font-weight:700;white-space:nowrap;"
+               "border-bottom:2px solid #444;")
+    header_cells = ['<th style="' + th_base + 'position:sticky;left:0;z-index:2;'
+                    'background:#1a1a1a;color:#fff;min-width:72px;">구분</th>']
+    for b in _PRICE_TABLE_DATA:
+        name, rev, note, _ = b
+        header_cells.append(
+            f'<th style="{th_base}background:#1a1a1a;color:#fff;min-width:{col_w}px;">'
+            f'{name}<br>'
+            f'<span style="font-size:10px;font-weight:400;color:#aaa;">{note}</span></th>'
+        )
+
+    # ── 연매출 행 ──
+    td_rev_base = ("padding:8px 12px;font-size:12px;vertical-align:middle;"
+                   "border-bottom:1px solid #ddd;background:#f5f5f5;")
+    rev_cells = [
+        f'<td style="{td_rev_base}position:sticky;left:0;z-index:1;'
+        f'font-weight:700;border-right:2px solid #ccc;">연매출</td>'
+    ]
+    for _, rev, _, _ in _PRICE_TABLE_DATA:
+        rev_cells.append(
+            f'<td style="{td_rev_base}font-weight:700;color:#1a1a1a;">'
+            + rev.replace("\n", "<br>") + '</td>'
+        )
+
+    # ── 제품/가격 행 ──
+    td_prod_base = "padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"
+    prod_cells = [
+        f'<td style="{td_prod_base}position:sticky;left:0;z-index:1;'
+        f'font-weight:700;background:#fafafa;border-right:2px solid #ccc;white-space:nowrap;">'
+        f'제품 / 가격</td>'
+    ]
+    for _, _, _, products in _PRICE_TABLE_DATA:
+        items = []
+        for pname, price, tier in products:
+            cell_style, txt_color = _TIER_STYLE.get(tier, ("", "#333"))
+            if isinstance(price, int):
+                price_str = f"{price:,}원"
+            else:
+                price_str = f"{price}원"
+            items.append(
+                f'<div style="{cell_style}padding:5px 7px;margin-bottom:4px;border-radius:3px;">'
+                f'<div style="color:#555;font-size:11px;line-height:1.3;">{pname}</div>'
+                f'<div style="color:{txt_color};font-weight:700;font-size:12px;margin-top:1px;">{price_str}</div>'
+                f'</div>'
+            )
+        prod_cells.append(f'<td style="{td_prod_base}">{"".join(items)}</td>')
+
+    tier_legend = (
+        '<div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:#666;">'
+        '<span style="display:flex;align-items:center;gap:4px;">'
+        '  <span style="display:inline-block;width:10px;height:10px;background:#fffde7;border-left:3px solid #b8860b;"></span>프리미엄 (200만원↑)'
+        '</span>'
+        '<span style="display:flex;align-items:center;gap:4px;">'
+        '  <span style="display:inline-block;width:10px;height:10px;background:#fff;border-left:3px solid #546e7a;border:1px solid #ccc;"></span>중가 (60만~200만원)'
+        '</span>'
+        '<span style="display:flex;align-items:center;gap:4px;">'
+        '  <span style="display:inline-block;width:10px;height:10px;background:#f1f8e9;border-left:3px solid #43a047;"></span>보급 (60만원↓)'
+        '</span>'
+        '</div>'
+    )
+
+    return f"""
+  <div class="chart-row" id="section-price-table">
+    <div class="card" style="overflow:hidden;">
+      <div class="card-title">브랜드별 주력 매트리스 가격 비교
+        <span class="source-badge" style="background:#f3e5f5;color:#6a1b9a;border:1px solid #ce93d8;">공식몰 조사</span>
+      </div>
+      <div class="card-sub">퀸(Q) 사이즈 기준 공식 판매가 · 2026년 8월 조사 / 코웨이 비렉스는 렌털 월정액(7년 약정)</div>
+      <div style="overflow-x:auto;margin-top:12px;">
+        <table style="border-collapse:collapse;width:100%;font-size:12px;">
+          <thead><tr>{"".join(header_cells)}</tr></thead>
+          <tbody>
+            <tr>{"".join(rev_cells)}</tr>
+            <tr>{"".join(prod_cells)}</tr>
+          </tbody>
+        </table>
+      </div>
+      {tier_legend}
+      <div style="margin-top:8px;font-size:10px;color:#aaa;line-height:1.6;">
+        * 한샘·현대리바트·이케아·까사미아 매출은 가구·홈인테리어 전체 기준 · 지누스 매출은 연결(해외 포함) 기준<br>
+        * 코웨이 매출은 정수기·공기청정기 등 전 사업 포함 / 비렉스 매트리스 단독 매출 비공개<br>
+        * 에이스침대 제품가는 원매트리스 기준 (투매트리스 세트는 10~15% 추가)
+      </div>
+    </div>
+  </div>"""
+
+
 def build_dashboard(data, report_month, collected_at, confidence_score,
                     is_partial_month=False, partial_day=None):
     colors = _brand_colors()
@@ -565,6 +804,7 @@ def build_dashboard(data, report_month, collected_at, confidence_score,
     sos_som_data = _compute_sos_som(data)
     sos_som_json = json.dumps(sos_som_data, ensure_ascii=False)
     sos_category_json = json.dumps(data.get("sos_category", {}), ensure_ascii=False)
+    youtube_static_json = json.dumps(_YOUTUBE_STATIC_DATA, ensure_ascii=False)
     _simmons_sos_total = round(data.get("sos", {}).get("시몬스", 0), 1)
     _simmons_sos_cat = round(data.get("sos_category", {}).get("시몬스") or 0, 1)
     _simmons_som_entry = next((d for d in sos_som_data if d["brand"] == "시몬스"), {})
@@ -621,6 +861,26 @@ def build_dashboard(data, report_month, collected_at, confidence_score,
     total_brands = kpi.get("total_brands", 11)
     kpi_strip_html = _build_kpi_strip(kpi, prev_kpi, total_brands)
     action_table_html = _build_action_table(data, kpi)
+
+    # ── 전략 KPI: ESOV + YoY ──────────────────────────────
+    # YoY: monthly_series에서 현재 완결 월 vs 12개월 전
+    _ms_simmons = data.get("google", {}).get("monthly_series", {}).get("시몬스", [])
+    _yoy_pct = None
+    _yoy_curr_period = None
+    _yoy_prev_period = None
+    if len(_ms_simmons) >= 13:
+        _ci = -2 if is_partial_month else -1   # 완결 월 인덱스
+        _yi = _ci - 12
+        _cm = _ms_simmons[_ci] if len(_ms_simmons) >= abs(_ci) else None
+        _ym = _ms_simmons[_yi] if len(_ms_simmons) >= abs(_yi) else None
+        if _cm and _ym:
+            _cv2, _yv2 = _cm.get("value"), _ym.get("value")
+            if _cv2 and _yv2 and _yv2 > 0:
+                _yoy_pct = round((_cv2 - _yv2) / _yv2 * 100, 1)
+                _yoy_curr_period = _cm.get("period", "")[:7]
+                _yoy_prev_period = _ym.get("period", "")[:7]
+    strategy_kpi_html = _build_strategy_kpi(_a_esov, _simmons_sos_cat, _simmons_som,
+                                            _yoy_pct, _yoy_curr_period, _yoy_prev_period)
 
     html = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -1109,54 +1369,124 @@ body {{
 }}
 
 @media print {{
-  /* 배경색 강제 출력 */
+  /* ── A4 세로 페이지 설정 ── */
+  @page {{
+    size: A4 portrait;
+    margin: 14mm 12mm 14mm 12mm;
+  }}
+
+  /* 배경색·이미지 강제 출력 */
   * {{
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }}
 
-  .print-only {{ display: block !important; }}
-  #cover-page {{ page-break-after: always; }}
-  .no-print, #filter-banner, .tier-filter, .toggle-btn, button, .action-btn {{ display: none !important; }}
-  .chart-block, .kpi-strip, table, .section-card {{ page-break-inside: avoid; }}
-  h2, h3 {{ page-break-after: avoid; }}
-  @page {{ margin: 15mm 12mm; size: A4 landscape; }}
-  a[href]::after {{ content: none; }}
-  #sidebar {{ display: none !important; }}
-  #top-header {{ display: none !important; }}
-  #filter-changed-banner {{ display: none !important; }}
-  #layout {{ height: auto; display: block !important; }}
-  #main {{
-    overflow: visible !important;
-    padding: 0 !important;
-    width: 100% !important;
-    margin-left: 0 !important;
-    height: auto !important;
-    display: block !important;
+  /* ── 숨길 요소 ── */
+  #sidebar,
+  #top-header,
+  #filter-changed-banner,
+  #filter-banner,
+  .tier-filter,
+  .toggle-btn,
+  button,
+  .action-btn,
+  .no-print,
+  .source-badge {{
+    display: none !important;
   }}
-  body {{ font-size: 10pt; background: #fff !important; }}
+
+  /* ── 표지 ── */
+  .print-only {{ display: block !important; }}
+  #cover-page {{ page-break-after: always; break-after: page; }}
+
+  /* ── 레이아웃 초기화: 사이드바 제거 후 전체 너비 ── */
+  body {{
+    font-size: 9pt;
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }}
+  #layout {{
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }}
+  #main {{
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 8px 0 !important;
+    box-sizing: border-box !important;
+  }}
+
+  /* ── 카드 스타일 ── */
   .card {{
     break-inside: avoid;
+    page-break-inside: avoid;
     box-shadow: none !important;
-    border: 1px solid #ddd !important;
+    border: 1px solid #ccc !important;
     background: #fff !important;
+    margin-bottom: 8px !important;
+    padding: 10px 12px !important;
   }}
-  .chart-row {{ break-inside: avoid; }}
-  h2 {{ break-after: avoid; }}
-  .detail-cell {{ display: table-cell !important; }}
+  .card-title {{ font-size: 11pt !important; margin-bottom: 4px !important; }}
+  .card-sub   {{ font-size: 8pt  !important; margin-bottom: 6px !important; }}
 
-  /* 히트맵·KPI·갭 등 배경색 셀 강제 출력 */
+  /* ── 2단 그리드 → A4 너비에 맞게 유지 (가로 배치) ── */
+  .chart-row {{
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 8px !important;
+    gap: 8px !important;
+  }}
+  .chart-row.col2 {{
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }}
+
+  /* ── 차트 높이 축소 (A4에 여러 차트 들어가도록) ── */
+  [id^="chart-"] {{
+    height: 200px !important;
+    min-height: 200px !important;
+    max-height: 200px !important;
+  }}
+  #chart-trend-top {{ height: 160px !important; max-height: 160px !important; }}
+  #chart-social    {{ height: 220px !important; max-height: 220px !important; }}
+
+  /* ── 가격 비교 테이블: 폰트 축소 + 가로 스크롤 해제 ── */
+  #section-price-table .card {{ break-inside: auto !important; }}
+  #section-price-table table {{
+    font-size: 7.5pt !important;
+    min-width: unset !important;
+    width: 100% !important;
+  }}
+  #section-price-table th,
+  #section-price-table td {{
+    padding: 3px 5px !important;
+    min-width: unset !important;
+  }}
+  #section-price-table > div > div {{ overflow: visible !important; }}
+
+  /* ── KPI·인사이트 섹션 ── */
+  .kpi-strip, .section-card {{ break-inside: avoid; }}
+  h2, h3 {{ break-after: avoid; page-break-after: avoid; }}
+
+  /* ── 히트맵·배경색 셀 ── */
   td, th, div, span {{
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }}
 
-  /* ECharts 캔버스 크기 유지 */
-  canvas {{ max-width: 100% !important; }}
+  /* ── ECharts 캔버스 ── */
+  canvas {{ max-width: 100% !important; height: auto !important; }}
 
-  /* 섹션 간 여백 */
-  .chart-row {{ margin-bottom: 12px !important; }}
+  /* ── 링크 URL 숨기기 ── */
+  a[href]::after {{ content: none !important; }}
 }}
 </style>
 </head>
@@ -1418,6 +1748,26 @@ body {{
   <!-- ① KPI 요약 스트립 (T1-2) -->
   <div class="chart-row" id="section-kpi">
     {kpi_strip_html}
+    {strategy_kpi_html}
+  </div>
+
+  <!-- ① - 월별 추이 (임원 요약용 — 상단 배치) -->
+  <div class="chart-row" id="section-trend-top">
+    <div class="card">
+      <div class="card-title">시몬스 SoS 월별 추이
+        <span class="source-badge badge-google">Google Trends</span>
+        <span class="period-chip" id="trend-top-period-chip">최근 13개월</span>
+        <span style="margin-left:12px;font-size:11px;font-weight:400;color:#555;">
+          보기:
+          <button id="trend-top-abs" onclick="setTrendTopMode('abs')"
+            style="margin-left:4px;padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#0b0b0b;color:#fff;">절대값</button>
+          <button id="trend-top-rel" onclick="setTrendTopMode('rel')"
+            style="padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#fff;color:#333;">추세(시작=100)</button>
+        </span>
+      </div>
+      <div class="card-sub" id="trend-top-sub">주요 브랜드 월별 검색 관심도 · 기준: 시몬스=100 (시몬스 강조)</div>
+      <div id="chart-trend-top" style="height:380px;"></div>
+    </div>
   </div>
 
   <!-- ② 시몬스 포지셔닝 + 주요 발견 (T1-1, T1-4) -->
@@ -1441,18 +1791,6 @@ body {{
       <div id="insight-changes"
            style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
       </div>
-    </div>
-  </div>
-
-  <!-- ④ 권고 액션 테이블 (T1-5) -->
-  <div class="chart-row" id="section-action">
-    <div class="card" style="border-top:3px solid #0b0b0b;">
-      <div class="card-title">권고 액션
-        <span style="font-size:11px;font-weight:normal;color:#888;margin-left:6px;">
-          근거 지표 클릭 → 해당 섹션으로 이동
-        </span>
-      </div>
-      {action_table_html}
     </div>
   </div>
 
@@ -1621,6 +1959,20 @@ body {{
     </div>
   </div>
 
+  {_build_price_table()}
+
+  <!-- YouTube 구독자 섹션 -->
+  <div class="chart-row" id="section-social">
+    <div class="card">
+      <div class="card-title">YouTube 공식 채널 구독자 수
+        <span class="source-badge" style="background:#ffebee;color:#c62828;border:1px solid #ffcdd2;">YouTube</span>
+      </div>
+      <div class="card-sub">공식 채널 기준 구독자 수 · 2026년 8월 직접 조사 기준 (약) / 씰리침대 미확인</div>
+      <div id="chart-social" style="height:340px;"></div>
+      {_caption("YouTube", collected_at)}
+    </div>
+  </div>
+
   {_build_appendix(collected_at)}
 
 </div><!-- /main -->
@@ -1738,6 +2090,7 @@ function toggleDrill(id) {{
 const RAW = {data_json};
 const COLORS = {colors_json};
 const BRANDS_CFG = {brands_cfg_json};
+const YOUTUBE_STATIC = {youtube_static_json};
 const TIER_LABELS = {tier_labels_json};
 const TIER_NEW = {tier_new_json};
 const BRAND_TO_TIER = {brand_to_tier_json};
@@ -2454,6 +2807,100 @@ function renderMonthlyHeatmap() {{
 
   const container = document.getElementById('monthly-heatmap');
   if (container) container.innerHTML = html;
+}}
+
+// 3-c. 상단 월별 추이 (임원 요약용 — 시몬스 강조, 침대 전업 브랜드 표시)
+let _trendTopMode = 'abs';
+function setTrendTopMode(mode) {{
+  _trendTopMode = mode;
+  document.getElementById('trend-top-abs').style.background = mode === 'abs' ? '#0b0b0b' : '#fff';
+  document.getElementById('trend-top-abs').style.color     = mode === 'abs' ? '#fff' : '#333';
+  document.getElementById('trend-top-rel').style.background = mode === 'rel' ? '#0b0b0b' : '#fff';
+  document.getElementById('trend-top-rel').style.color     = mode === 'rel' ? '#fff' : '#333';
+  document.getElementById('trend-top-sub').textContent = mode === 'abs'
+    ? '주요 브랜드 월별 검색 관심도 · 기준: 시몬스=100 (시몬스 강조)'
+    : '각 브랜드 첫 달=100 재기준화 — 브랜드별 성장/하락 추세 비교';
+  renderTrendTop();
+}}
+function renderTrendTop() {{
+  const ms = RAW.google?.monthly_series || {{}};
+  const simPts = ms['시몬스'] || [];
+  if (!simPts.length) return;
+
+  const allPeriods = simPts.map(p => p.period?.substring(0,7)).filter(Boolean);
+  const chip = document.getElementById('trend-top-period-chip');
+  if (chip && allPeriods.length) {{
+    chip.textContent = allPeriods.length + '개월 (' + allPeriods[0] + ' ~ ' + allPeriods[allPeriods.length-1] + ')';
+  }}
+
+  // 표시 브랜드: 침대 전업 + 상위 검색량 브랜드
+  const SHOW_BRANDS = ['시몬스', '에이스침대', '씰리침대', '지누스', '한샘', '이케아'];
+  const BRAND_COLORS_MAP = {{
+    '시몬스': '#1a1a1a', '에이스침대': '#e53935', '씰리침대': '#1565c0',
+    '지누스': '#2e7d32', '한샘': '#f57c00', '이케아': '#6a1a9a',
+  }};
+
+  function rebase(vals) {{
+    const first = vals.find(v => v != null);
+    if (!first) return vals;
+    return vals.map(v => v != null ? Math.round(v / first * 1000) / 10 : null);
+  }}
+
+  const series = SHOW_BRANDS.map(brand => {{
+    const pts = ms[brand] || [];
+    const byP = {{}};
+    pts.forEach(p => {{ byP[p.period?.substring(0,7)] = p.value; }});
+    const rawVals = allPeriods.map(p => byP[p] ?? null);
+    const vals = _trendTopMode === 'rel' ? rebase(rawVals) : rawVals;
+    const isS = brand === '시몬스';
+    return {{
+      name: brand,
+      type: 'line',
+      data: vals,
+      connectNulls: false,
+      lineStyle: {{ width: isS ? 3.5 : 1.5, color: BRAND_COLORS_MAP[brand] || '#aaa' }},
+      itemStyle: {{ color: BRAND_COLORS_MAP[brand] || '#aaa' }},
+      symbol: isS ? 'circle' : 'none',
+      symbolSize: 5,
+      emphasis: {{ focus: 'series' }},
+      endLabel: {{
+        show: true,
+        formatter: '{{b}}',
+        fontSize: isS ? 12 : 10,
+        fontWeight: isS ? '700' : '400',
+        color: BRAND_COLORS_MAP[brand] || '#aaa',
+        offset: [4, 0]
+      }},
+      z: isS ? 10 : 1
+    }};
+  }});
+
+  const visMax = Math.max(...series.flatMap(s => s.data.filter(v => v != null)).concat([100]));
+  const dom = reInitChart('chart-trend-top');
+  if (!dom) return;
+  const chart = echarts.init(dom);
+  chart.setOption({{
+    grid: {{ left: 55, right: 90, top: 20, bottom: 50 }},
+    xAxis: dateAxisOption(allPeriods),
+    yAxis: Object.assign(axisOption(visMax, '', 5), {{ name: _trendTopMode === 'rel' ? '지수(첫달=100)' : '지수(시몬스=100)' }}),
+    series,
+    legend: {{ type: 'plain', bottom: 0, textStyle: {{ fontSize: 11 }} }},
+    tooltip: {{
+      trigger: 'axis', confine: true,
+      backgroundColor: '#fff', borderColor: '#ccc', borderWidth: 1,
+      textStyle: {{ fontSize: 11 }},
+      formatter: params => {{
+        const date = params[0]?.axisValue || '';
+        let html = `<b>${{date}}</b><br>`;
+        params.forEach(p => {{
+          if (p.value == null) return;
+          const unit = _trendTopMode === 'rel' ? '' : ' (시몬스=100)';
+          html += `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${{p.color}};margin-right:5px;"></span>${{p.seriesName}}: <b>${{p.value}}</b>${{unit}}<br>`;
+        }});
+        return html;
+      }}
+    }}
+  }});
 }}
 
 // 4. Share of Search 파이차트 (시몬스 강조)
@@ -3176,22 +3623,12 @@ function setRange(btn, range) {{
   _updateFilterBanner();
 }}
 
-// T3-3: PDF 인쇄 표지 자동 기록
+// T3-3: PDF 인쇄
 function exportPrint() {{
-  const cover = document.getElementById('cover-page');
-  const rangeBtn = document.querySelector('.period-pill.active[data-range]');
-  const tierBtn = document.querySelector('.tier-filter.active');
-  const rangeLabel = rangeBtn?.textContent || '최근 3개월';
-  const tierLabel = tierBtn?.textContent || '전체';
-  if (cover) {{
-    const stateEl = cover.querySelector('#print-filter-state');
-    if (stateEl) stateEl.textContent = `보고 기준: ${{rangeLabel}} · ${{tierLabel}}`;
-  }}
-  // ECharts 인스턴스 전체 리사이즈 후 인쇄 (차트 공백 방지)
   if (window._chartInstances) {{
     window._chartInstances.forEach(c => {{ try {{ c.resize(); }} catch(e) {{}} }});
   }}
-  setTimeout(() => window.print(), 300);
+  setTimeout(() => window.print(), 600);
 }}
 
 // ── 전략 분석 모달 ──────────────────────────────────────────────────────
@@ -3310,7 +3747,59 @@ function exportCSV() {{
   a.click();
 }}
 
+// ── 소셜 차트 ────────────────────────────────────────────────
+function renderSocialChart() {{
+  const entries = Object.entries(YOUTUBE_STATIC)
+    .filter(([, v]) => v.subs != null)
+    .sort((a, b) => b[1].subs - a[1].subs);
+  if (!entries.length) return;
+  const brands  = entries.map(([b]) => b);
+  const subs    = entries.map(([, v]) => v.subs);
+  const channels = entries.map(([, v]) => v.channel);
+  const notes   = entries.map(([, v]) => v.note);
+  const dom = reInitChart('chart-social');
+  if (!dom) return;
+  const chart = echarts.init(dom);
+  chart.setOption({{
+    grid: {{ left: 110, right: 100, top: 20, bottom: 40 }},
+    xAxis: {{ type: 'value', axisLabel: {{ formatter: v => v >= 10000 ? (v/10000).toFixed(0)+'만' : v.toLocaleString() }} }},
+    yAxis: {{ type: 'category', data: brands, axisLabel: {{ fontSize: 11 }} }},
+    series: [{{
+      type: 'bar',
+      data: subs.map((v, i) => ({{
+        value: v,
+        itemStyle: {{ color: brands[i] === '시몬스' ? '#1a1a1a' : COLORS[brands[i]] || '#90a4ae' }}
+      }})),
+      label: {{
+        show: true, position: 'right',
+        formatter: p => {{
+          const note = notes[p.dataIndex];
+          const cnt = '약 ' + (p.value >= 10000 ? (p.value/10000).toFixed(0)+'만명' : p.value?.toLocaleString()+'명');
+          return note ? cnt + ' (' + note + ')' : cnt;
+        }},
+        fontSize: 11
+      }},
+    }}],
+    tooltip: {{
+      trigger: 'axis',
+      formatter: p => {{
+        const ch = channels[p[0].dataIndex];
+        return `<b>${{p[0].name}}</b><br>구독자: ${{p[0].value?.toLocaleString()}}명<br>채널: ${{ch}}`;
+      }}
+    }}
+  }});
+  // 미확인 브랜드 안내
+  const missing = Object.entries(YOUTUBE_STATIC).filter(([,v]) => v.subs == null).map(([b]) => b);
+  if (missing.length) {{
+    const note = document.createElement('div');
+    note.style.cssText = 'font-size:11px;color:#999;margin-top:6px;padding:0 8px;';
+    note.textContent = '* 미확인: ' + missing.join(', ') + ' (채널 URL 확인됨, 구독자 수 공개 조사 불가)';
+    dom.parentElement.appendChild(note);
+  }}
+}}
+
 // 전체 렌더
+renderTrendTop();
 renderRankCharts();
 renderMonthly();
 renderDatalab();
@@ -3321,6 +3810,7 @@ renderAge();
 renderCVTable();
 renderSoSSoM();
 renderInsights();
+renderSocialChart();
 
 
 // ── C-2: 섹션별 산출 근거 캡션 삽입 ──────────────────

@@ -28,6 +28,7 @@ from collector.google_collector import fetch_google_trends
 from collector.naver_collector import fetch_naver_counts, fetch_naver_demographics
 from collector.naver_datalab_api import fetch_datalab_trends
 from collector.dart_collector import fetch_dart_revenues
+from collector.price_social_collector import fetch_price_data, fetch_social_data
 from collector.commentary import generate_commentary
 from analyzer.validator import overall_confidence_score
 from analyzer.stats import share_of_search, share_of_search_category, detect_change_points, naver_google_gap
@@ -82,7 +83,8 @@ def save_snapshot(payload, collected_date):
 
 def build_snapshot_payload(run_id, collected_at, google_data, naver_data,
                            demographics, naver_stats, gap, conf_score,
-                           datalab_data=None, dart_data=None):
+                           datalab_data=None, dart_data=None,
+                           price_data=None, social_data=None):
     """스냅샷 JSON 스키마 (§14-1) 구성"""
     # linked = 시몬스=100 재정규화 완료값 (스펙 §14-1 스키마 준수)
     google_linked = google_data.get("normalized", {})
@@ -114,6 +116,8 @@ def build_snapshot_payload(run_id, collected_at, google_data, naver_data,
         "naver_datalab": demographics,
         "naver_search": naver_search,
         "dart": dart_data or {},
+        "price_data": price_data or {},
+        "social_data": social_data or {},
         "gap": gap,
         "keyword_version": KEYWORD_VERSION,  # 이 수집에 사용된 키워드 버전
         "quality": {
@@ -249,14 +253,28 @@ def run():
         demographics = _prev_snap["naver_datalab"]
 
     # 5. 매출 수집 (네이버 증권 스크래핑)
-    print("\n[5/6] 매출 수집 중 (네이버 증권)...")
+    print("\n[5/8] 매출 수집 중 (네이버 증권)...")
     dart_data = fetch_dart_revenues()
     if not dart_data and _prev_snap and _prev_snap.get("dart"):
         print("  ⚠ 매출 수집 실패 — 이전 스냅샷 데이터로 대체합니다")
         dart_data = _prev_snap["dart"]
 
-    # 6. 분석
-    print("\n[6/6] 분석 중...")
+    # 6. 가격·리뷰 수집 (네이버 쇼핑)
+    print("\n[6/8] 가격·리뷰 수집 중 (네이버 쇼핑)...")
+    price_data = fetch_price_data(run_id, collected_at)
+    if not price_data and _prev_snap and _prev_snap.get("price_data"):
+        print("  ⚠ 가격 수집 실패 — 이전 스냅샷 데이터로 대체합니다")
+        price_data = _prev_snap["price_data"]
+
+    # 7. 소셜미디어 수집 (YouTube)
+    print("\n[7/8] 소셜미디어 수집 중 (YouTube)...")
+    social_data = fetch_social_data(run_id, collected_at)
+    if not social_data and _prev_snap and _prev_snap.get("social_data"):
+        print("  ⚠ 소셜 수집 실패 — 이전 스냅샷 데이터로 대체합니다")
+        social_data = _prev_snap["social_data"]
+
+    # 8. 분석
+    print("\n[8/8] 분석 중...")
     google_norm = google_data.get("normalized", {})
     naver_norm = naver_data.get("normalized", {})
     naver_stats = naver_data.get("stats", {})
@@ -295,6 +313,7 @@ def run():
         run_id, collected_at, google_data, naver_data,
         demographics, naver_stats, gap, conf_score,
         datalab_data=datalab_data, dart_data=dart_data,
+        price_data=price_data, social_data=social_data,
     )
     save_snapshot(snapshot, collected_date)
     save_history(snapshot, report_month)

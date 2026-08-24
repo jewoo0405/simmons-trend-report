@@ -485,54 +485,124 @@ body {
 }
 
 @media print {
-  /* 배경색 강제 출력 */
+  /* ── A4 세로 페이지 설정 ── */
+  @page {
+    size: A4 portrait;
+    margin: 14mm 12mm 14mm 12mm;
+  }
+
+  /* 배경색·이미지 강제 출력 */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
 
-  .print-only { display: block !important; }
-  #cover-page { page-break-after: always; }
-  .no-print, #filter-banner, .tier-filter, .toggle-btn, button, .action-btn { display: none !important; }
-  .chart-block, .kpi-strip, table, .section-card { page-break-inside: avoid; }
-  h2, h3 { page-break-after: avoid; }
-  @page { margin: 15mm 12mm; size: A4 landscape; }
-  a[href]::after { content: none; }
-  #sidebar { display: none !important; }
-  #top-header { display: none !important; }
-  #filter-changed-banner { display: none !important; }
-  #layout { height: auto; display: block !important; }
-  #main {
-    overflow: visible !important;
-    padding: 0 !important;
-    width: 100% !important;
-    margin-left: 0 !important;
-    height: auto !important;
-    display: block !important;
+  /* ── 숨길 요소 ── */
+  #sidebar,
+  #top-header,
+  #filter-changed-banner,
+  #filter-banner,
+  .tier-filter,
+  .toggle-btn,
+  button,
+  .action-btn,
+  .no-print,
+  .source-badge {
+    display: none !important;
   }
-  body { font-size: 10pt; background: #fff !important; }
+
+  /* ── 표지 ── */
+  .print-only { display: block !important; }
+  #cover-page { page-break-after: always; break-after: page; }
+
+  /* ── 레이아웃 초기화: 사이드바 제거 후 전체 너비 ── */
+  body {
+    font-size: 9pt;
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  #layout {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  #main {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 8px 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ── 카드 스타일 ── */
   .card {
     break-inside: avoid;
+    page-break-inside: avoid;
     box-shadow: none !important;
-    border: 1px solid #ddd !important;
+    border: 1px solid #ccc !important;
     background: #fff !important;
+    margin-bottom: 8px !important;
+    padding: 10px 12px !important;
   }
-  .chart-row { break-inside: avoid; }
-  h2 { break-after: avoid; }
-  .detail-cell { display: table-cell !important; }
+  .card-title { font-size: 11pt !important; margin-bottom: 4px !important; }
+  .card-sub   { font-size: 8pt  !important; margin-bottom: 6px !important; }
 
-  /* 히트맵·KPI·갭 등 배경색 셀 강제 출력 */
+  /* ── 2단 그리드 → A4 너비에 맞게 유지 (가로 배치) ── */
+  .chart-row {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 8px !important;
+    gap: 8px !important;
+  }
+  .chart-row.col2 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* ── 차트 높이 축소 (A4에 여러 차트 들어가도록) ── */
+  [id^="chart-"] {
+    height: 200px !important;
+    min-height: 200px !important;
+    max-height: 200px !important;
+  }
+  #chart-trend-top { height: 160px !important; max-height: 160px !important; }
+  #chart-social    { height: 220px !important; max-height: 220px !important; }
+
+  /* ── 가격 비교 테이블: 폰트 축소 + 가로 스크롤 해제 ── */
+  #section-price-table .card { break-inside: auto !important; }
+  #section-price-table table {
+    font-size: 7.5pt !important;
+    min-width: unset !important;
+    width: 100% !important;
+  }
+  #section-price-table th,
+  #section-price-table td {
+    padding: 3px 5px !important;
+    min-width: unset !important;
+  }
+  #section-price-table > div > div { overflow: visible !important; }
+
+  /* ── KPI·인사이트 섹션 ── */
+  .kpi-strip, .section-card { break-inside: avoid; }
+  h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+  /* ── 히트맵·배경색 셀 ── */
   td, th, div, span {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* ECharts 캔버스 크기 유지 */
-  canvas { max-width: 100% !important; }
+  /* ── ECharts 캔버스 ── */
+  canvas { max-width: 100% !important; height: auto !important; }
 
-  /* 섹션 간 여백 */
-  .chart-row { margin-bottom: 12px !important; }
+  /* ── 링크 URL 숨기기 ── */
+  a[href]::after { content: none !important; }
 }
 </style>
 </head>
@@ -546,7 +616,7 @@ body {
     <p class="cover-month">2026년 08월</p>
     <div class="cover-meta">
       <p>작성부서: 고객서비스(CS) 전략팀</p>
-      <p>수집일시: 2026.08.19 12:08</p>
+      <p>수집일시: 2026.08.24 18:07</p>
       <p>작성: 자동 생성 시스템 · 검수: ___________</p>
     </div>
   </div>
@@ -556,7 +626,7 @@ body {
 <div id="filter-changed-banner" style="display:none; background:#fff3e0; border-bottom:2px solid #e65100; padding:6px 24px; font-size:12px; color:#e65100; position:sticky; top:52px; z-index:99;">
   ※ 기본 보고 기준(최근 3개월 · 전체 브랜드)에서 변경됨 — 인쇄 시 표지에 자동 기록됩니다
 </div>
-<div id="partial-month-banner" style="background:#fff3cd;border-bottom:2px solid #e6a817;padding:8px 24px;font-size:12px;color:#856404;position:sticky;top:52px;z-index:100;">⚠ 2026년 08월은 1~19일 부분 집계 데이터입니다. 전월비 증감률 해석에 주의하십시오. 아래 &ldquo;변화점&rdquo; 섹션은 직전 완결 월(2026-07) 기준으로 표시됩니다.</div>
+<div id="partial-month-banner" style="background:#fff3cd;border-bottom:2px solid #e6a817;padding:8px 24px;font-size:12px;color:#856404;position:sticky;top:52px;z-index:100;">⚠ 2026년 08월은 1~24일 부분 집계 데이터입니다. 전월비 증감률 해석에 주의하십시오. 아래 &ldquo;변화점&rdquo; 섹션은 직전 완결 월(2026-07) 기준으로 표시됩니다.</div>
 
 <!-- 상단 헤더 -->
 <div id="top-header">
@@ -568,7 +638,7 @@ body {
     </div>
   </div>
   <div class="header-right">
-    <span class="header-chip">수집 2026.08.19 12:08</span>
+    <span class="header-chip">수집 2026.08.24 18:07</span>
     <span class="header-chip">11개 브랜드</span>
     <span class="conf-badge">안정 100점</span>
   </div>
@@ -633,13 +703,13 @@ body {
       <div class="an-kpi-row">
         <div class="an-kpi-card akc-accent">
           <div class="akc-label">침대 전업 SoS</div>
-          <div class="akc-val">56.6%</div>
-          <div class="akc-sub">목표 60% · 갭 3.4%p</div>
+          <div class="akc-val">57.9%</div>
+          <div class="akc-sub">목표 60% · 갭 2.1%p</div>
           <div class="akc-sub" id="an-sos-trend" style="margin-top:3px;font-size:10px;"></div>
         </div>
         <div class="an-kpi-card">
           <div class="akc-label">전체 SoS</div>
-          <div class="akc-val">8.0%</div>
+          <div class="akc-val">8.4%</div>
           <div class="akc-sub">11개 브랜드 전체 기준</div>
         </div>
         <div class="an-kpi-card">
@@ -649,7 +719,7 @@ body {
         </div>
         <div class="an-kpi-card">
           <div class="akc-label">ESOV 갭</div>
-          <div class="akc-val" style="color:#27ae60;">+35.8%p</div>
+          <div class="akc-val" style="color:#27ae60;">+37.1%p</div>
           <div class="akc-sub">SoS − SoM (양수 = 성장 여력)</div>
         </div>
       </div>
@@ -659,7 +729,7 @@ body {
       <!-- 1. 포지셔닝 진단 -->
       <div class="an-section">
         <h3><span class="an-num">1</span>브랜드 포지셔닝 진단 — 우리가 어디 서 있는가</h3>
-        <p><strong>침대 전업 카테고리에서 시몬스는 검색 점유율 1위</strong>입니다. 에이스침대·씰리침대·지누스와 합산한 분모 기준으로 시몬스가 <strong>56.6%</strong>를 점유합니다. 직접 경쟁사 4개를 합쳤을 때 시몬스가 절반 이상을 차지한다는 수치를 객관적으로 제시합니다.</p>
+        <p><strong>침대 전업 카테고리에서 시몬스는 검색 점유율 1위</strong>입니다. 에이스침대·씰리침대·지누스와 합산한 분모 기준으로 시몬스가 <strong>57.9%</strong>를 점유합니다. 직접 경쟁사 4개를 합쳤을 때 시몬스가 절반 이상을 차지한다는 수치를 객관적으로 제시합니다.</p>
         <div class="an-highlight">
           ✅ 이케아(구글 지수 716) · 한샘(216)은 <strong>가구·인테리어 전 품목을 다루는 종합 브랜드</strong>로, 침대 외 소파·수납·주방 등의 검색이 합산되어 지수가 높습니다. 침대 전업 4개 브랜드(시몬스·에이스침대·씰리침대·지누스)만 기준으로 하면 <strong>시몬스가 압도적 1위</strong>입니다.<br>
           ⚠ 전체 홈퍼니싱 시장 기준으로는 3위 — 비교 범위를 '침대'로 좁히느냐, '홈퍼니싱 전체'로 넓히느냐에 따라 시몬스의 포지션이 달라지므로 보고 목적에 맞게 구분해야 합니다.
@@ -672,7 +742,7 @@ body {
         <h3><span class="an-num">2</span>ESOV 분석 — 성장하고 있는가, 방어하고 있는가</h3>
         <p>Binet &amp; Field의 광고효과 이론에 따르면, <strong>SoS &gt; SoM 상태(양의 ESOV)가 지속되면 시장점유율이 장기적으로 SoS 수준으로 수렴하며 상승</strong>합니다.</p>
         <div class="an-highlight" style="background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;">
-          📈 시몬스 SoS 56.6% &gt; SoM 20.8% → ESOV <strong>+35.8%p</strong><br>
+          📈 시몬스 SoS 57.9% &gt; SoM 20.8% → ESOV <strong>+37.1%p</strong><br>
           현재 마케팅이 효과를 내고 있고, <strong>지금 방향이 맞다</strong>는 데이터 증거입니다.
         </div>
         <p>반대로 에이스침대는 SoS·SoM이 균형에 가깝다면 이미 포화 단계에 가깝다는 의미입니다. 시몬스는 <strong>성장 구간</strong>에, 에이스침대는 <strong>방어 구간</strong>에 있을 가능성이 높습니다. 이 분석으로 마케팅 예산 증감 의사결정에 "우리가 어느 단계에 있는지"를 수치로 설명할 수 있습니다.</p>
@@ -681,7 +751,7 @@ body {
       <!-- 3. KPI 목표 -->
       <div class="an-section">
         <h3><span class="an-num">3</span>KPI 목표 관리 — 얼마나 더 가야 하는가</h3>
-        <p>침대 전업 카테고리 SoS <strong>현재 56.6% → 목표 60%</strong> (갭 3.4%p). 이 3.4%p를 채우려면 에이스침대·지누스·씰리침대 중 어느 브랜드의 검색을 잠식해야 하는지를 월별로 추적할 수 있습니다.</p>
+        <p>침대 전업 카테고리 SoS <strong>현재 57.9% → 목표 60%</strong> (갭 2.1%p). 이 2.1%p를 채우려면 에이스침대·지누스·씰리침대 중 어느 브랜드의 검색을 잠식해야 하는지를 월별로 추적할 수 있습니다.</p>
         <div class="an-highlight">
           📊 매달 이 수치가 <strong>오르면</strong> → 마케팅이 성과를 내는 중<br>
           📊 매달 이 수치가 <strong>떨어지면</strong> → 경쟁사 캠페인·이슈에 반응해야 한다는 신호
@@ -748,12 +818,12 @@ body {
           <tbody>
             <tr>
               <td><strong>경영진 보고</strong></td>
-              <td>SoS 56.6%, SoM 20.8%, ESOV +35.8%p → 현재 마케팅 방향이 맞다는 증거</td>
+              <td>SoS 57.9%, SoM 20.8%, ESOV +37.1%p → 현재 마케팅 방향이 맞다는 증거</td>
               <td><span class="an-tag an-tag-r">높음</span></td>
             </tr>
             <tr>
               <td><strong>예산 협의</strong></td>
-              <td>KPI 60% 목표까지 3.4%p 남음 → 추가 투자의 논거</td>
+              <td>KPI 60% 목표까지 2.1%p 남음 → 추가 투자의 논거</td>
               <td><span class="an-tag an-tag-r">높음</span></td>
             </tr>
             <tr>
@@ -797,9 +867,9 @@ body {
       <div class="kpi-card">
         <div class="kpi-icon">📊</div>
         <div class="kpi-label">SoS — 침대 전업</div>
-        <div class="kpi-value">56.6%</div>
+        <div class="kpi-value">57.9%</div>
         <div class="kpi-delta"><span style="color:#999;">— <small>비교기준 없음</small></span></div>
-        <div class="kpi-note">침대 전업 기준 56.6% · 전체 기준 8.0%</div>
+        <div class="kpi-note">침대 전업 기준 57.9% · 전체 기준 8.4%</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-icon">🔍</div>
@@ -811,7 +881,7 @@ body {
       <div class="kpi-card">
         <div class="kpi-icon">🌐</div>
         <div class="kpi-label">네이버 노출 순위</div>
-        <div class="kpi-value">1위 / 11</div>
+        <div class="kpi-value">3위 / 11</div>
         <div class="kpi-delta"><span style="color:#999;">— <small>비교기준 없음</small></span></div>
         <div class="kpi-note">블로그+뉴스 건수 기준</div>
       </div>
@@ -822,6 +892,44 @@ body {
         <div class="kpi-delta"><span style="color:#999;">— <small>비교기준 없음</small></span></div>
         <div class="kpi-note">vs 시몬스 (침대 전업 구글 지수 기준)</div>
       </div></div><div style="font-size:10px;color:#767676;margin-top:8px;text-align:right;">※ 전월 스냅샷 없음 — 비교 기준월 데이터 축적 후 전월비 표시</div>
+    
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
+  <div style="background:#e8f5e9;border-radius:10px;padding:16px 20px;border:1px solid rgba(0,0,0,0.06);">
+    <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+      ESOV — Excess Share of Voice
+    </div>
+    <span style="font-size:28px;font-weight:800;color:#1b5e20;">▲ +37.1%p</span>
+    <div style="font-size:10px;color:#666;margin-top:6px;line-height:1.5;">SoS 57.9% − SoM 20.8% · SoS > SoM — 성장 여력 확보</div>
+    <div style="font-size:9px;color:#999;margin-top:4px;">Binet &amp; Field: 양(+)의 ESOV 유지 시 장기 시장점유율 상승 수렴</div>
+  </div>
+  <div style="background:#f5f5f5;border-radius:10px;padding:16px 20px;border:1px solid rgba(0,0,0,0.06);">
+    <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+      SoS 전년 동기 대비 (YoY)
+    </div>
+    <span style="font-size:18px;color:#999;">12개월 데이터 부족</span>
+    <div style="font-size:10px;color:#666;margin-top:6px;line-height:1.5;">월별 데이터 13개월 이상 축적 후 표시</div>
+    <div style="font-size:9px;color:#999;margin-top:4px;">Google Trends · 시몬스 검색 관심도 전년 동월 대비 증감률</div>
+  </div>
+</div>
+  </div>
+
+  <!-- ① - 월별 추이 (임원 요약용 — 상단 배치) -->
+  <div class="chart-row" id="section-trend-top">
+    <div class="card">
+      <div class="card-title">시몬스 SoS 월별 추이
+        <span class="source-badge badge-google">Google Trends</span>
+        <span class="period-chip" id="trend-top-period-chip">최근 13개월</span>
+        <span style="margin-left:12px;font-size:11px;font-weight:400;color:#555;">
+          보기:
+          <button id="trend-top-abs" onclick="setTrendTopMode('abs')"
+            style="margin-left:4px;padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#0b0b0b;color:#fff;">절대값</button>
+          <button id="trend-top-rel" onclick="setTrendTopMode('rel')"
+            style="padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#fff;color:#333;">추세(시작=100)</button>
+        </span>
+      </div>
+      <div class="card-sub" id="trend-top-sub">주요 브랜드 월별 검색 관심도 · 기준: 시몬스=100 (시몬스 강조)</div>
+      <div id="chart-trend-top" style="height:380px;"></div>
+    </div>
   </div>
 
   <!-- ② 시몬스 포지셔닝 + 주요 발견 (T1-1, T1-4) -->
@@ -845,52 +953,6 @@ body {
       <div id="insight-changes"
            style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
       </div>
-    </div>
-  </div>
-
-  <!-- ④ 권고 액션 테이블 (T1-5) -->
-  <div class="chart-row" id="section-action">
-    <div class="card" style="border-top:3px solid #0b0b0b;">
-      <div class="card-title">권고 액션
-        <span style="font-size:11px;font-weight:normal;color:#888;margin-left:6px;">
-          근거 지표 클릭 → 해당 섹션으로 이동
-        </span>
-      </div>
-      
-    <table class="data-table">
-      <thead><tr>
-        <th>제언</th><th>근거 지표</th><th>담당</th><th>기한</th><th>우선순위</th>
-      </tr></thead>
-      <tbody>
-        <tr>
-          <td>구글 검색 지수 상위 2위권 진입 전략 수립 (현재 3위)</td>
-          <td><a href="#section-rank">구글 검색 지수 순위</a></td>
-          <td>브랜드팀</td>
-          <td>2026 Q4</td>
-          <td><span style="color:#c62828;font-weight:bold;">높음</span></td>
-        </tr>
-        <tr>
-          <td>20~30대 검색 비중 제고 (현재 24.0% vs 에이스침대 108.4%)</td>
-          <td><a href="#section-demo">연령대별 검색 관심도</a></td>
-          <td>마케팅팀</td>
-          <td>2026 Q4</td>
-          <td><span style="color:#c62828;font-weight:bold;">높음</span></td>
-        </tr>
-        <tr>
-          <td>침대 전업 카테고리 SoS 60% 목표 설정 (현재 56.6% · 보조: 전체 SoS 8.0% 유지)</td>
-          <td><a href="#section-sos">Share of Search</a></td>
-          <td>브랜드팀</td>
-          <td>2027 Q1</td>
-          <td><span style="color:#e65100;font-weight:bold;">중간</span></td>
-        </tr>
-        <tr>
-          <td>네이버 쿠키 만료 전 갱신 (3개월 주기 정기 점검)</td>
-          <td><a href="#section-cv">지표 변동성 (CV 분석)</a></td>
-          <td>CS팀</td>
-          <td>3개월 주기</td>
-          <td><span style="color:#2e7d32;font-weight:bold;">낮음</span></td>
-        </tr></tbody>
-    </table>
     </div>
   </div>
 
@@ -974,7 +1036,7 @@ body {
       </div>
       <div class="card-sub">시몬스=100 기준 · 월별 추이 (키워드 그룹 통합)</div>
       <div id="chart-datalab" style="height:360px;"></div>
-      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Naver DataLab (Playwright) · 수집: 2026.08.19 12:08 · 기준: 시몬스=100 · N=단회 수집</div>
+      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Naver DataLab (Playwright) · 수집: 2026.08.24 18:07 · 기준: 시몬스=100 · N=단회 수집</div>
     </div>
   </div>
 
@@ -1017,7 +1079,7 @@ body {
           <div class="card-title">Share of Search vs Share of Market (ESOV 분석)</div>
           <div class="card-sub">● 실선 원형: 침대 전업 브랜드 (지누스·에이스침대) &nbsp;|&nbsp; △ 삼각형: 침대 외 사업 포함 — 전체 매출 기준 (참고용)</div>
           <div style="display:inline-block;margin:8px 0 0;padding:7px 14px;background:#fff3f3;border:1px solid #f5c6c6;border-radius:6px;font-size:12px;color:#c0392b;line-height:1.6;">
-            ⚑ 시몬스 SoS: <strong>56.6%</strong> (침대 전업 기준) / 8.0% (전체) · SoM: <strong>20.8%</strong> (DART 감사보고서)
+            ⚑ 시몬스 SoS: <strong>57.9%</strong> (침대 전업 기준) / 8.4% (전체) · SoM: <strong>20.8%</strong> (DART 감사보고서)
           </div>
           <div style="margin-top:6px;font-size:10px;color:#aaa;">※ 비상장 업체(시몬스·씰리침대·까사미아·일룸·에몬스·코웨이 비렉스 매출 분리분)는 DART 공시 없음 — SoM 산출 불가</div>
         </div>
@@ -1043,7 +1105,7 @@ body {
       <div style="font-size:10px;color:#999;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0;">
         ※ SoM = DART 공시 매출 기준, 침대 전업 브랜드 합산. 복합 사업 브랜드(한샘·현대리바트·코웨이비렉스)는 전사 매출 혼재로 SoM 제외.
       </div>
-      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends + 네이버 증권 · 수집: 2026.08.19 12:08 · 기준: 시몬스=100</div>
+      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends + 네이버 증권 · 수집: 2026.08.24 18:07 · 기준: 시몬스=100</div>
     </div>
   </div>
 
@@ -1055,7 +1117,44 @@ body {
         · 출처: Google Trends 월별 지수 · 기준: 최근 12개월 monthly_series 기반 변동계수
       </div>
       <div id="cv-table"></div>
-      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends monthly_series · 수집: 2026.08.19 12:08 · 기준: 시몬스=100</div>
+      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Google Trends monthly_series · 수집: 2026.08.24 18:07 · 기준: 시몬스=100</div>
+    </div>
+  </div>
+
+  
+  <div class="chart-row" id="section-price-table">
+    <div class="card" style="overflow:hidden;">
+      <div class="card-title">브랜드별 주력 매트리스 가격 비교
+        <span class="source-badge" style="background:#f3e5f5;color:#6a1b9a;border:1px solid #ce93d8;">공식몰 조사</span>
+      </div>
+      <div class="card-sub">퀸(Q) 사이즈 기준 공식 판매가 · 2026년 8월 조사 / 코웨이 비렉스는 렌털 월정액(7년 약정)</div>
+      <div style="overflow-x:auto;margin-top:12px;">
+        <table style="border-collapse:collapse;width:100%;font-size:12px;">
+          <thead><tr><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;position:sticky;left:0;z-index:2;background:#1a1a1a;color:#fff;min-width:72px;">구분</th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">시몬스<br><span style="font-size:10px;font-weight:400;color:#aaa;">침대 전문</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">에이스침대<br><span style="font-size:10px;font-weight:400;color:#aaa;">침대 전문</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">씰리침대<br><span style="font-size:10px;font-weight:400;color:#aaa;">침대 전문</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">지누스<br><span style="font-size:10px;font-weight:400;color:#aaa;">연결 기준</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">코웨이 비렉스<br><span style="font-size:10px;font-weight:400;color:#aaa;">렌털 서비스</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">한샘<br><span style="font-size:10px;font-weight:400;color:#aaa;">가구 종합</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">현대리바트<br><span style="font-size:10px;font-weight:400;color:#aaa;">가구 종합</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">까사미아<br><span style="font-size:10px;font-weight:400;color:#aaa;">가구 종합</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">일룸<br><span style="font-size:10px;font-weight:400;color:#aaa;">가구 종합</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">에몬스<br><span style="font-size:10px;font-weight:400;color:#aaa;">가구 종합</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">이케아<br><span style="font-size:10px;font-weight:400;color:#aaa;">종합 유통</span></th></tr></thead>
+          <tbody>
+            <tr><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;position:sticky;left:0;z-index:1;font-weight:700;border-right:2px solid #ccc;">연매출</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">3,295억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">3,260억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">811억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">3,876억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">코웨이 전체<br>4조3,101억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">1조9,000억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">1조8,700억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">2,695억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">3,551억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">1,744억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">6,393억</td></tr>
+            <tr><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;position:sticky;left:0;z-index:1;font-weight:700;background:#fafafa;border-right:2px solid #ccc;white-space:nowrap;">제품 / 가격</td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">뷰티레스트 블랙 로렌</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">12,650,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">뷰티레스트 젤몬</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">10,120,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">뷰티레스트 에디슨</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">6,770,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">뷰티레스트 버나드</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,800,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">뷰티레스트 마르코니</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">2,870,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">로얄에이스 90s</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">5,902,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">로얄에이스 60th Special</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,444,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">하이브리드 테크 레드</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,437,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">에이스타임</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,735,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">클럽에이스 III</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,678,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">포스처피딕 베루스</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,890,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">포스처피딕 에드가 2 플러쉬</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,390,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">포스처피딕 메리미 2</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">2,290,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">비욘드 2</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,890,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">아델</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,290,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">클라우드 럭스S 하이브리드</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">708,400원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">클라우드 메모리폼</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">418,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">그린티 럭스 스프링</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">227,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">그린티 럭스 메모리폼</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">211,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">베이직 메모리폼</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">148,900원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">비렉스 S8+ (퀸·7년약정)</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">월 102,900원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">비렉스 S6+ (퀸·7년약정)</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">월 81,900원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">밸런스S 필로우탑</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,329,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">밸런스S 유로탑</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">919,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">밸런스S 슬림탑</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">679,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">노뜨 메모리폼탑</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">479,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">노뜨 컴포트 포켓스프링</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">339,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">엔슬립 시그니처</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,144,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">엔슬립 프리마</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,014,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">엔슬립 호텔형</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">856,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">마테라소 포레스트 클라우드</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,900,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">마테라소 포레스트 블랑쉬</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,200,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">마테라소 포레스트 베이</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">2,900,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">마테라소 포레스트 브리즈</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">2,400,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">마테라소 포레스트 모스</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,900,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">헤이븐 시그니처</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">2,750,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">헤이븐 디럭스</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,850,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">헤이븐 슬림</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,250,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">앤리브H 포켓스프링</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,490,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">앤리브M 메모리폼</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,490,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">MAUSUND (천연 라텍스)</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">999,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">VATNESTRÖM (포켓스프링)</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">899,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">VÅGSTRANDA (포켓스프링)</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">599,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">ÅNNELAND (하이브리드)</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">549,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">VALEVÅG (포켓스프링)</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">379,000원</div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:#666;"><span style="display:flex;align-items:center;gap:4px;">  <span style="display:inline-block;width:10px;height:10px;background:#fffde7;border-left:3px solid #b8860b;"></span>프리미엄 (200만원↑)</span><span style="display:flex;align-items:center;gap:4px;">  <span style="display:inline-block;width:10px;height:10px;background:#fff;border-left:3px solid #546e7a;border:1px solid #ccc;"></span>중가 (60만~200만원)</span><span style="display:flex;align-items:center;gap:4px;">  <span style="display:inline-block;width:10px;height:10px;background:#f1f8e9;border-left:3px solid #43a047;"></span>보급 (60만원↓)</span></div>
+      <div style="margin-top:8px;font-size:10px;color:#aaa;line-height:1.6;">
+        * 한샘·현대리바트·이케아·까사미아 매출은 가구·홈인테리어 전체 기준 · 지누스 매출은 연결(해외 포함) 기준<br>
+        * 코웨이 매출은 정수기·공기청정기 등 전 사업 포함 / 비렉스 매트리스 단독 매출 비공개<br>
+        * 에이스침대 제품가는 원매트리스 기준 (투매트리스 세트는 10~15% 추가)
+      </div>
+    </div>
+  </div>
+
+  <!-- YouTube 구독자 섹션 -->
+  <div class="chart-row" id="section-social">
+    <div class="card">
+      <div class="card-title">YouTube 공식 채널 구독자 수
+        <span class="source-badge" style="background:#ffebee;color:#c62828;border:1px solid #ffcdd2;">YouTube</span>
+      </div>
+      <div class="card-sub">공식 채널 기준 구독자 수 · 2026년 8월 직접 조사 기준 (약) / 씰리침대 미확인</div>
+      <div id="chart-social" style="height:340px;"></div>
+      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: YouTube · 수집: 2026.08.24 18:07 · 기준: 시몬스=100</div>
     </div>
   </div>
 
@@ -1064,7 +1163,7 @@ body {
   <div class="chart-row" id="section-appendix">
     <div class="card">
       <div class="card-title">부록 — 방법론 및 데이터 소스</div>
-      <div class="card-sub">수집 기준 · 산출식 · 데이터 한계 공개 / 수집: 2026.08.19 12:08</div>
+      <div class="card-sub">수집 기준 · 산출식 · 데이터 한계 공개 / 수집: 2026.08.24 18:07</div>
 
       <!-- ① 키워드 그룹 정의 -->
       <div class="section-title" style="margin-top:16px;">① 키워드 그룹 정의 (Naver DataLab 수집 기준)</div>
@@ -1377,14 +1476,15 @@ function toggleDrill(id) {
 }
 /* ── 산출 근거 캡션 유틸리티 끝 ─────────────────────── */
 
-const RAW = {"google": {"batches": [{"label": "A", "keywords": ["시몬스", "일룸", "까사미아", "에이스침대", "지누스"], "bridge": "시몬스", "raw_medians": {"시몬스": 22.734615384615385, "일룸": 14.156153846153845, "까사미아": 8.96923076923077, "에이스침대": 7.9253846153846155, "지누스": 9.024615384615384}, "note": null}, {"label": "B", "keywords": ["시몬스", "이케아", "한샘"], "bridge": "시몬스", "raw_medians": {"시몬스": 10.742307692307692, "이케아": 78.05230769230769, "한샘": 23.425384615384615}, "note": null}, {"label": "C", "keywords": ["시몬스", "에몬스"], "bridge": "에몬스", "raw_medians": {"시몬스": 22.734615384615385, "에몬스": 3.276923076923077}, "note": null}, {"label": "D", "keywords": ["에몬스", "현대리바트", "씰리침대"], "bridge": "씰리침대", "raw_medians": {"에몬스": 21.15, "현대리바트": 22.25923076923077, "씰리침대": 3.230769230769231}, "note": null}, {"label": "E", "keywords": ["씰리침대", "코웨이 비렉스"], "bridge": null, "raw_medians": {"씰리침대": 10.838461538461539, "코웨이 비렉스": 0.5384615384615384}, "note": "코웨이 비렉스 측정 해상도 한계 (원본값 < 1). 예상 max/min ≈34x (20x 초과). P0-3 키워드 재검증 예정."}], "linked": {"시몬스": 100.0, "일룸": 62.3, "까사미아": 39.5, "에이스침대": 34.9, "지누스": 39.7, "이케아": 726.6, "한샘": 218.1, "에몬스": 14.4, "현대리바트": 15.2, "씰리침대": 2.2, "코웨이 비렉스": 0.1}, "normalized": {"시몬스": 100.0, "일룸": 62.3, "까사미아": 39.5, "에이스침대": 34.9, "지누스": 39.7, "이케아": 726.6, "한샘": 218.1, "에몬스": 14.4, "현대리바트": 15.2, "씰리침대": 2.2, "코웨이 비렉스": 0.1}, "warnings": ["배치C: 브리지 '에몬스' 값 3.3 < 5 (유효숫자 부족)", "배치D: 브리지 '씰리침대' 값 3.2 < 5 (유효숫자 부족)", "배치E: max/min=20.1x > 20 (배치 재구성 권장)"], "monthly_series": {"시몬스": [{"period": "2025-08", "value": 233.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 102.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 93.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 110.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 101.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 81.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 84.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 83.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 115.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 86.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 69.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 75.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 62.7, "cv": 0.0, "confidence": "stable"}], "일룸": [{"period": "2025-08", "value": 58.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 55.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 58.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 61.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 73.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 80.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 78.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 63.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 60.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 56.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 53.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 59.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 50.6, "cv": 0.0, "confidence": "stable"}], "까사미아": [{"period": "2025-08", "value": 39.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 30.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 36.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 44.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 48.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 49.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 36.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 43.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 37.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 37.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 41.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 31.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 35.2, "cv": 0.0, "confidence": "stable"}], "에이스침대": [{"period": "2025-08", "value": 36.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 26.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 38.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 36.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 36.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 36.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 41.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 44.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 31.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 38.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 30.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 27.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 27.5, "cv": 0.0, "confidence": "stable"}], "지누스": [{"period": "2025-08", "value": 42.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 35.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 47.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 40.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 40.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 42.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 38.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 45.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 36.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 38.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 39.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 34.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 34.1, "cv": 0.0, "confidence": "stable"}], "이케아": [{"period": "2025-08", "value": 757.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 686.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 733.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 763.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 851.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 779.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 782.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 742.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 630.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 640.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 628.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 719.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 730.8, "cv": 0.0, "confidence": "stable"}], "한샘": [{"period": "2025-08", "value": 207.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 211.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 204.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 238.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 235.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 237.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 232.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 258.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 204.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 230.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 202.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 193.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 176.9, "cv": 0.0, "confidence": "stable"}], "에몬스": [{"period": "2025-08", "value": 4.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 14.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 9.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 28.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 18.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 17.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 9.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 11.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 16.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 20.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 15.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 12.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 8.8, "cv": 0.0, "confidence": "stable"}], "현대리바트": [{"period": "2025-08", "value": 10.7, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 15.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 7.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 9.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 11.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 31.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 28.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 15.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 15.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 17.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 11.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 12.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 11.2, "cv": 0.0, "confidence": "stable"}], "씰리침대": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 5.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 2.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-01", "value": 7.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-03", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-04", "value": 2.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 3.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-07", "value": 2.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 4.3, "cv": 0.0, "confidence": "stable"}], "코웨이 비렉스": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-12", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-01", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-02", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-03", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-04", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-05", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-06", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-07", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-08", "value": 1.4, "cv": 0.0, "confidence": "stable"}]}, "periods": ["2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08"]}, "naver": {"normalized": {"시몬스": 30, "에이스침대": 6, "씰리침대": 30, "지누스": 16, "코웨이 비렉스": 13, "한샘": 15, "현대리바트": 0, "까사미아": 7, "일룸": 21, "에몬스": 13, "이케아": 0}}, "datalab": {}, "demographics": {"시몬스": {"gender": {"여성": 40.6, "남성": 7.0}, "age": {"10대": 2.1, "20대": 5.1, "30대": 18.9, "40대": 29.1, "50대": 31.3, "60대+": 21.4}}, "에이스침대": {"gender": {"여성": 55.0, "남성": 56.2}, "age": {"10대": 31.8, "20대": 52.3, "30대": 56.1, "40대": 50.0, "50대": 56.0, "60대+": 59.6}}, "씰리침대": {"gender": {"여성": 47.4, "남성": 45.9}, "age": {"10대": 13.7, "20대": 45.3, "30대": 48.3, "40대": 45.6, "50대": 36.3, "60대+": 34.8}}, "지누스": {"gender": {"여성": 58.7, "남성": 26.0}, "age": {"10대": 18.8, "20대": 49.5, "30대": 24.9, "40대": 34.4, "50대": 32.0, "60대+": 28.5}}, "코웨이 비렉스": {"gender": {"여성": 13.2, "남성": 19.1}, "age": {"10대": 10.6, "20대": 23.9, "30대": 23.6, "40대": 20.7, "50대": 11.2, "60대+": 8.5}}, "한샘": {"gender": {"여성": 59.5, "남성": 20.6}, "age": {"10대": 38.7, "20대": 52.1, "30대": 46.0, "40대": 33.0, "50대": 24.1, "60대+": 17.8}}, "현대리바트": {"gender": {"여성": 27.9, "남성": 16.9}, "age": {"10대": 15.1, "20대": 9.8, "30대": 28.1, "40대": 14.6, "50대": 15.2, "60대+": 15.4}}, "까사미아": {"gender": {"여성": 56.5, "남성": 57.7}, "age": {"10대": 36.1, "20대": 54.2, "30대": 55.5, "40대": 53.5, "50대": 54.7, "60대+": 64.1}}, "일룸": {"gender": {"여성": 51.4, "남성": 47.2}, "age": {"10대": 30.8, "20대": 60.9, "30대": 50.8, "40대": 45.1, "50대": 59.9, "60대+": 42.9}}, "에몬스": {"gender": {"여성": 56.1, "남성": 55.4}, "age": {"10대": 16.2, "20대": 39.9, "30대": 55.0, "40대": 51.1, "50대": 59.8, "60대+": 45.6}}, "이케아": {"gender": {"여성": 56.7, "남성": 55.0}, "age": {"10대": 33.8, "20대": 56.9, "30대": 61.4, "40대": 48.2, "50대": 40.0, "60대+": 46.8}}}, "dart": {"에이스침대": {"amount": 3173, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업", "source": "naver_finance"}, "한샘": {"amount": 17445, "year": "2025", "unit": "억원", "caution": true, "note": "종합 가구 포함", "source": "naver_finance"}, "현대리바트": {"amount": 15462, "year": "2025", "unit": "억원", "caution": true, "note": "종합 가구 포함", "source": "naver_finance"}, "지누스": {"amount": 9132, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업", "source": "naver_finance"}, "코웨이 비렉스": {"amount": 49636, "year": "2025", "unit": "억원", "caution": true, "note": "코웨이 전체 매출 (비렉스 분리 불가)", "source": "naver_finance"}, "시몬스": {"amount": 3239, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업 (비상장, 감사보고서 기준)", "source": "DART_audit_report"}}, "commentary": "", "sos": {"시몬스": 8.0, "일룸": 5.0, "까사미아": 3.2, "에이스침대": 2.8, "지누스": 3.2, "이케아": 58.0, "한샘": 17.4, "에몬스": 1.1, "현대리바트": 1.2, "씰리침대": 0.2, "코웨이 비렉스": 0.0}, "sos_category": {"시몬스": 56.6, "일룸": null, "까사미아": null, "에이스침대": 19.7, "지누스": 22.5, "이케아": null, "한샘": null, "에몬스": null, "현대리바트": null, "씰리침대": 1.2, "코웨이 비렉스": null}, "gap": [{"brand": "이케아", "naver": 0.0, "google": 637.9, "gap": -637.9}, {"brand": "씰리침대", "naver": 218.5, "google": 1.9, "gap": 216.6}, {"brand": "시몬스", "naver": 218.5, "google": 87.8, "gap": 130.7}, {"brand": "일룸", "naver": 153.0, "google": 54.7, "gap": 98.3}, {"brand": "코웨이 비렉스", "naver": 94.7, "google": 0.1, "gap": 94.6}, {"brand": "한샘", "naver": 109.3, "google": 191.5, "gap": -82.2}, {"brand": "에몬스", "naver": 94.7, "google": 12.6, "gap": 82.1}, {"brand": "지누스", "naver": 116.6, "google": 34.9, "gap": 81.7}, {"brand": "까사미아", "naver": 51.0, "google": 34.7, "gap": 16.3}, {"brand": "현대리바트", "naver": 0.0, "google": 13.3, "gap": -13.3}, {"brand": "에이스침대", "naver": 43.7, "google": 30.6, "gap": 13.1}], "change_points": [{"brand": "시몬스", "period": "2025-09", "pct_change": -56.1, "direction": "급락"}, {"brand": "시몬스", "period": "2026-04", "pct_change": 38.2, "direction": "급등"}, {"brand": "시몬스", "period": "2026-05", "pct_change": -25.4, "direction": "급락"}, {"brand": "까사미아", "period": "2025-09", "pct_change": -22.2, "direction": "급락"}, {"brand": "까사미아", "period": "2025-11", "pct_change": 23.7, "direction": "급등"}, {"brand": "까사미아", "period": "2026-02", "pct_change": -26.7, "direction": "급락"}, {"brand": "까사미아", "period": "2026-07", "pct_change": -23.7, "direction": "급락"}, {"brand": "에이스침대", "period": "2025-09", "pct_change": -27.9, "direction": "급락"}, {"brand": "에이스침대", "period": "2025-10", "pct_change": 45.8, "direction": "급등"}, {"brand": "에이스침대", "period": "2026-04", "pct_change": -29.0, "direction": "급락"}, {"brand": "에이스침대", "period": "2026-05", "pct_change": 21.3, "direction": "급등"}, {"brand": "에이스침대", "period": "2026-06", "pct_change": -20.4, "direction": "급락"}, {"brand": "지누스", "period": "2025-10", "pct_change": 34.4, "direction": "급등"}, {"brand": "지누스", "period": "2026-04", "pct_change": -20.6, "direction": "급락"}, {"brand": "한샘", "period": "2026-04", "pct_change": -20.9, "direction": "급락"}, {"brand": "에몬스", "period": "2025-09", "pct_change": 225.0, "direction": "급등"}, {"brand": "에몬스", "period": "2025-10", "pct_change": -30.8, "direction": "급락"}, {"brand": "에몬스", "period": "2025-11", "pct_change": 184.8, "direction": "급등"}, {"brand": "에몬스", "period": "2025-12", "pct_change": -33.7, "direction": "급락"}, {"brand": "에몬스", "period": "2026-02", "pct_change": -43.8, "direction": "급락"}, {"brand": "에몬스", "period": "2026-04", "pct_change": 44.7, "direction": "급등"}, {"brand": "에몬스", "period": "2026-05", "pct_change": 22.4, "direction": "급등"}, {"brand": "에몬스", "period": "2026-06", "pct_change": -23.8, "direction": "급락"}, {"brand": "에몬스", "period": "2026-07", "pct_change": -21.4, "direction": "급락"}, {"brand": "에몬스", "period": "2026-08", "pct_change": -27.3, "direction": "급락"}, {"brand": "현대리바트", "period": "2025-09", "pct_change": 44.9, "direction": "급등"}, {"brand": "현대리바트", "period": "2025-10", "pct_change": -51.6, "direction": "급락"}, {"brand": "현대리바트", "period": "2025-11", "pct_change": 21.3, "direction": "급등"}, {"brand": "현대리바트", "period": "2025-12", "pct_change": 22.0, "direction": "급등"}, {"brand": "현대리바트", "period": "2026-01", "pct_change": 185.6, "direction": "급등"}, {"brand": "현대리바트", "period": "2026-03", "pct_change": -45.2, "direction": "급락"}, {"brand": "현대리바트", "period": "2026-06", "pct_change": -33.7, "direction": "급락"}, {"brand": "씰리침대", "period": "2025-10", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2025-12", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-02", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-05", "pct_change": 34.6, "direction": "급등"}, {"brand": "씰리침대", "period": "2026-06", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-08", "pct_change": 48.3, "direction": "급등"}], "events": [], "meta": {"run_id": "20260824_103258", "collected_at": "2026.08.19 12:08", "confidence_score": 100}};
+const RAW = {"google": {"normalized": {"시몬스": 100.0, "일룸": 58.5, "까사미아": 37.0, "에이스침대": 33.2, "지누스": 37.5, "이케아": 685.1, "한샘": 206.0, "에몬스": 13.7, "현대리바트": 14.1, "씰리침대": 2.1, "코웨이 비렉스": 0.1}, "monthly_series": {"시몬스": [{"period": "2025-08", "value": 293.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 96.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 88.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 104.7, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 95.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 76.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 80.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 79.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 109.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 81.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 65.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 71.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 58.2, "cv": 0.0, "confidence": "stable"}], "일룸": [{"period": "2025-08", "value": 49.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 52.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 55.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 58.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 69.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 75.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 73.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 59.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 57.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 53.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 50.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 56.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 48.8, "cv": 0.0, "confidence": "stable"}], "까사미아": [{"period": "2025-08", "value": 37.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 29.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 34.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 42.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 45.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 46.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 34.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 40.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 35.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 35.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 39.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 30.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 30.1, "cv": 0.0, "confidence": "stable"}], "에이스침대": [{"period": "2025-08", "value": 35.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 24.9, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 36.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 34.1, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 34.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 34.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 39.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 42.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 30.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 36.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 29.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 26.0, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 28.1, "cv": 0.0, "confidence": "stable"}], "지누스": [{"period": "2025-08", "value": 39.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 33.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 44.7, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 38.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 38.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 40.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 36.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 43.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 34.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 36.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 37.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 32.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 32.2, "cv": 0.0, "confidence": "stable"}], "이케아": [{"period": "2025-08", "value": 695.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 649.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 693.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 722.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 805.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 737.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 739.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 702.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 596.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 605.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 594.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 680.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 684.6, "cv": 0.0, "confidence": "stable"}], "한샘": [{"period": "2025-08", "value": 189.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 200.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 193.7, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 225.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 222.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 224.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 220.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 244.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 193.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 218.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 191.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 182.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 171.7, "cv": 0.0, "confidence": "stable"}], "에몬스": [{"period": "2025-08", "value": 6.2, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 13.5, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 9.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 26.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 17.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 16.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 9.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 10.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 15.6, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 19.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 14.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 11.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 7.3, "cv": 0.0, "confidence": "stable"}], "현대리바트": [{"period": "2025-08", "value": 8.3, "cv": 0.0, "confidence": "stable"}, {"period": "2025-09", "value": 14.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 7.0, "cv": 0.0, "confidence": "stable"}, {"period": "2025-11", "value": 8.6, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 10.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-01", "value": 29.8, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 26.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-03", "value": 14.5, "cv": 0.0, "confidence": "stable"}, {"period": "2026-04", "value": 14.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 16.1, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 10.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-07", "value": 11.9, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 10.4, "cv": 0.0, "confidence": "stable"}], "씰리침대": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 4.8, "cv": 0.0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 2.4, "cv": 0.0, "confidence": "stable"}, {"period": "2025-12", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-01", "value": 7.2, "cv": 0.0, "confidence": "stable"}, {"period": "2026-02", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-03", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-04", "value": 2.4, "cv": 0.0, "confidence": "stable"}, {"period": "2026-05", "value": 3.3, "cv": 0.0, "confidence": "stable"}, {"period": "2026-06", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-07", "value": 2.7, "cv": 0.0, "confidence": "stable"}, {"period": "2026-08", "value": 4.2, "cv": 0.0, "confidence": "stable"}], "코웨이 비렉스": [{"period": "2025-08", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-09", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-10", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-11", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2025-12", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-01", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-02", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-03", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-04", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-05", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-06", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-07", "value": 0.0, "cv": 0, "confidence": "stable"}, {"period": "2026-08", "value": 1.3, "cv": 0.0, "confidence": "stable"}]}, "periods": ["2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08"], "linked": {"시몬스": 24.06153846153846, "일룸": 14.073076923076924, "까사미아": 8.911538461538461, "에이스침대": 7.976923076923077, "지누스": 9.011538461538462, "이케아": 164.854, "한샘": 49.573, "에몬스": 3.296, "현대리바트": 3.397, "씰리침대": 0.501, "코웨이 비렉스": 0.024}, "batches_raw": [{"label": "A", "keywords": ["시몬스", "일룸", "까사미아", "에이스침대", "지누스"], "bridge": "시몬스", "raw_medians": {"시몬스": 24.06153846153846, "일룸": 14.073076923076924, "까사미아": 8.911538461538461, "에이스침대": 7.976923076923077, "지누스": 9.011538461538462}, "note": null}, {"label": "B", "keywords": ["시몬스", "이케아", "한샘"], "bridge": "시몬스", "raw_medians": {"시몬스": 11.357692307692307, "이케아": 77.81538461538462, "한샘": 23.4}, "note": null}, {"label": "C", "keywords": ["시몬스", "에몬스"], "bridge": "에몬스", "raw_medians": {"시몬스": 24.06153846153846, "에몬스": 3.296153846153846}, "note": null}, {"label": "D", "keywords": ["에몬스", "현대리바트", "씰리침대"], "bridge": "씰리침대", "raw_medians": {"에몬스": 21.380769230769232, "현대리바트": 22.034615384615385, "씰리침대": 3.25}, "note": null}, {"label": "E", "keywords": ["씰리침대", "코웨이 비렉스"], "bridge": null, "raw_medians": {"씰리침대": 10.78076923076923, "코웨이 비렉스": 0.5192307692307693}, "note": "코웨이 비렉스 측정 해상도 한계 (원본값 < 1). 예상 max/min ≈34x (20x 초과). P0-3 키워드 재검증 예정."}], "warnings": ["배치C: 브리지 '에몬스' 값 3.3 < 5 (유효숫자 부족)", "배치D: 브리지 '씰리침대' 값 3.2 < 5 (유효숫자 부족)", "배치E: max/min=20.8x > 20 (배치 재구성 권장)"]}, "naver": {"normalized": {"시몬스": 100.0, "에이스침대": 115.6, "씰리침대": 73.8, "지누스": 16.8, "코웨이 비렉스": 15.7, "한샘": 50.3, "현대리바트": 25.7, "까사미아": 32.2, "일룸": 41.8, "에몬스": 53.0, "이케아": 132.1}, "stats": {"시몬스": {"median": 156631, "mean": 156631, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "에이스침대": {"median": 181110, "mean": 181110, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "씰리침대": {"median": 115643, "mean": 115643, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "지누스": {"median": 26341, "mean": 26341, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "코웨이 비렉스": {"median": 24523, "mean": 24523, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "한샘": {"median": 78842, "mean": 78842, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "현대리바트": {"median": 40280, "mean": 40280, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "까사미아": {"median": 50408, "mean": 50408, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "일룸": {"median": 65517, "mean": 65517, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "에몬스": {"median": 82999, "mean": 82999, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}, "이케아": {"median": 206892, "mean": 206892, "std": 0.0, "cv": 0.0, "confidence": "stable", "outliers_removed": 0}}, "period": "all", "unmeasurable": []}, "datalab": {}, "demographics": {"시몬스": {"gender": {"여성": 40.6, "남성": 7.0}, "age": {"10대": 2.1, "20대": 5.1, "30대": 18.9, "40대": 29.1, "50대": 31.3, "60대+": 21.4}}, "에이스침대": {"gender": {"여성": 55.0, "남성": 56.2}, "age": {"10대": 31.8, "20대": 52.3, "30대": 56.1, "40대": 50.0, "50대": 56.0, "60대+": 59.6}}, "씰리침대": {"gender": {"여성": 47.4, "남성": 45.9}, "age": {"10대": 13.7, "20대": 45.3, "30대": 48.3, "40대": 45.6, "50대": 36.3, "60대+": 34.8}}, "지누스": {"gender": {"여성": 58.7, "남성": 26.0}, "age": {"10대": 18.8, "20대": 49.5, "30대": 24.9, "40대": 34.4, "50대": 32.0, "60대+": 28.5}}, "코웨이 비렉스": {"gender": {"여성": 13.2, "남성": 19.1}, "age": {"10대": 10.6, "20대": 23.9, "30대": 23.6, "40대": 20.7, "50대": 11.2, "60대+": 8.5}}, "한샘": {"gender": {"여성": 59.5, "남성": 20.6}, "age": {"10대": 38.7, "20대": 52.1, "30대": 46.0, "40대": 33.0, "50대": 24.1, "60대+": 17.8}}, "현대리바트": {"gender": {"여성": 27.9, "남성": 16.9}, "age": {"10대": 15.1, "20대": 9.8, "30대": 28.1, "40대": 14.6, "50대": 15.2, "60대+": 15.4}}, "까사미아": {"gender": {"여성": 56.5, "남성": 57.7}, "age": {"10대": 36.1, "20대": 54.2, "30대": 55.5, "40대": 53.5, "50대": 54.7, "60대+": 64.1}}, "일룸": {"gender": {"여성": 51.4, "남성": 47.2}, "age": {"10대": 30.8, "20대": 60.9, "30대": 50.8, "40대": 45.1, "50대": 59.9, "60대+": 42.9}}, "에몬스": {"gender": {"여성": 56.1, "남성": 55.4}, "age": {"10대": 16.2, "20대": 39.9, "30대": 55.0, "40대": 51.1, "50대": 59.8, "60대+": 45.6}}, "이케아": {"gender": {"여성": 56.7, "남성": 55.0}, "age": {"10대": 33.8, "20대": 56.9, "30대": 61.4, "40대": 48.2, "50대": 40.0, "60대+": 46.8}}}, "dart": {"에이스침대": {"amount": 3173, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업", "source": "naver_finance"}, "한샘": {"amount": 17445, "year": "2025", "unit": "억원", "caution": true, "note": "종합 가구 포함", "source": "naver_finance"}, "현대리바트": {"amount": 15462, "year": "2025", "unit": "억원", "caution": true, "note": "종합 가구 포함", "source": "naver_finance"}, "지누스": {"amount": 9132, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업", "source": "naver_finance"}, "코웨이 비렉스": {"amount": 49636, "year": "2025", "unit": "억원", "caution": true, "note": "코웨이 전체 매출 (비렉스 분리 불가)", "source": "naver_finance"}, "시몬스": {"amount": 3239, "year": "2025", "unit": "억원", "caution": false, "note": "매트리스 전업 (비상장, 감사보고서 기준)", "source": "DART_audit_report"}}, "commentary": "", "sos": {"시몬스": 8.4, "일룸": 4.9, "까사미아": 3.1, "에이스침대": 2.8, "지누스": 3.2, "이케아": 57.7, "한샘": 17.4, "에몬스": 1.2, "현대리바트": 1.2, "씰리침대": 0.2, "코웨이 비렉스": 0.0}, "sos_category": {"시몬스": 57.9, "일룸": null, "까사미아": null, "에이스침대": 19.2, "지누스": 21.7, "이케아": null, "한샘": null, "에몬스": null, "현대리바트": null, "씰리침대": 1.2, "코웨이 비렉스": null}, "gap": [{"brand": "이케아", "naver": 221.2, "google": 634.7, "gap": -413.5}, {"brand": "에이스침대", "naver": 193.5, "google": 30.8, "gap": 162.7}, {"brand": "씰리침대", "naver": 123.6, "google": 1.9, "gap": 121.7}, {"brand": "한샘", "naver": 84.2, "google": 190.9, "gap": -106.7}, {"brand": "에몬스", "naver": 88.7, "google": 12.7, "gap": 76.0}, {"brand": "시몬스", "naver": 167.4, "google": 92.6, "gap": 74.8}, {"brand": "현대리바트", "naver": 43.0, "google": 13.1, "gap": 29.9}, {"brand": "코웨이 비렉스", "naver": 26.3, "google": 0.1, "gap": 26.2}, {"brand": "까사미아", "naver": 53.9, "google": 34.3, "gap": 19.6}, {"brand": "일룸", "naver": 70.0, "google": 54.2, "gap": 15.8}, {"brand": "지누스", "naver": 28.1, "google": 34.7, "gap": -6.6}], "change_points": [{"brand": "시몬스", "period": "2025-09", "pct_change": -67.0, "direction": "급락"}, {"brand": "시몬스", "period": "2026-04", "pct_change": 38.1, "direction": "급등"}, {"brand": "시몬스", "period": "2026-05", "pct_change": -25.3, "direction": "급락"}, {"brand": "까사미아", "period": "2025-09", "pct_change": -22.2, "direction": "급락"}, {"brand": "까사미아", "period": "2025-11", "pct_change": 23.6, "direction": "급등"}, {"brand": "까사미아", "period": "2026-02", "pct_change": -26.7, "direction": "급락"}, {"brand": "까사미아", "period": "2026-07", "pct_change": -23.8, "direction": "급락"}, {"brand": "에이스침대", "period": "2025-09", "pct_change": -29.5, "direction": "급락"}, {"brand": "에이스침대", "period": "2025-10", "pct_change": 46.2, "direction": "급등"}, {"brand": "에이스침대", "period": "2026-04", "pct_change": -29.0, "direction": "급락"}, {"brand": "에이스침대", "period": "2026-05", "pct_change": 21.6, "direction": "급등"}, {"brand": "에이스침대", "period": "2026-06", "pct_change": -20.5, "direction": "급락"}, {"brand": "지누스", "period": "2025-10", "pct_change": 34.6, "direction": "급등"}, {"brand": "지누스", "period": "2026-04", "pct_change": -20.6, "direction": "급락"}, {"brand": "한샘", "period": "2026-04", "pct_change": -20.9, "direction": "급락"}, {"brand": "에몬스", "period": "2025-09", "pct_change": 117.7, "direction": "급등"}, {"brand": "에몬스", "period": "2025-10", "pct_change": -30.4, "direction": "급락"}, {"brand": "에몬스", "period": "2025-11", "pct_change": 183.0, "direction": "급등"}, {"brand": "에몬스", "period": "2025-12", "pct_change": -33.5, "direction": "급락"}, {"brand": "에몬스", "period": "2026-02", "pct_change": -43.4, "direction": "급락"}, {"brand": "에몬스", "period": "2026-04", "pct_change": 44.4, "direction": "급등"}, {"brand": "에몬스", "period": "2026-05", "pct_change": 22.4, "direction": "급등"}, {"brand": "에몬스", "period": "2026-06", "pct_change": -24.1, "direction": "급락"}, {"brand": "에몬스", "period": "2026-07", "pct_change": -21.4, "direction": "급락"}, {"brand": "에몬스", "period": "2026-08", "pct_change": -36.0, "direction": "급락"}, {"brand": "현대리바트", "period": "2025-09", "pct_change": 75.9, "direction": "급등"}, {"brand": "현대리바트", "period": "2025-10", "pct_change": -52.1, "direction": "급락"}, {"brand": "현대리바트", "period": "2025-11", "pct_change": 22.9, "direction": "급등"}, {"brand": "현대리바트", "period": "2025-12", "pct_change": 20.9, "direction": "급등"}, {"brand": "현대리바트", "period": "2026-01", "pct_change": 186.5, "direction": "급등"}, {"brand": "현대리바트", "period": "2026-03", "pct_change": -45.1, "direction": "급락"}, {"brand": "현대리바트", "period": "2026-06", "pct_change": -33.5, "direction": "급락"}, {"brand": "씰리침대", "period": "2025-10", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2025-12", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-02", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-05", "pct_change": 37.5, "direction": "급등"}, {"brand": "씰리침대", "period": "2026-06", "pct_change": -100.0, "direction": "급락"}, {"brand": "씰리침대", "period": "2026-08", "pct_change": 55.6, "direction": "급등"}], "events": [], "meta": {"run_id": "20260824_180718", "collected_at": "2026.08.24 18:07", "confidence_score": 100}};
 const COLORS = {"시몬스": "#0b0b0b", "에이스침대": "#e34948", "씰리침대": "#1baf7a", "지누스": "#008300", "코웨이 비렉스": "#2a78d6", "한샘": "#199e70", "현대리바트": "#4a3aa7", "까사미아": "#eb6834", "일룸": "#d95926", "에몬스": "#534ab7", "이케아": "#378add"};
-const BRANDS_CFG = [{"name": "시몬스", "tier": 0, "baseline": true, "category": "bed_specialist", "trend_kw": "시몬스", "naver_kw": "시몬스 침대", "color": "#0b0b0b"}, {"name": "에이스침대", "tier": 1, "baseline": false, "category": "bed_specialist", "trend_kw": "에이스침대", "naver_kw": "에이스침대", "color": "#e34948"}, {"name": "씰리침대", "tier": 1, "baseline": false, "category": "bed_specialist", "trend_kw": "씰리침대", "naver_kw": "씰리침대", "color": "#1baf7a"}, {"name": "지누스", "tier": 2, "baseline": false, "category": "bed_specialist", "trend_kw": "지누스", "naver_kw": "지누스 매트리스", "color": "#008300"}, {"name": "코웨이 비렉스", "tier": 2, "baseline": false, "category": "general_furniture", "trend_kw": "코웨이 비렉스", "naver_kw": "코웨이 비렉스", "color": "#2a78d6"}, {"name": "한샘", "tier": 3, "baseline": false, "category": "general_furniture", "trend_kw": "한샘", "naver_kw": "한샘 매트리스", "color": "#199e70"}, {"name": "현대리바트", "tier": 3, "baseline": false, "category": "general_furniture", "trend_kw": "현대리바트", "naver_kw": "현대리바트 침대", "color": "#4a3aa7"}, {"name": "까사미아", "tier": 3, "baseline": false, "category": "general_furniture", "trend_kw": "까사미아", "naver_kw": "까사미아 침대", "color": "#eb6834"}, {"name": "일룸", "tier": 3, "baseline": false, "category": "general_furniture", "trend_kw": "일룸", "naver_kw": "일룸 침대", "color": "#d95926"}, {"name": "에몬스", "tier": 3, "baseline": false, "category": "general_furniture", "trend_kw": "에몬스", "naver_kw": "에몬스 가구", "color": "#534ab7"}, {"name": "이케아", "tier": 3, "baseline": false, "category": "general_furniture", "trend_kw": "이케아", "naver_kw": "이케아 침대", "color": "#378add"}];
+const BRANDS_CFG = [{"name": "시몬스", "tier": 0, "baseline": true, "category": "bed_specialist", "trend_kw": "시몬스", "naver_kw": "시몬스 침대", "color": "#0b0b0b", "shop_kw": "시몬스 매트리스", "youtube": "시몬스침대", "instagram": "simmons_kr"}, {"name": "에이스침대", "tier": 1, "baseline": false, "category": "bed_specialist", "trend_kw": "에이스침대", "naver_kw": "에이스침대", "color": "#e34948", "shop_kw": "에이스침대 매트리스", "youtube": "에이스침대", "instagram": "acedotcom_official"}, {"name": "씰리침대", "tier": 1, "baseline": false, "category": "bed_specialist", "trend_kw": "씰리침대", "naver_kw": "씰리침대", "color": "#1baf7a", "shop_kw": "씰리침대 매트리스", "youtube": "씰리코리아", "instagram": "sealy_korea"}, {"name": "지누스", "tier": 2, "baseline": false, "category": "bed_specialist", "trend_kw": "지누스", "naver_kw": "지누스 매트리스", "color": "#008300", "shop_kw": "지누스 매트리스", "youtube": "지누스코리아", "instagram": "zinuskorea"}, {"name": "코웨이 비렉스", "tier": 2, "baseline": false, "category": "general_furniture", "trend_kw": "코웨이 비렉스", "naver_kw": "코웨이 비렉스", "color": "#2a78d6", "shop_kw": "비렉스 매트리스", "youtube": "코웨이공식채널", "instagram": "coway_official"}, {"name": "한샘", "tier": 3, "baseline": false, "category": "general_furniture", "trend_kw": "한샘", "naver_kw": "한샘 매트리스", "color": "#199e70", "shop_kw": "한샘 매트리스", "youtube": "한샘공식", "instagram": "hansem_official"}, {"name": "현대리바트", "tier": 3, "baseline": false, "category": "general_furniture", "trend_kw": "현대리바트", "naver_kw": "현대리바트 침대", "color": "#4a3aa7", "shop_kw": "현대리바트 침대", "youtube": "현대리바트", "instagram": "hyundailivart"}, {"name": "까사미아", "tier": 3, "baseline": false, "category": "general_furniture", "trend_kw": "까사미아", "naver_kw": "까사미아 침대", "color": "#eb6834", "shop_kw": "까사미아 침대", "youtube": "까사미아", "instagram": "casamia_official"}, {"name": "일룸", "tier": 3, "baseline": false, "category": "general_furniture", "trend_kw": "일룸", "naver_kw": "일룸 침대", "color": "#d95926", "shop_kw": "일룸 침대", "youtube": "일룸공식", "instagram": "iloom_official"}, {"name": "에몬스", "tier": 3, "baseline": false, "category": "general_furniture", "trend_kw": "에몬스", "naver_kw": "에몬스 가구", "color": "#534ab7", "shop_kw": "에몬스 침대", "youtube": "에몬스가구", "instagram": "emons_furniture"}, {"name": "이케아", "tier": 3, "baseline": false, "category": "general_furniture", "trend_kw": "이케아", "naver_kw": "이케아 침대", "color": "#378add", "shop_kw": "이케아 매트리스", "youtube": "IKEA Korea", "instagram": "ikea_korea"}];
+const YOUTUBE_STATIC = {"시몬스": {"subs": 21000, "channel": "@simmonskorea", "note": ""}, "에이스침대": {"subs": 38000, "channel": "@ACEBED", "note": ""}, "씰리침대": {"subs": null, "channel": "@씰리침대-b6n", "note": "미확인"}, "지누스": {"subs": 2000, "channel": "ZINUS Korea", "note": ""}, "코웨이 비렉스": {"subs": 210000, "channel": "@Cowaystory", "note": "코웨이 전채널"}, "한샘": {"subs": 118000, "channel": "@hanssem.official", "note": ""}, "현대리바트": {"subs": 20900, "channel": "@hyundailivart", "note": ""}, "까사미아": {"subs": 2040, "channel": "신세계까사", "note": ""}, "일룸": {"subs": 29100, "channel": "@iloom_official", "note": ""}, "에몬스": {"subs": 3460, "channel": "EMONSstyle1", "note": ""}, "이케아": {"subs": 54400, "channel": "@IKEAKorea", "note": ""}};
 const TIER_LABELS = {"0": "기준", "1": "1군 · 직접 경쟁", "2": "2군 · 대체 채널", "3": "3군 · 종합 가구"};
 const TIER_NEW = {"A": {"label": "Tier A — 프리미엄 매트리스", "warning": null, "brands": ["시몬스", "씰리침대"]}, "B": {"label": "Tier B — 매스 침대", "warning": null, "brands": ["에이스침대", "에몬스", "지누스"]}, "C": {"label": "Tier C — 종합가구", "warning": "검색 지수에 가구·인테리어 수요 혼재. 직접 비교 주의.", "brands": ["한샘", "현대리바트", "까사미아", "일룸", "이케아"]}, "D": {"label": "Tier D — 렌탈", "warning": "렌탈 사업 모델로 직접 비교 주의.", "brands": ["코웨이 비렉스"]}};
 const BRAND_TO_TIER = {"시몬스": "A", "씰리침대": "A", "에이스침대": "B", "에몬스": "B", "지누스": "B", "한샘": "C", "현대리바트": "C", "까사미아": "C", "일룸": "C", "이케아": "C", "코웨이 비렉스": "D"};
-const SOS_SOM_DATA = [{"brand": "에이스침대", "sos": 19.7, "sos_total": 2.8, "sos_cat": 19.7, "som": 20.4, "caution": false, "tier": "B", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "에몬스", "sos": 1.1, "sos_total": 1.1, "sos_cat": null, "som": null, "caution": true, "tier": "B", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "까사미아", "sos": 3.2, "sos_total": 3.2, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "현대리바트", "sos": 1.2, "sos_total": 1.2, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "한샘", "sos": 17.4, "sos_total": 17.4, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "이케아", "sos": 58.0, "sos_total": 58.0, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "일룸", "sos": 5.0, "sos_total": 5.0, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "코웨이 비렉스", "sos": 0.0, "sos_total": 0.0, "sos_cat": null, "som": null, "caution": true, "tier": "D", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "시몬스", "sos": 56.6, "sos_total": 8.0, "sos_cat": 56.6, "som": 20.8, "caution": false, "tier": "A", "in_dart": true, "is_simmons": true, "data_source": "DART_audit_report", "som_note": null}, {"brand": "지누스", "sos": 22.5, "sos_total": 3.2, "sos_cat": 22.5, "som": 58.7, "caution": false, "tier": "B", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": "글로벌 매출 기준 — SoS(국내)와 지역 범위 불일치"}, {"brand": "씰리침대", "sos": 1.2, "sos_total": 0.2, "sos_cat": 1.2, "som": null, "caution": true, "tier": "A", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}];
-const SOS_CATEGORY = {"시몬스": 56.6, "일룸": null, "까사미아": null, "에이스침대": 19.7, "지누스": 22.5, "이케아": null, "한샘": null, "에몬스": null, "현대리바트": null, "씰리침대": 1.2, "코웨이 비렉스": null};
+const SOS_SOM_DATA = [{"brand": "한샘", "sos": 17.4, "sos_total": 17.4, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "지누스", "sos": 21.7, "sos_total": 3.2, "sos_cat": 21.7, "som": 58.7, "caution": false, "tier": "B", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": "글로벌 매출 기준 — SoS(국내)와 지역 범위 불일치"}, {"brand": "에이스침대", "sos": 19.2, "sos_total": 2.8, "sos_cat": 19.2, "som": 20.4, "caution": false, "tier": "B", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "코웨이 비렉스", "sos": 0.0, "sos_total": 0.0, "sos_cat": null, "som": null, "caution": true, "tier": "D", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "에몬스", "sos": 1.2, "sos_total": 1.2, "sos_cat": null, "som": null, "caution": true, "tier": "B", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "씰리침대", "sos": 1.2, "sos_total": 0.2, "sos_cat": 1.2, "som": null, "caution": true, "tier": "A", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "현대리바트", "sos": 1.2, "sos_total": 1.2, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": true, "is_simmons": false, "data_source": "naver_finance", "som_note": null}, {"brand": "시몬스", "sos": 57.9, "sos_total": 8.4, "sos_cat": 57.9, "som": 20.8, "caution": false, "tier": "A", "in_dart": true, "is_simmons": true, "data_source": "DART_audit_report", "som_note": null}, {"brand": "일룸", "sos": 4.9, "sos_total": 4.9, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "이케아", "sos": 57.7, "sos_total": 57.7, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}, {"brand": "까사미아", "sos": 3.1, "sos_total": 3.1, "sos_cat": null, "som": null, "caution": true, "tier": "C", "in_dart": false, "is_simmons": false, "data_source": null, "som_note": null}];
+const SOS_CATEGORY = {"시몬스": 57.9, "일룸": null, "까사미아": null, "에이스침대": 19.2, "지누스": 21.7, "이케아": null, "한샘": null, "에몬스": null, "현대리바트": null, "씰리침대": 1.2, "코웨이 비렉스": null};
 const IS_PARTIAL_MONTH = true;
 
 // 현재 티어 필터 상태
@@ -2096,6 +2196,100 @@ function renderMonthlyHeatmap() {
 
   const container = document.getElementById('monthly-heatmap');
   if (container) container.innerHTML = html;
+}
+
+// 3-c. 상단 월별 추이 (임원 요약용 — 시몬스 강조, 침대 전업 브랜드 표시)
+let _trendTopMode = 'abs';
+function setTrendTopMode(mode) {
+  _trendTopMode = mode;
+  document.getElementById('trend-top-abs').style.background = mode === 'abs' ? '#0b0b0b' : '#fff';
+  document.getElementById('trend-top-abs').style.color     = mode === 'abs' ? '#fff' : '#333';
+  document.getElementById('trend-top-rel').style.background = mode === 'rel' ? '#0b0b0b' : '#fff';
+  document.getElementById('trend-top-rel').style.color     = mode === 'rel' ? '#fff' : '#333';
+  document.getElementById('trend-top-sub').textContent = mode === 'abs'
+    ? '주요 브랜드 월별 검색 관심도 · 기준: 시몬스=100 (시몬스 강조)'
+    : '각 브랜드 첫 달=100 재기준화 — 브랜드별 성장/하락 추세 비교';
+  renderTrendTop();
+}
+function renderTrendTop() {
+  const ms = RAW.google?.monthly_series || {};
+  const simPts = ms['시몬스'] || [];
+  if (!simPts.length) return;
+
+  const allPeriods = simPts.map(p => p.period?.substring(0,7)).filter(Boolean);
+  const chip = document.getElementById('trend-top-period-chip');
+  if (chip && allPeriods.length) {
+    chip.textContent = allPeriods.length + '개월 (' + allPeriods[0] + ' ~ ' + allPeriods[allPeriods.length-1] + ')';
+  }
+
+  // 표시 브랜드: 침대 전업 + 상위 검색량 브랜드
+  const SHOW_BRANDS = ['시몬스', '에이스침대', '씰리침대', '지누스', '한샘', '이케아'];
+  const BRAND_COLORS_MAP = {
+    '시몬스': '#1a1a1a', '에이스침대': '#e53935', '씰리침대': '#1565c0',
+    '지누스': '#2e7d32', '한샘': '#f57c00', '이케아': '#6a1a9a',
+  };
+
+  function rebase(vals) {
+    const first = vals.find(v => v != null);
+    if (!first) return vals;
+    return vals.map(v => v != null ? Math.round(v / first * 1000) / 10 : null);
+  }
+
+  const series = SHOW_BRANDS.map(brand => {
+    const pts = ms[brand] || [];
+    const byP = {};
+    pts.forEach(p => { byP[p.period?.substring(0,7)] = p.value; });
+    const rawVals = allPeriods.map(p => byP[p] ?? null);
+    const vals = _trendTopMode === 'rel' ? rebase(rawVals) : rawVals;
+    const isS = brand === '시몬스';
+    return {
+      name: brand,
+      type: 'line',
+      data: vals,
+      connectNulls: false,
+      lineStyle: { width: isS ? 3.5 : 1.5, color: BRAND_COLORS_MAP[brand] || '#aaa' },
+      itemStyle: { color: BRAND_COLORS_MAP[brand] || '#aaa' },
+      symbol: isS ? 'circle' : 'none',
+      symbolSize: 5,
+      emphasis: { focus: 'series' },
+      endLabel: {
+        show: true,
+        formatter: '{b}',
+        fontSize: isS ? 12 : 10,
+        fontWeight: isS ? '700' : '400',
+        color: BRAND_COLORS_MAP[brand] || '#aaa',
+        offset: [4, 0]
+      },
+      z: isS ? 10 : 1
+    };
+  });
+
+  const visMax = Math.max(...series.flatMap(s => s.data.filter(v => v != null)).concat([100]));
+  const dom = reInitChart('chart-trend-top');
+  if (!dom) return;
+  const chart = echarts.init(dom);
+  chart.setOption({
+    grid: { left: 55, right: 90, top: 20, bottom: 50 },
+    xAxis: dateAxisOption(allPeriods),
+    yAxis: Object.assign(axisOption(visMax, '', 5), { name: _trendTopMode === 'rel' ? '지수(첫달=100)' : '지수(시몬스=100)' }),
+    series,
+    legend: { type: 'plain', bottom: 0, textStyle: { fontSize: 11 } },
+    tooltip: {
+      trigger: 'axis', confine: true,
+      backgroundColor: '#fff', borderColor: '#ccc', borderWidth: 1,
+      textStyle: { fontSize: 11 },
+      formatter: params => {
+        const date = params[0]?.axisValue || '';
+        let html = `<b>${date}</b><br>`;
+        params.forEach(p => {
+          if (p.value == null) return;
+          const unit = _trendTopMode === 'rel' ? '' : ' (시몬스=100)';
+          html += `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${p.color};margin-right:5px;"></span>${p.seriesName}: <b>${p.value}</b>${unit}<br>`;
+        });
+        return html;
+      }
+    }
+  });
 }
 
 // 4. Share of Search 파이차트 (시몬스 강조)
@@ -2818,22 +3012,12 @@ function setRange(btn, range) {
   _updateFilterBanner();
 }
 
-// T3-3: PDF 인쇄 표지 자동 기록
+// T3-3: PDF 인쇄
 function exportPrint() {
-  const cover = document.getElementById('cover-page');
-  const rangeBtn = document.querySelector('.period-pill.active[data-range]');
-  const tierBtn = document.querySelector('.tier-filter.active');
-  const rangeLabel = rangeBtn?.textContent || '최근 3개월';
-  const tierLabel = tierBtn?.textContent || '전체';
-  if (cover) {
-    const stateEl = cover.querySelector('#print-filter-state');
-    if (stateEl) stateEl.textContent = `보고 기준: ${rangeLabel} · ${tierLabel}`;
-  }
-  // ECharts 인스턴스 전체 리사이즈 후 인쇄 (차트 공백 방지)
   if (window._chartInstances) {
     window._chartInstances.forEach(c => { try { c.resize(); } catch(e) {} });
   }
-  setTimeout(() => window.print(), 300);
+  setTimeout(() => window.print(), 600);
 }
 
 // ── 전략 분석 모달 ──────────────────────────────────────────────────────
@@ -2952,7 +3136,59 @@ function exportCSV() {
   a.click();
 }
 
+// ── 소셜 차트 ────────────────────────────────────────────────
+function renderSocialChart() {
+  const entries = Object.entries(YOUTUBE_STATIC)
+    .filter(([, v]) => v.subs != null)
+    .sort((a, b) => b[1].subs - a[1].subs);
+  if (!entries.length) return;
+  const brands  = entries.map(([b]) => b);
+  const subs    = entries.map(([, v]) => v.subs);
+  const channels = entries.map(([, v]) => v.channel);
+  const notes   = entries.map(([, v]) => v.note);
+  const dom = reInitChart('chart-social');
+  if (!dom) return;
+  const chart = echarts.init(dom);
+  chart.setOption({
+    grid: { left: 110, right: 100, top: 20, bottom: 40 },
+    xAxis: { type: 'value', axisLabel: { formatter: v => v >= 10000 ? (v/10000).toFixed(0)+'만' : v.toLocaleString() } },
+    yAxis: { type: 'category', data: brands, axisLabel: { fontSize: 11 } },
+    series: [{
+      type: 'bar',
+      data: subs.map((v, i) => ({
+        value: v,
+        itemStyle: { color: brands[i] === '시몬스' ? '#1a1a1a' : COLORS[brands[i]] || '#90a4ae' }
+      })),
+      label: {
+        show: true, position: 'right',
+        formatter: p => {
+          const note = notes[p.dataIndex];
+          const cnt = '약 ' + (p.value >= 10000 ? (p.value/10000).toFixed(0)+'만명' : p.value?.toLocaleString()+'명');
+          return note ? cnt + ' (' + note + ')' : cnt;
+        },
+        fontSize: 11
+      },
+    }],
+    tooltip: {
+      trigger: 'axis',
+      formatter: p => {
+        const ch = channels[p[0].dataIndex];
+        return `<b>${p[0].name}</b><br>구독자: ${p[0].value?.toLocaleString()}명<br>채널: ${ch}`;
+      }
+    }
+  });
+  // 미확인 브랜드 안내
+  const missing = Object.entries(YOUTUBE_STATIC).filter(([,v]) => v.subs == null).map(([b]) => b);
+  if (missing.length) {
+    const note = document.createElement('div');
+    note.style.cssText = 'font-size:11px;color:#999;margin-top:6px;padding:0 8px;';
+    note.textContent = '* 미확인: ' + missing.join(', ') + ' (채널 URL 확인됨, 구독자 수 공개 조사 불가)';
+    dom.parentElement.appendChild(note);
+  }
+}
+
 // 전체 렌더
+renderTrendTop();
 renderRankCharts();
 renderMonthly();
 renderDatalab();
@@ -2963,6 +3199,7 @@ renderAge();
 renderCVTable();
 renderSoSSoM();
 renderInsights();
+renderSocialChart();
 
 
 // ── C-2: 섹션별 산출 근거 캡션 삽입 ──────────────────
