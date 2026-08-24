@@ -1,7 +1,7 @@
 {
-  "collected_at": "2026-08-24T10:32:58+09:00",
+  "collected_at": "2026-08-21T17:10:58+09:00",
   "baseline": "시몬스",
-  "run_id": "20260824_103258",
+  "run_id": "20260821_171058",
   "google": {
     "batches": [
       {
@@ -15,11 +15,11 @@
         ],
         "bridge": "시몬스",
         "raw_medians": {
-          "시몬스": 22.734615384615385,
-          "일룸": 14.156153846153845,
-          "까사미아": 8.96923076923077,
-          "에이스침대": 7.9253846153846155,
-          "지누스": 9.024615384615384
+          "시몬스": 22.453846153846154,
+          "일룸": 14.008461538461539,
+          "까사미아": 8.996153846153847,
+          "에이스침대": 7.720769230769231,
+          "지누스": 8.803076923076922
         },
         "note": null
       },
@@ -32,9 +32,9 @@
         ],
         "bridge": "시몬스",
         "raw_medians": {
-          "시몬스": 10.742307692307692,
-          "이케아": 78.05230769230769,
-          "한샘": 23.425384615384615
+          "시몬스": 10.916923076923077,
+          "이케아": 78.39461538461538,
+          "한샘": 23.73153846153846
         },
         "note": null
       },
@@ -46,8 +46,8 @@
         ],
         "bridge": "에몬스",
         "raw_medians": {
-          "시몬스": 22.734615384615385,
-          "에몬스": 3.276923076923077
+          "시몬스": 22.453846153846154,
+          "에몬스": 2.9307692307692306
         },
         "note": null
       },
@@ -60,9 +60,9 @@
         ],
         "bridge": "씰리침대",
         "raw_medians": {
-          "에몬스": 21.15,
-          "현대리바트": 22.25923076923077,
-          "씰리침대": 3.230769230769231
+          "에몬스": 17.784615384615385,
+          "현대리바트": 19.96923076923077,
+          "씰리침대": 3.85
         },
         "note": null
       },
@@ -74,120 +74,119 @@
         ],
         "bridge": null,
         "raw_medians": {
-          "씰리침대": 10.838461538461539,
-          "코웨이 비렉스": 0.5384615384615384
+          "씰리침대": 9.303846153846154,
+          "코웨이 비렉스": 1.41
         },
         "note": "코웨이 비렉스 측정 해상도 한계 (원본값 < 1). 예상 max/min ≈34x (20x 초과). P0-3 키워드 재검증 예정."
       }
     ],
     "linked": {
       "시몬스": 100.0,
-      "일룸": 62.3,
-      "까사미아": 39.5,
-      "에이스침대": 34.9,
-      "지누스": 39.7,
-      "이케아": 726.6,
-      "한샘": 218.1,
-      "에몬스": 14.4,
-      "현대리바트": 15.2,
-      "씰리침대": 2.2,
-      "코웨이 비렉스": 0.1
+      "일룸": 62.4,
+      "까사미아": 40.1,
+      "에이스침대": 34.4,
+      "지누스": 39.2,
+      "이케아": 718.1,
+      "한샘": 217.4,
+      "에몬스": 13.1,
+      "현대리바트": 14.7,
+      "씰리침대": 2.8,
+      "코웨이 비렉스": 0.4
     },
     "normalized": {
       "시몬스": 100.0,
-      "일룸": 62.3,
-      "까사미아": 39.5,
-      "에이스침대": 34.9,
-      "지누스": 39.7,
-      "이케아": 726.6,
-      "한샘": 218.1,
-      "에몬스": 14.4,
-      "현대리바트": 15.2,
-      "씰리침대": 2.2,
-      "코웨이 비렉스": 0.1
+      "일룸": 62.4,
+      "까사미아": 40.1,
+      "에이스침대": 34.4,
+      "지누스": 39.2,
+      "이케아": 718.1,
+      "한샘": 217.4,
+      "에몬스": 13.1,
+      "현대리바트": 14.7,
+      "씰리침대": 2.8,
+      "코웨이 비렉스": 0.4
     },
     "warnings": [
-      "배치C: 브리지 '에몬스' 값 3.3 < 5 (유효숫자 부족)",
-      "배치D: 브리지 '씰리침대' 값 3.2 < 5 (유효숫자 부족)",
-      "배치E: max/min=20.1x > 20 (배치 재구성 권장)"
+      "배치C: 브리지 '에몬스' 값 2.9 < 5 (유효숫자 부족)",
+      "배치D: 브리지 '씰리침대' 값 3.9 < 5 (유효숫자 부족)"
     ],
     "monthly_series": {
       "시몬스": [
         {
           "period": "2025-08",
-          "value": 233.1,
+          "value": 230.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-09",
-          "value": 102.3,
+          "value": 100.2,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-10",
-          "value": 93.5,
+          "value": 96.9,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-11",
-          "value": 110.8,
+          "value": 108.7,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-12",
-          "value": 101.2,
+          "value": 102.4,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-01",
-          "value": 81.4,
+          "value": 83.5,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-02",
-          "value": 84.7,
+          "value": 89.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-03",
-          "value": 83.6,
+          "value": 84.6,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-04",
-          "value": 115.5,
+          "value": 118.0,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-05",
-          "value": 86.2,
+          "value": 84.6,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-06",
-          "value": 69.3,
+          "value": 71.3,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-07",
-          "value": 75.9,
+          "value": 71.3,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-08",
-          "value": 62.7,
+          "value": 59.4,
           "cv": 0.0,
           "confidence": "stable"
         }
@@ -195,79 +194,79 @@
       "일룸": [
         {
           "period": "2025-08",
-          "value": 58.6,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2025-09",
-          "value": 55.0,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2025-10",
-          "value": 58.3,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2025-11",
-          "value": 61.6,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2025-12",
-          "value": 73.7,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-01",
-          "value": 80.3,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-02",
-          "value": 78.1,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-03",
-          "value": 63.3,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-04",
-          "value": 60.5,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-05",
-          "value": 56.3,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-06",
-          "value": 53.9,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-07",
           "value": 59.4,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
+          "period": "2025-09",
+          "value": 56.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-10",
+          "value": 57.9,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-11",
+          "value": 61.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-12",
+          "value": 76.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-01",
+          "value": 83.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-02",
+          "value": 74.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-03",
+          "value": 65.9,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-04",
+          "value": 62.4,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-05",
+          "value": 56.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-06",
+          "value": 47.9,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-07",
+          "value": 62.4,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
           "period": "2026-08",
-          "value": 50.6,
+          "value": 46.0,
           "cv": 0.0,
           "confidence": "stable"
         }
@@ -275,79 +274,79 @@
       "까사미아": [
         {
           "period": "2025-08",
-          "value": 39.6,
+          "value": 37.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-09",
-          "value": 30.8,
+          "value": 31.2,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-10",
-          "value": 36.3,
+          "value": 37.9,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-11",
-          "value": 44.9,
+          "value": 43.6,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-12",
-          "value": 48.4,
+          "value": 51.2,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-01",
-          "value": 49.5,
+          "value": 53.4,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-02",
-          "value": 36.3,
+          "value": 34.5,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-03",
-          "value": 43.1,
+          "value": 42.8,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-04",
-          "value": 37.4,
+          "value": 37.9,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-05",
-          "value": 37.8,
+          "value": 39.2,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-06",
-          "value": 41.8,
+          "value": 43.4,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-07",
-          "value": 31.9,
+          "value": 34.5,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-08",
-          "value": 35.2,
+          "value": 34.2,
           "cv": 0.0,
           "confidence": "stable"
         }
@@ -355,79 +354,79 @@
       "에이스침대": [
         {
           "period": "2025-08",
-          "value": 36.6,
+          "value": 34.2,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-09",
-          "value": 26.4,
+          "value": 30.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-10",
-          "value": 38.5,
+          "value": 36.7,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-11",
-          "value": 36.1,
+          "value": 36.5,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-12",
-          "value": 36.3,
+          "value": 39.0,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-01",
-          "value": 36.3,
+          "value": 35.6,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-02",
-          "value": 41.8,
+          "value": 40.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-03",
-          "value": 44.9,
+          "value": 41.9,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-04",
-          "value": 31.9,
+          "value": 32.3,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-05",
-          "value": 38.7,
+          "value": 38.3,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-06",
-          "value": 30.8,
+          "value": 30.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-07",
-          "value": 27.5,
+          "value": 30.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-08",
-          "value": 27.5,
+          "value": 22.3,
           "cv": 0.0,
           "confidence": "stable"
         }
@@ -435,79 +434,79 @@
       "지누스": [
         {
           "period": "2025-08",
-          "value": 42.5,
+          "value": 43.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-09",
-          "value": 35.2,
+          "value": 34.5,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-10",
-          "value": 47.3,
+          "value": 46.8,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-11",
-          "value": 40.5,
+          "value": 40.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-12",
-          "value": 40.7,
+          "value": 42.3,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-01",
-          "value": 42.9,
+          "value": 45.6,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-02",
-          "value": 38.5,
+          "value": 35.6,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-03",
-          "value": 45.7,
+          "value": 45.4,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-04",
-          "value": 36.3,
+          "value": 37.9,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-05",
-          "value": 38.7,
+          "value": 37.4,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-06",
-          "value": 39.6,
+          "value": 36.7,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-07",
-          "value": 34.1,
+          "value": 34.5,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-08",
-          "value": 34.1,
+          "value": 29.7,
           "cv": 0.0,
           "confidence": "stable"
         }
@@ -515,67 +514,67 @@
       "이케아": [
         {
           "period": "2025-08",
-          "value": 757.1,
+          "value": 754.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-09",
-          "value": 686.5,
+          "value": 687.0,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-10",
-          "value": 733.1,
+          "value": 725.9,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-11",
-          "value": 763.3,
+          "value": 760.3,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-12",
-          "value": 851.8,
+          "value": 845.0,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-01",
-          "value": 779.6,
+          "value": 776.3,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-02",
-          "value": 782.0,
+          "value": 776.3,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-03",
-          "value": 742.9,
+          "value": 738.3,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-04",
-          "value": 630.7,
+          "value": 632.0,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-05",
-          "value": 640.5,
+          "value": 633.9,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-06",
-          "value": 628.4,
+          "value": 627.5,
           "cv": 0.0,
           "confidence": "stable"
         },
@@ -587,7 +586,7 @@
         },
         {
           "period": "2026-08",
-          "value": 730.8,
+          "value": 659.5,
           "cv": 0.0,
           "confidence": "stable"
         }
@@ -595,79 +594,79 @@
       "한샘": [
         {
           "period": "2025-08",
-          "value": 207.9,
+          "value": 204.5,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-09",
-          "value": 211.8,
+          "value": 208.4,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-10",
-          "value": 204.8,
+          "value": 206.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-11",
-          "value": 238.3,
+          "value": 236.3,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-12",
-          "value": 235.1,
+          "value": 233.6,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-01",
-          "value": 237.4,
+          "value": 235.9,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-02",
-          "value": 232.7,
+          "value": 226.7,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-03",
-          "value": 258.8,
+          "value": 260.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-04",
-          "value": 204.8,
+          "value": 199.2,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-05",
-          "value": 230.9,
+          "value": 232.7,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-06",
-          "value": 202.5,
+          "value": 201.5,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-07",
-          "value": 193.2,
+          "value": 194.7,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-08",
-          "value": 176.9,
+          "value": 186.2,
           "cv": 0.0,
           "confidence": "stable"
         }
@@ -675,79 +674,79 @@
       "에몬스": [
         {
           "period": "2025-08",
-          "value": 4.4,
+          "value": 4.5,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-09",
-          "value": 14.3,
+          "value": 6.7,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-10",
-          "value": 9.9,
+          "value": 10.0,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-11",
-          "value": 28.2,
+          "value": 30.3,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-12",
-          "value": 18.7,
+          "value": 13.4,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-01",
-          "value": 17.6,
+          "value": 11.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-02",
-          "value": 9.9,
+          "value": 11.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-03",
-          "value": 11.4,
+          "value": 14.3,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-04",
-          "value": 16.5,
+          "value": 11.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-05",
-          "value": 20.2,
+          "value": 20.5,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-06",
-          "value": 15.4,
+          "value": 16.7,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-07",
-          "value": 12.1,
+          "value": 11.1,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-08",
-          "value": 8.8,
+          "value": 8.9,
           "cv": 0.0,
           "confidence": "stable"
         }
@@ -755,79 +754,79 @@
       "현대리바트": [
         {
           "period": "2025-08",
-          "value": 10.7,
+          "value": 11.0,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-09",
-          "value": 15.5,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2025-10",
-          "value": 7.5,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2025-11",
-          "value": 9.1,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2025-12",
-          "value": 11.1,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-01",
-          "value": 31.7,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-02",
-          "value": 28.1,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-03",
-          "value": 15.4,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-04",
-          "value": 15.7,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-05",
-          "value": 17.2,
-          "cv": 0.0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-06",
           "value": 11.4,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
+          "period": "2025-10",
+          "value": 12.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-11",
+          "value": 12.2,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-12",
+          "value": 8.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-01",
+          "value": 29.4,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-02",
+          "value": 27.0,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-03",
+          "value": 15.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-04",
+          "value": 16.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-05",
+          "value": 14.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-06",
+          "value": 14.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
           "period": "2026-07",
-          "value": 12.6,
+          "value": 6.8,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-08",
-          "value": 11.2,
+          "value": 12.5,
           "cv": 0.0,
           "confidence": "stable"
         }
@@ -841,20 +840,20 @@
         },
         {
           "period": "2025-09",
-          "value": 5.1,
+          "value": 7.7,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-10",
-          "value": 0.0,
-          "cv": 0,
+          "value": 4.2,
+          "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2025-11",
-          "value": 2.6,
-          "cv": 0.0,
+          "value": 0.0,
+          "cv": 0,
           "confidence": "stable"
         },
         {
@@ -865,49 +864,49 @@
         },
         {
           "period": "2026-01",
-          "value": 7.7,
+          "value": 4.0,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
           "period": "2026-02",
-          "value": 0.0,
-          "cv": 0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-03",
-          "value": 0.0,
-          "cv": 0,
-          "confidence": "stable"
-        },
-        {
-          "period": "2026-04",
-          "value": 2.6,
+          "value": 5.7,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
-          "period": "2026-05",
+          "period": "2026-03",
           "value": 3.5,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
-          "period": "2026-06",
+          "period": "2026-04",
           "value": 0.0,
           "cv": 0,
           "confidence": "stable"
         },
         {
-          "period": "2026-07",
+          "period": "2026-05",
           "value": 2.9,
           "cv": 0.0,
           "confidence": "stable"
         },
         {
+          "period": "2026-06",
+          "value": 2.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-07",
+          "value": 2.4,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
           "period": "2026-08",
-          "value": 4.3,
+          "value": 3.7,
           "cv": 0.0,
           "confidence": "stable"
         }
@@ -915,8 +914,8 @@
       "코웨이 비렉스": [
         {
           "period": "2025-08",
-          "value": 0.0,
-          "cv": 0,
+          "value": 3.6,
+          "cv": 0.0,
           "confidence": "stable"
         },
         {
@@ -987,7 +986,7 @@
         },
         {
           "period": "2026-08",
-          "value": 1.4,
+          "value": 1.9,
           "cv": 0.0,
           "confidence": "stable"
         }
@@ -1022,21 +1021,35 @@
         "30대": 18.9,
         "40대": 29.1,
         "50대": 31.3,
-        "60대+": 21.4
+        "60대+": 21.3
       }
     },
     "에이스침대": {
       "gender": {
-        "여성": 55.0,
-        "남성": 56.2
+        "여성": 54.9,
+        "남성": 56.1
       },
       "age": {
         "10대": 31.8,
         "20대": 52.3,
         "30대": 56.1,
         "40대": 50.0,
-        "50대": 56.0,
-        "60대+": 59.6
+        "50대": 55.9,
+        "60대+": 59.4
+      }
+    },
+    "한샘": {
+      "gender": {
+        "여성": 59.5,
+        "남성": 20.7
+      },
+      "age": {
+        "10대": 38.7,
+        "20대": 52.2,
+        "30대": 46.1,
+        "40대": 33.0,
+        "50대": 24.1,
+        "60대+": 17.9
       }
     },
     "씰리침대": {
@@ -1045,130 +1058,18 @@
         "남성": 45.9
       },
       "age": {
-        "10대": 13.7,
-        "20대": 45.3,
+        "10대": 13.8,
+        "20대": 45.5,
         "30대": 48.3,
-        "40대": 45.6,
+        "40대": 45.5,
         "50대": 36.3,
-        "60대+": 34.8
-      }
-    },
-    "지누스": {
-      "gender": {
-        "여성": 58.7,
-        "남성": 26.0
-      },
-      "age": {
-        "10대": 18.8,
-        "20대": 49.5,
-        "30대": 24.9,
-        "40대": 34.4,
-        "50대": 32.0,
-        "60대+": 28.5
-      }
-    },
-    "코웨이 비렉스": {
-      "gender": {
-        "여성": 13.2,
-        "남성": 19.1
-      },
-      "age": {
-        "10대": 10.6,
-        "20대": 23.9,
-        "30대": 23.6,
-        "40대": 20.7,
-        "50대": 11.2,
-        "60대+": 8.5
-      }
-    },
-    "한샘": {
-      "gender": {
-        "여성": 59.5,
-        "남성": 20.6
-      },
-      "age": {
-        "10대": 38.7,
-        "20대": 52.1,
-        "30대": 46.0,
-        "40대": 33.0,
-        "50대": 24.1,
-        "60대+": 17.8
-      }
-    },
-    "현대리바트": {
-      "gender": {
-        "여성": 27.9,
-        "남성": 16.9
-      },
-      "age": {
-        "10대": 15.1,
-        "20대": 9.8,
-        "30대": 28.1,
-        "40대": 14.6,
-        "50대": 15.2,
-        "60대+": 15.4
-      }
-    },
-    "까사미아": {
-      "gender": {
-        "여성": 56.5,
-        "남성": 57.7
-      },
-      "age": {
-        "10대": 36.1,
-        "20대": 54.2,
-        "30대": 55.5,
-        "40대": 53.5,
-        "50대": 54.7,
-        "60대+": 64.1
-      }
-    },
-    "일룸": {
-      "gender": {
-        "여성": 51.4,
-        "남성": 47.2
-      },
-      "age": {
-        "10대": 30.8,
-        "20대": 60.9,
-        "30대": 50.8,
-        "40대": 45.1,
-        "50대": 59.9,
-        "60대+": 42.9
-      }
-    },
-    "에몬스": {
-      "gender": {
-        "여성": 56.1,
-        "남성": 55.4
-      },
-      "age": {
-        "10대": 16.2,
-        "20대": 39.9,
-        "30대": 55.0,
-        "40대": 51.1,
-        "50대": 59.8,
-        "60대+": 45.6
-      }
-    },
-    "이케아": {
-      "gender": {
-        "여성": 56.7,
-        "남성": 55.0
-      },
-      "age": {
-        "10대": 33.8,
-        "20대": 56.9,
-        "30대": 61.4,
-        "40대": 48.2,
-        "50대": 40.0,
-        "60대+": 46.8
+        "60대+": 34.7
       }
     }
   },
   "naver_search": {
     "시몬스": {
-      "blog_news_total": 30
+      "blog_news_total": 17
     },
     "에이스침대": {
       "blog_news_total": 6
@@ -1180,13 +1081,13 @@
       "blog_news_total": 16
     },
     "코웨이 비렉스": {
-      "blog_news_total": 13
+      "blog_news_total": 14
     },
     "한샘": {
       "blog_news_total": 15
     },
     "현대리바트": {
-      "blog_news_total": 0
+      "blog_news_total": 3299
     },
     "까사미아": {
       "blog_news_total": 7
@@ -1241,82 +1142,74 @@
       "caution": true,
       "note": "코웨이 전체 매출 (비렉스 분리 불가)",
       "source": "naver_finance"
-    },
-    "시몬스": {
-      "amount": 3239,
-      "year": "2025",
-      "unit": "억원",
-      "caution": false,
-      "note": "매트리스 전업 (비상장, 감사보고서 기준)",
-      "source": "DART_audit_report"
     }
   },
   "gap": [
     {
+      "brand": "현대리바트",
+      "naver": 1055.5,
+      "google": 13.0,
+      "gap": 1042.5
+    },
+    {
       "brand": "이케아",
       "naver": 0.0,
-      "google": 637.9,
-      "gap": -637.9
-    },
-    {
-      "brand": "씰리침대",
-      "naver": 218.6,
-      "google": 1.9,
-      "gap": 216.7
-    },
-    {
-      "brand": "시몬스",
-      "naver": 218.6,
-      "google": 87.8,
-      "gap": 130.8
-    },
-    {
-      "brand": "일룸",
-      "naver": 153.0,
-      "google": 54.7,
-      "gap": 98.3
-    },
-    {
-      "brand": "코웨이 비렉스",
-      "naver": 94.7,
-      "google": 0.1,
-      "gap": 94.6
+      "google": 635.7,
+      "gap": -635.7
     },
     {
       "brand": "한샘",
-      "naver": 109.3,
-      "google": 191.5,
-      "gap": -82.2
+      "naver": 4.8,
+      "google": 192.5,
+      "gap": -187.7
     },
     {
-      "brand": "에몬스",
-      "naver": 94.7,
-      "google": 12.6,
-      "gap": 82.1
+      "brand": "시몬스",
+      "naver": 5.4,
+      "google": 88.5,
+      "gap": -83.1
     },
     {
-      "brand": "지누스",
-      "naver": 116.5,
-      "google": 34.9,
-      "gap": 81.6
+      "brand": "일룸",
+      "naver": 6.7,
+      "google": 55.2,
+      "gap": -48.5
     },
     {
       "brand": "까사미아",
-      "naver": 50.9,
-      "google": 34.7,
-      "gap": 16.2
+      "naver": 2.2,
+      "google": 35.5,
+      "gap": -33.3
     },
     {
-      "brand": "현대리바트",
-      "naver": 0.0,
-      "google": 13.3,
-      "gap": -13.3
+      "brand": "지누스",
+      "naver": 5.1,
+      "google": 34.7,
+      "gap": -29.6
     },
     {
       "brand": "에이스침대",
-      "naver": 43.7,
-      "google": 30.6,
-      "gap": 13.1
+      "naver": 1.9,
+      "google": 30.5,
+      "gap": -28.6
+    },
+    {
+      "brand": "에몬스",
+      "naver": 4.2,
+      "google": 11.6,
+      "gap": -7.4
+    },
+    {
+      "brand": "씰리침대",
+      "naver": 9.6,
+      "google": 2.5,
+      "gap": 7.1
+    },
+    {
+      "brand": "코웨이 비렉스",
+      "naver": 4.5,
+      "google": 0.4,
+      "gap": 4.1
     }
   ],
   "keyword_version": "2026-08-v2",

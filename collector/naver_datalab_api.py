@@ -85,6 +85,12 @@ def _datalab_request(batch_names, gender="", ages=None, timeframe_months=12):
             return {item["title"]: item["data"] for item in result.get("results", [])}
     except urllib.error.HTTPError as e:
         body_text = e.read().decode("utf-8", errors="replace")
+        if e.code == 401:
+            raise ValueError(
+                "DataLab API 권한 없음 (401) — 네이버 개발자 센터에서 "
+                "'데이터랩(검색어트렌드)' API 권한 신청 필요. "
+                "https://developers.naver.com/apps/#/register"
+            )
         raise ValueError(f"DataLab API HTTP {e.code}: {body_text[:200]}")
     except Exception as e:
         raise ValueError(f"DataLab API 오류: {e}")

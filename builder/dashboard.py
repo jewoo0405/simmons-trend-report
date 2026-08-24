@@ -579,9 +579,14 @@ def build_dashboard(data, report_month, collected_at, confidence_score,
 
     # ── 분석 패널용 집계 변수 ──────────────────────────────
     _a_demo = data.get("demographics", {})
-    _a_simmons_age = _a_demo.get("시몬스", {}).get("age", {})
+    # 연령대 비율 정규화 (raw DataLab 지수 → 브랜드 내 합계=100% 비율)
+    _a_simmons_age_raw = _a_demo.get("시몬스", {}).get("age", {})
+    _a_s_age_total = sum(_a_simmons_age_raw.values()) or 1
+    _a_simmons_age = {k: round(v / _a_s_age_total * 100, 1) for k, v in _a_simmons_age_raw.items()}
     _a_young = round(_a_simmons_age.get("20대", 0) + _a_simmons_age.get("30대", 0), 1)
-    _a_ace_age = _a_demo.get("에이스침대", {}).get("age", {})
+    _a_ace_age_raw = _a_demo.get("에이스침대", {}).get("age", {})
+    _a_a_age_total = sum(_a_ace_age_raw.values()) or 1
+    _a_ace_age = {k: round(v / _a_a_age_total * 100, 1) for k, v in _a_ace_age_raw.items()}
     _a_ace_young = round(_a_ace_age.get("20대", 0) + _a_ace_age.get("30대", 0), 1)
     _a_esov = round(_simmons_sos_cat - (_simmons_som or 0), 1) if _simmons_som else None
     _a_kpi_gap = round(60.0 - _simmons_sos_cat, 1)
@@ -1233,6 +1238,17 @@ body {{
       <button class="an-print-btn" onclick="printAnalysis()">⎙ PDF 인쇄</button>
       <button class="an-close-btn" onclick="closeAnalysis()">✕</button>
     </div>
+    <div id="an-partial-notice" style="display:none;background:#fff3e0;border:1px solid #ffb300;border-radius:6px;padding:7px 14px;font-size:11px;color:#e65100;margin-bottom:12px;">
+      ⚠ <strong>미완결 월 데이터</strong> — 이 보고서는 월 중간 수집본입니다. 월말 최종 집계 후 수치가 변동될 수 있습니다. 확정 데이터는 익월 초 보고서를 참고하세요.
+    </div>
+    <script>
+    (function() {{
+      if (typeof IS_PARTIAL_MONTH !== 'undefined' && IS_PARTIAL_MONTH) {{
+        var el = document.getElementById('an-partial-notice');
+        if (el) el.style.display = 'block';
+      }}
+    }})();
+    </script>
 
     <!-- 본문 -->
     <div class="analysis-body">
@@ -1243,6 +1259,7 @@ body {{
           <div class="akc-label">침대 전업 SoS</div>
           <div class="akc-val">{_simmons_sos_cat}%</div>
           <div class="akc-sub">목표 60% · 갭 {_a_kpi_gap}%p</div>
+          <div class="akc-sub" id="an-sos-trend" style="margin-top:3px;font-size:10px;"></div>
         </div>
         <div class="an-kpi-card">
           <div class="akc-label">전체 SoS</div>
@@ -1268,8 +1285,8 @@ body {{
         <h3><span class="an-num">1</span>브랜드 포지셔닝 진단 — 우리가 어디 서 있는가</h3>
         <p><strong>침대 전업 카테고리에서 시몬스는 검색 점유율 1위</strong>입니다. 에이스침대·씰리침대·지누스와 합산한 분모 기준으로 시몬스가 <strong>{_simmons_sos_cat}%</strong>를 점유합니다. 직접 경쟁사 4개를 합쳤을 때 시몬스가 절반 이상을 차지한다는 수치를 객관적으로 제시합니다.</p>
         <div class="an-highlight">
-          ✅ 이케아(구글 지수 716) · 한샘(216)이 검색량은 높지만, <strong>침대 전업 경쟁에서 시몬스는 압도적 1위</strong>입니다.<br>
-          ⚠ 전체 홈퍼니싱 시장에서는 3위 — 브랜드 경쟁 범위를 어디로 설정하느냐에 따라 전략이 달라집니다.
+          ✅ 이케아(구글 지수 716) · 한샘(216)은 <strong>가구·인테리어 전 품목을 다루는 종합 브랜드</strong>로, 침대 외 소파·수납·주방 등의 검색이 합산되어 지수가 높습니다. 침대 전업 4개 브랜드(시몬스·에이스침대·씰리침대·지누스)만 기준으로 하면 <strong>시몬스가 압도적 1위</strong>입니다.<br>
+          ⚠ 전체 홈퍼니싱 시장 기준으로는 3위 — 비교 범위를 '침대'로 좁히느냐, '홈퍼니싱 전체'로 넓히느냐에 따라 시몬스의 포지션이 달라지므로 보고 목적에 맞게 구분해야 합니다.
         </div>
         <p>브랜드 회의, 임원 보고, 대외 커뮤니케이션에서 시몬스의 시장 지위를 <strong>감이 아닌 숫자로</strong> 설명할 수 있습니다.</p>
       </div>
@@ -1301,10 +1318,11 @@ body {{
         <h3><span class="an-num">4</span>연령대 분포 — 미래 고객이 오고 있는가</h3>
         <div class="an-warn">
           ⚠ <strong>시몬스 20+30대 검색 비중 {_a_young_str}</strong> vs 에이스침대 {_a_ace_young_str}<br>
-          시몬스를 검색하는 20대 비중이 에이스침대의 절반 수준입니다.
+          브랜드 내 연령대 구성비(합계=100%) 기준 — 시몬스의 20·30대 비중이 에이스침대보다 낮습니다.
         </div>
-        <p>시몬스의 현재 고객층은 <strong>40~60대 중심</strong>입니다. 이 고객들이 10년 후 은퇴하면 검색 기반 자체가 줄어듭니다. <strong>지금 20~30대 유입이 없으면 5~10년 후 브랜드 노후화 위험</strong>이 데이터로 실증됩니다.</p>
-        <p>마케팅팀은 이 데이터를 근거로 "MZ세대 타겟 캠페인"의 필요성을 경영진에게 <strong>에이스침대 대비 %차이로</strong> 제시할 수 있습니다. 막연한 트렌드가 아니라 정량 근거입니다.</p>
+        <p>시몬스의 현재 검색자 주력층은 <strong>40~60대 중심</strong>입니다. 이 고객들이 10년 후 은퇴하면 검색 기반 자체가 줄어듭니다. <strong>지금 20~30대 유입이 없으면 5~10년 후 브랜드 노후화 위험</strong>이 데이터로 실증됩니다.</p>
+        <p>마케팅팀은 이 데이터를 근거로 "MZ세대 타겟 캠페인"의 필요성을 경영진에게 <strong>에이스침대 대비 수치 차이로</strong> 제시할 수 있습니다. 막연한 트렌드가 아닌 정량 근거입니다.</p>
+        <p style="font-size:11px;color:#888;margin-top:4px;">※ 출처: Naver DataLab — <strong>네이버 로그인 사용자</strong> 기준 집계. 유튜브·인스타그램 등을 주로 이용하는 MZ세대 일부는 과소 반영될 수 있어 실제 격차는 더 클 수 있습니다.</p>
       </div>
 
       <!-- 5. 콘텐츠 생산성 -->
@@ -1511,7 +1529,7 @@ body {{
   </div>
 
   <!-- DataLab 트렌드 (§12, API 수집 시 표시) -->
-  <div class="chart-row" id="datalab-row" style="display:none;">
+  <div class="chart-row" id="datalab-row">
     <div class="card">
       <div class="card-title">네이버 데이터랩 검색어트렌드
         <span class="source-badge badge-naver">Naver DataLab API</span>
@@ -1523,6 +1541,9 @@ body {{
   </div>
 
   <!-- ⑧ 성별 / 연령대 (T2-6: 인덱스화 토글) -->
+  <div id="demo-partial-notice" style="display:none;background:#fff3e0;border:1px solid #ffcc02;border-radius:8px;padding:8px 14px;font-size:11px;color:#e65100;margin-bottom:-4px;">
+    ⚠ 인구통계 일부 브랜드만 수집됨 (<span id="demo-collected-brands"></span>) — DataLab API 권한 신청 또는 쿠키 갱신 후 전체 수집 가능
+  </div>
   <div class="chart-row col2" id="section-demo">
     <div class="card">
       <div class="card-title">성별 검색 관심도
@@ -2060,18 +2081,24 @@ function toggleDetailCols(btn) {{
 
 // C: 네이버 순위 상세 데이터 테이블
 function renderNaverRankTable(items) {{
+  const unmeasurable = RAW.naver?.unmeasurable || [];
   const rows = items.map(item => {{
     const badge = `<span class="src-badge ns">NS</span>`;
     const isSim = item.brand === '시몬스';
+    const isUM  = unmeasurable.includes(item.brand);
+    const umBadge = isUM
+      ? `<span style="font-size:9px;font-weight:700;background:#f1f5f9;color:#64748b;padding:1px 5px;border-radius:3px;margin-left:4px;border:1px solid #cbd5e1;">측정불가</span>`
+      : '';
+    const statusText = isUM ? '⚠ 측정 불가 (네이버 건수 미표기 또는 수집 오류)' : '정상';
     return `<tr class="${{isSim ? 'simmons-row' : ''}}">
       <td>${{item.rank}}</td>
-      <td>${{isSim ? '<strong>'+item.brand+'</strong>' : item.brand}} ${{badge}}</td>
-      <td style="text-align:right">${{item.value.toFixed(1)}}</td>
+      <td>${{isSim ? '<strong>'+item.brand+'</strong>' : item.brand}} ${{badge}}${{umBadge}}</td>
+      <td style="text-align:right">${{isUM ? '—' : item.value.toFixed(1)}}</td>
       <td class="detail-cell" style="display:none">
         <span class="formula-text">블로그+뉴스 건수</span>
       </td>
       <td class="detail-cell" style="display:none">Naver 검색 API · 블로그+뉴스</td>
-      <td class="detail-cell" style="display:none">정상</td>
+      <td class="detail-cell" style="display:none">${{statusText}}</td>
     </tr>`;
   }}).join('');
 
@@ -2098,6 +2125,7 @@ function renderNaverRankTable(items) {{
 // 2. 네이버 순위 바차트
 function renderNaverRank(sharedLeft) {{
   const norm = RAW.naver?.normalized || {{}};
+  const unmeasurable = RAW.naver?.unmeasurable || [];
   let entries = Object.entries(norm);
   entries = _filterByTier(entries);
   const sorted = entries.sort((a,b)=>a[1]-b[1]);  // 오름차순 → ECharts 가로막대에서 높은 값이 위
@@ -2107,7 +2135,7 @@ function renderNaverRank(sharedLeft) {{
   const h = calcBarChartHeight(sorted.length);
   chartDom.style.height = h + 'px';
   const chart = echarts.init(chartDom);
-  const vals = sorted.map(x=>x[1]).filter(v=>v!=null);
+  const vals = sorted.filter(x=>x[1]!=null && !unmeasurable.includes(x[0])).map(x=>x[1]);
   const brandNames = sorted.map(x=>x[0]);
   const dataMax = vals.length ? Math.max(...vals) : 100;
   const xOpt = axisOption(dataMax, '', 5);
@@ -2121,19 +2149,23 @@ function renderNaverRank(sharedLeft) {{
       barMaxWidth:BAR_HEIGHT,
       data:sorted.map(x=>{{
         const isBase = x[0]==='시몬스';
+        const isUM = unmeasurable.includes(x[0]);
         const tier = BRAND_TO_TIER[x[0]];
         const isCautionTier = tier === 'C' || tier === 'D';
         return {{
-          value:x[1],
+          value: isUM ? dataMax * 0.08 : x[1],
           itemStyle:{{
-            color:COLORS[x[0]]||'#888',
-            opacity: isBase ? 1 : (isCautionTier ? 0.45 : 0.75),
+            color: isUM ? '#e2e8f0' : (COLORS[x[0]]||'#888'),
+            opacity: isUM ? 1 : (isBase ? 1 : (isCautionTier ? 0.45 : 0.75)),
             borderColor: isBase ? '#c8a96e' : 'transparent',
             borderWidth: isBase ? 2 : 0
           }}
         }};
       }}),
-      label:{{show:true,position:'right',fontSize:11,formatter:p=>p.value}}
+      label:{{show:true,position:'right',fontSize:11,formatter:p=>{{
+        const name = brandNames[p.dataIndex];
+        return unmeasurable.includes(name) ? '측정불가' : p.value;
+      }}}}
     }}],
     tooltip: {{
       trigger: 'axis',
@@ -2152,7 +2184,10 @@ function renderNaverRank(sharedLeft) {{
       extraCssText: 'box-shadow: 0 2px 8px rgba(0,0,0,0.15); pointer-events:none;',
       formatter: p => {{
         const t = BRAND_TO_TIER[p[0].name] || '?';
-        return `${{p[0].name}} [Tier ${{t}}]<br>${{p[0].value}} (시몬스=100)`;
+        const isUM = unmeasurable.includes(p[0].name);
+        return isUM
+          ? `${{p[0].name}} [Tier ${{t}}]<br>⚠ 측정 불가`
+          : `${{p[0].name}} [Tier ${{t}}]<br>${{p[0].value}} (시몬스=100)`;
       }}
     }}
   }});
@@ -2641,8 +2676,20 @@ function renderGender() {{
   const brands = Object.keys(demo).filter(b=>demo[b].gender && Object.keys(demo[b].gender).length);
   if(!brands.length) {{
     document.getElementById('chart-gender').innerHTML =
-      '<div class="no-data">데이터 수집 불가<br><small>DataLab 로그인 필요</small></div>';
+      '<div class="no-data">데이터 수집 불가<br><small>DataLab API 권한 신청 또는 쿠키 갱신 필요</small></div>';
+    // 부분 수집 안내 배너
+    const notice = document.getElementById('demo-partial-notice');
+    if (notice) {{ notice.style.display = ''; document.getElementById('demo-collected-brands').textContent = '없음'; }}
     return;
+  }}
+  // 부분 수집 감지: 전체 브랜드 수와 비교
+  const totalBrands = BRANDS_CFG.length;
+  if (brands.length < totalBrands) {{
+    const notice = document.getElementById('demo-partial-notice');
+    if (notice) {{
+      notice.style.display = '';
+      document.getElementById('demo-collected-brands').textContent = brands.join(', ') + ' ' + brands.length + '/' + totalBrands + '개';
+    }}
   }}
   const genders = ['여성','남성'];
   // 브랜드별 100% 정규화
@@ -2838,9 +2885,13 @@ function renderDatalab() {{
   const dl = RAW.datalab || {{}};
   const msAll = dl.monthly_series || {{}};
   const periodsAll = dl.periods || [];
-  if (!Object.keys(msAll).length) return;
-
-  document.getElementById('datalab-row').style.display = '';
+  // 데이터 없으면 섹션 전체 숨김
+  const datalabRow = document.getElementById('datalab-row');
+  if (!Object.keys(msAll).length) {{
+    if (datalabRow) datalabRow.style.display = 'none';
+    return;
+  }}
+  if (datalabRow) datalabRow.style.display = '';
 
   // 기간 필터 적용
   const periodMap = {{ '3M': 3, '6M': 6, '12M': 12, 'ALL': 9999 }};
@@ -3147,6 +3198,22 @@ function exportPrint() {{
 function openAnalysis() {{
   document.getElementById('analysis-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  // 전월 대비 구글 검색 지수 추세 (시몬스 기준)
+  const trendEl = document.getElementById('an-sos-trend');
+  if (trendEl) {{
+    const ms = RAW.google?.monthly_series?.['시몬스'] || [];
+    const minLen = IS_PARTIAL_MONTH ? 3 : 2;
+    if (ms.length >= minLen) {{
+      const curr = IS_PARTIAL_MONTH ? ms[ms.length-2]?.value : ms[ms.length-1]?.value;
+      const prev = IS_PARTIAL_MONTH ? ms[ms.length-3]?.value : ms[ms.length-2]?.value;
+      const period = IS_PARTIAL_MONTH ? ms[ms.length-2]?.period?.substring(0,7) : ms[ms.length-1]?.period?.substring(0,7);
+      if (curr != null && prev != null && prev > 0) {{
+        const pct = ((curr - prev) / prev * 100).toFixed(1);
+        const isUp = parseFloat(pct) >= 0;
+        trendEl.innerHTML = `${{period}} 전월 대비 <span style="color:${{isUp?'#80cbc4':'#ef9a9a'}};font-weight:700;">${{isUp?'▲':'▼'}}${{isUp?'+':''}}${{pct}}%</span>`;
+      }}
+    }}
+  }}
 }}
 function closeAnalysis() {{
   document.getElementById('analysis-overlay').classList.remove('open');

@@ -178,6 +178,18 @@ def update_index():
     print(f"[인덱스] 갱신 완료 ({len(files)}개 보고서)")
 
 
+def _load_latest_snapshot():
+    """data/latest.json 로드. 없으면 None 반환."""
+    path = os.path.join(os.path.dirname(__file__), "data", "latest.json")
+    if os.path.exists(path):
+        try:
+            with open(path, encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return None
+    return None
+
+
 def run():
     db.init_db()
     now = datetime.now()
@@ -199,25 +211,49 @@ def run():
     print(f"  run_id: {run_id}")
     print(f"{'='*50}\n")
 
+    # 기존 스냅샷 로드 (수집 실패 시 carry-forward용)
+    _prev_snap = _load_latest_snapshot()
+
     # 1. Google Trends 수집
     print("[1/6] Google Trends 수집 중...")
     google_data = fetch_google_trends(run_id, collected_at)
+    if not google_data.get("normalized") and _prev_snap:
+        print("  ⚠ Google 수집 실패 — 이전 스냅샷 데이터로 대체합니다")
+        google_data = _prev_snap.get("google", {})
 
     # 2. Naver 검색 지수 수집
     print("\n[2/6] 네이버 관심도 수집 중...")
     naver_data = fetch_naver_counts(run_id, collected_at)
+    if not naver_data.get("normalized") and _prev_snap:
+        print("  ⚠ Naver 수집 실패 — 이전 스냅샷 데이터로 대체합니다")
+        prev_naver_raw = _prev_snap.get("naver_search", {})
+        if prev_naver_raw:
+            naver_data = {
+                "normalized": {b: d.get("blog_news_total", 0) for b, d in prev_naver_raw.items()},
+                "stats": {b: {"median": d.get("blog_news_total", 0), "cv": 0.0} for b, d in prev_naver_raw.items()},
+                "period": "prev_snapshot",
+            }
 
     # 3. DataLab 검색어트렌드 수집 (§12)
     print("\n[3/6] DataLab 검색어트렌드 수집 중...")
     datalab_data = fetch_datalab_trends(run_id, collected_at)
+    if not datalab_data and _prev_snap and _prev_snap.get("naver_datalab_trend"):
+        print("  ⚠ DataLab 트렌드 수집 실패 — 이전 스냅샷 데이터로 대체합니다")
+        datalab_data = _prev_snap["naver_datalab_trend"]
 
     # 4. 네이버 인구통계 (DataLab API 우선, Playwright 폴백)
     print("\n[4/6] 네이버 성별·연령 수집 중...")
     demographics = fetch_naver_demographics(run_id, collected_at)
+    if not demographics and _prev_snap and _prev_snap.get("naver_datalab"):
+        print("  ⚠ 인구통계 수집 실패 — 이전 스냅샷 데이터로 대체합니다")
+        demographics = _prev_snap["naver_datalab"]
 
     # 5. 매출 수집 (네이버 증권 스크래핑)
     print("\n[5/6] 매출 수집 중 (네이버 증권)...")
     dart_data = fetch_dart_revenues()
+    if not dart_data and _prev_snap and _prev_snap.get("dart"):
+        print("  ⚠ 매출 수집 실패 — 이전 스냅샷 데이터로 대체합니다")
+        dart_data = _prev_snap["dart"]
 
     # 6. 분석
     print("\n[6/6] 분석 중...")
