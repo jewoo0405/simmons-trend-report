@@ -21,7 +21,7 @@ def _build_with_retry(pytrends, group, retries=3):
 
 
 def fetch_rankings():
-    """11개 브랜드 구글 트렌드 순위 (시몬스=100 기준 정규화)"""
+    """12개 브랜드 구글 트렌드 순위 (시몬스=100 기준 정규화)"""
     pytrends = TrendReq(hl='ko', tz=540)
     raw = {}
 

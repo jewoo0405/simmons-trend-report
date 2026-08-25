@@ -14,7 +14,7 @@ KEYWORD_CHANGELOG = [
 ]
 
 TIER_NEW = {
-    "A": {"label": "Tier A — 프리미엄 매트리스", "warning": None, "brands": ["시몬스", "씰리침대"]},
+    "A": {"label": "Tier A — 프리미엄 매트리스", "warning": None, "brands": ["시몬스", "씰리침대", "템퍼"]},
     "B": {"label": "Tier B — 매스 침대", "warning": None, "brands": ["에이스침대", "에몬스", "지누스"]},
     "C": {"label": "Tier C — 종합가구", "warning": "검색 지수에 가구·인테리어 수요 혼재. 직접 비교 주의.", "brands": ["한샘", "현대리바트", "까사미아", "일룸", "이케아"]},
     "D": {"label": "Tier D — 렌탈", "warning": "렌탈 사업 모델로 직접 비교 주의.", "brands": ["코웨이 비렉스"]},
@@ -44,6 +44,8 @@ BRANDS = [
      "shop_kw": "에몬스 침대",        "youtube": "에몬스가구",         "instagram": "emons_furniture"},
     {"name": "이케아",       "tier": 3, "baseline": False, "category": "general_furniture","trend_kw": "이케아",         "naver_kw": "이케아 침대",        "color": "#378add",
      "shop_kw": "이케아 매트리스",    "youtube": "IKEA Korea",         "instagram": "ikea_korea"},
+    {"name": "템퍼",         "tier": 0, "baseline": False, "category": "bed_specialist",   "trend_kw": "템퍼",           "naver_kw": "템퍼 매트리스",      "color": "#8b1538",
+     "shop_kw": "템퍼 매트리스",      "youtube": "Tempur Korea",       "instagram": "tempur_kr"},
 ]
 
 # 침대 전업 브랜드 집합 (P1-1 SoS 카테고리 기준 분모)
@@ -64,6 +66,7 @@ DATALAB_BATCHES = [
     ["시몬스", "에이스침대", "씰리침대", "지누스", "코웨이 비렉스"],
     ["시몬스", "한샘", "현대리바트", "까사미아", "일룸"],
     ["시몬스", "에몬스", "이케아"],
+    ["시몬스", "씰리침대", "템퍼"],
 ]
 
 # Google Trends 배치 — P0-2 체인 정규화 재설계 (2026-08-19)
@@ -75,8 +78,9 @@ TREND_BATCHES = [
     ["시몬스", "에몬스"],                                       # C: 소형상위 (시몬스 앵커, 에몬스 브리지), 예상 max/min ≈7x
     ["에몬스", "현대리바트", "씰리침대"],                       # D: 소형하위 (에몬스 브리지), 예상 max/min ≈4x
     ["씰리침대", "코웨이 비렉스"],                              # E: 해상도 한계 (씰리침대 브리지), 예상 max/min ≈34x ※
+    ["씰리침대", "템퍼"],                                       # F: 템퍼 (씰리침대 브리지), max/min 미확인
 ]
-TREND_BRIDGES = ["시몬스", "시몬스", "에몬스", "씰리침대"]  # A→B, B→C, C→D, D→E 브리지
+TREND_BRIDGES = ["시몬스", "시몬스", "에몬스", "씰리침대", "씰리침대"]  # A→B, B→C, C→D, D→E, E→F 브리지
 
 # 배치 비고 (max/min 20x 달성 불가 배치 주석)
 TREND_BATCH_NOTES = {
@@ -96,4 +100,5 @@ KEYWORD_GROUPS = {
     "일룸":         ["일룸 침대", "일룸 매트리스"],
     "에몬스":       ["에몬스", "에몬스 가구", "에몬스 침대", "EMONS", "에몬스침대"],
     "이케아":       ["이케아 침대", "이케아 매트리스", "IKEA"],    # '이케아' 단독 금지 — 카테고리 오염
+    "템퍼":         ["템퍼", "템퍼침대", "템퍼 매트리스", "Tempur"],
 }

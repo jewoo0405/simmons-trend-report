@@ -1,5 +1,5 @@
 def share_of_search(brand_medians):
-    """브랜드별 검색 점유율 — 전체 11개 브랜드 합계 기준 (SoS_total)"""
+    """브랜드별 검색 점유율 — 전체 12개 브랜드 합계 기준 (SoS_total)"""
     total = sum(brand_medians.values())
     if total == 0:
         return {k: 0.0 for k in brand_medians}

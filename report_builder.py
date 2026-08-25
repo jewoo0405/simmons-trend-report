@@ -161,8 +161,8 @@ def _simmons_summary(google_norm, naver_norm, report_month):
         {report_month} 시몬스 포지셔닝 요약
       </div>
       <ul style="margin:0;padding-left:18px;font-size:13px;line-height:2;color:#333;">
-        <li>구글 트렌드: 11개 브랜드 중 <b>{g_pos}위</b> (1위: {g_top})</li>
-        <li>네이버 관심도: 11개 브랜드 중 <b>{n_pos}위</b> (1위: {n_top})</li>
+        <li>구글 트렌드: 12개 브랜드 중 <b>{g_pos}위</b> (1위: {g_top})</li>
+        <li>네이버 관심도: 12개 브랜드 중 <b>{n_pos}위</b> (1위: {n_top})</li>
         <li>구글 기준 시몬스 지수: <b>100</b> (자사 기준점)</li>
         <li>네이버 기준 시몬스 지수: <b>{naver_norm.get("시몬스", 0)}</b></li>
       </ul>
@@ -200,7 +200,7 @@ def build_report(google_norm, naver_norm, naver_raw, monthly_data, periods, repo
 <div class="wrap">
   <div class="header">
     <h1>시몬스 브랜드 경쟁 트렌드 보고서</h1>
-    <p>{report_month} | 생성: {today} | 대상: 11개 브랜드</p>
+    <p>{report_month} | 생성: {today} | 대상: 12개 브랜드</p>
   </div>
   <div class="body">
 
@@ -285,7 +285,7 @@ def build_index(report_files):
 <div class="wrap">
   <div class="header">
     <h1>시몬스 브랜드 트렌드 보고서</h1>
-    <p>11개 브랜드 경쟁 분석 — 월간 자동 발행</p>
+    <p>12개 브랜드 경쟁 분석 — 월간 자동 발행</p>
   </div>
   <table>{items}</table>
   <div class="footer"><span>SIMMONS KOREA · CS팀</span></div>

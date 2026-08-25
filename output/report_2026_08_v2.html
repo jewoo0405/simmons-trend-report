@@ -691,6 +691,7 @@ body {
   }
 }
 </style>
+<style>#section-kpi{display:none!important;}#section-price-table{display:none!important;}</style>
 </head>
 <body>
 
@@ -948,7 +949,161 @@ body {
 <!-- 메인 콘텐츠 (결론 우선 → 근거 데이터) -->
 <div id="main">
 
+
+  <div class="chart-row" id="section-revenue-market" style="margin-top:0;">
+    <div class="card">
+      <div class="card-title">매트리스 시장 매출 현황 · 시몬스 비중
+        <span class="source-badge" style="background:#fff3e0;color:#e65100;">추정치 포함</span>
+        <span class="period-chip">FY2025</span>
+      </div>
+      <div class="card-sub">침대·매트리스 매출이 분리되는 6개사 기준</div>
+
+      <div style="display:flex;gap:12px;margin:14px 0;">
+        <div style="flex:1;background:#0b0b0b;border-radius:8px;padding:14px;text-align:center;">
+          <div style="font-size:28px;font-weight:800;color:#c8a96e;">25.4%</div>
+          <div style="font-size:11px;color:#aaa;margin-top:3px;">시몬스 SoM (매트리스 부문)</div>
+          <div style="font-size:10px;color:#555;margin-top:1px;">분모 12,774억 (6개사 합계)</div>
+        </div>
+        <div style="flex:2;background:#f0fdf4;border-radius:8px;padding:14px;border:1px solid #bbf7d0;
+          font-size:11px;color:#166534;line-height:1.9;">
+          <b>DART 전체 기준(20.8%)</b>과의 차이:<br>
+          ① 에이스침대 DART 전체 매출 기준 적용 (3,173억)<br>
+          ② 코웨이 비렉스 전사→비렉스 부문만 (49,636억→3,654억)<br>
+          ③ 지누스 연결→국내 별도 (9,132억→590억)<br>
+          ④ 템퍼 국내 추정치 신규 포함 (1,229억)<br>
+          ⑤ 씰리침대 (주)코리아씰 DART FY2025 포함 (889억)
+        </div>
+      </div>
+
+      
+      <div style="display:flex;align-items:center;gap:10px;margin:5px 0;padding:2px 4px;">
+        <div style="width:95px;font-size:12px;font-weight:400;
+          text-align:right;color:#2a78d6;opacity:0.45;">코웨이 비렉스</div>
+        <div style="flex:1;background:#f1f5f9;border-radius:4px;height:20px;overflow:hidden;">
+          <div style="width:100.0%;background:#2a78d6;opacity:0.45;height:100%;display:flex;align-items:center;
+            padding-left:6px;font-size:10px;color:#fff;font-weight:600;">
+            3654억</div>
+        </div>
+        <div style="width:130px;font-size:11px;text-align:right;">
+          <b>3,654억</b>&nbsp;<span style="color:#9ca3af;">28.6%</span></div>
+      </div>
+      <div style="font-size:10px;color:#9ca3af;padding-left:111px;margin-top:-3px;margin-bottom:4px;">
+        출처: 비렉스 부문 추정 (코웨이 전사 49,636억과 별개)</div>
+      <div style="display:flex;align-items:center;gap:10px;margin:5px 0;outline:2px solid #c8a96e;outline-offset:2px;border-radius:6px;padding:2px 4px;">
+        <div style="width:95px;font-size:12px;font-weight:700;
+          text-align:right;color:#0b0b0b;opacity:1.0;">시몬스</div>
+        <div style="flex:1;background:#f1f5f9;border-radius:4px;height:20px;overflow:hidden;">
+          <div style="width:88.6%;background:#0b0b0b;opacity:1.0;height:100%;display:flex;align-items:center;
+            padding-left:6px;font-size:10px;color:#fff;font-weight:600;">
+            3239억</div>
+        </div>
+        <div style="width:130px;font-size:11px;text-align:right;">
+          <b>3,239억</b>&nbsp;<span style="color:#9ca3af;">25.4%</span></div>
+      </div>
+      <div style="font-size:10px;color:#9ca3af;padding-left:111px;margin-top:-3px;margin-bottom:4px;">
+        출처: DART 감사보고서 FY2025</div>
+      <div style="display:flex;align-items:center;gap:10px;margin:5px 0;padding:2px 4px;">
+        <div style="width:95px;font-size:12px;font-weight:400;
+          text-align:right;color:#e34948;opacity:0.75;">에이스침대</div>
+        <div style="flex:1;background:#f1f5f9;border-radius:4px;height:20px;overflow:hidden;">
+          <div style="width:86.8%;background:#e34948;opacity:0.75;height:100%;display:flex;align-items:center;
+            padding-left:6px;font-size:10px;color:#fff;font-weight:600;">
+            3173억</div>
+        </div>
+        <div style="width:130px;font-size:11px;text-align:right;">
+          <b>3,173억</b>&nbsp;<span style="color:#9ca3af;">24.8%</span></div>
+      </div>
+      <div style="font-size:10px;color:#9ca3af;padding-left:111px;margin-top:-3px;margin-bottom:4px;">
+        출처: 에이스침대 DART 전체 매출 FY2025</div>
+      <div style="display:flex;align-items:center;gap:10px;margin:5px 0;padding:2px 4px;">
+        <div style="width:95px;font-size:12px;font-weight:400;
+          text-align:right;color:#8b1538;opacity:0.75;">템퍼</div>
+        <div style="flex:1;background:#f1f5f9;border-radius:4px;height:20px;overflow:hidden;">
+          <div style="width:33.6%;background:#8b1538;opacity:0.75;height:100%;display:flex;align-items:center;
+            padding-left:6px;font-size:10px;color:#fff;font-weight:600;">
+            1229억</div>
+        </div>
+        <div style="width:130px;font-size:11px;text-align:right;">
+          <b>1,229억</b>&nbsp;<span style="color:#9ca3af;">9.6%</span></div>
+      </div>
+      <div style="font-size:10px;color:#9ca3af;padding-left:111px;margin-top:-3px;margin-bottom:4px;">
+        출처: 국내 매트리스 시장 추정치 (공개 DART 없음)</div>
+      <div style="display:flex;align-items:center;gap:10px;margin:5px 0;padding:2px 4px;">
+        <div style="width:95px;font-size:12px;font-weight:400;
+          text-align:right;color:#1baf7a;opacity:0.75;">씰리침대</div>
+        <div style="flex:1;background:#f1f5f9;border-radius:4px;height:20px;overflow:hidden;">
+          <div style="width:24.3%;background:#1baf7a;opacity:0.75;height:100%;display:flex;align-items:center;
+            padding-left:6px;font-size:10px;color:#fff;font-weight:600;">
+            889억</div>
+        </div>
+        <div style="width:130px;font-size:11px;text-align:right;">
+          <b>889억</b>&nbsp;<span style="color:#9ca3af;">7.0%</span></div>
+      </div>
+      <div style="font-size:10px;color:#9ca3af;padding-left:111px;margin-top:-3px;margin-bottom:4px;">
+        출처: (주)코리아씰 DART 공시 FY2025 — 전년 811억 대비 +9.8%</div>
+      <div style="display:flex;align-items:center;gap:10px;margin:5px 0;padding:2px 4px;">
+        <div style="width:95px;font-size:12px;font-weight:400;
+          text-align:right;color:#008300;opacity:0.75;">지누스</div>
+        <div style="flex:1;background:#f1f5f9;border-radius:4px;height:20px;overflow:hidden;">
+          <div style="width:16.1%;background:#008300;opacity:0.75;height:100%;display:flex;align-items:center;
+            padding-left:6px;font-size:10px;color:#fff;font-weight:600;">
+            </div>
+        </div>
+        <div style="width:130px;font-size:11px;text-align:right;">
+          <b>590억</b>&nbsp;<span style="color:#9ca3af;">4.6%</span></div>
+      </div>
+      <div style="font-size:10px;color:#9ca3af;padding-left:111px;margin-top:-3px;margin-bottom:4px;">
+        출처: 국내 별도기준 (연결 9,132억 ≠ 국내 단독)</div>
+
+      <div style="margin-top:10px;font-size:10px;color:#9ca3af;background:#fffbeb;
+        padding:8px 12px;border-radius:5px;border-left:3px solid #fbbf24;line-height:1.7;">
+        ⚠ 코웨이 비렉스·템퍼 수치는 공식 DART 부문 공시가 아닌 추정치입니다.
+        에이스침대·씰리침대(코리아씰)·시몬스는 DART 전체 매출 공시 기준. 내부 참고용으로만 활용하고 대외 보고 시 주석 필요.
+      </div>
+    </div>
+  </div>
+
+
+  <div class="chart-row" id="section-price-compare">
+    <div class="card" style="overflow:hidden;">
+      <div class="card-title">브랜드별 주력 매트리스 가격 비교
+        <span class="source-badge" style="background:#f3e5f5;color:#6a1b9a;border:1px solid #ce93d8;">공식몰 조사</span>
+      </div>
+      <div class="card-sub">퀸(Q) 사이즈 기준 공식 판매가 · 2026년 8월 조사 / 코웨이 비렉스는 렌털 월정액(7년 약정)</div>
+      <div style="overflow-x:auto;margin-top:12px;">
+        <table style="border-collapse:collapse;width:100%;font-size:12px;">
+          <thead><tr><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;position:sticky;left:0;z-index:2;background:#1a1a1a;color:#fff;min-width:72px;">구분</th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">시몬스<br><span style="font-size:10px;font-weight:400;color:#aaa;">침대 전문</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">에이스침대<br><span style="font-size:10px;font-weight:400;color:#aaa;">침대 전문</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">씰리침대<br><span style="font-size:10px;font-weight:400;color:#aaa;">침대 전문</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">지누스<br><span style="font-size:10px;font-weight:400;color:#aaa;">연결 기준</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">코웨이 비렉스<br><span style="font-size:10px;font-weight:400;color:#aaa;">렌털 서비스</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">한샘<br><span style="font-size:10px;font-weight:400;color:#aaa;">가구 종합</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">현대리바트<br><span style="font-size:10px;font-weight:400;color:#aaa;">가구 종합</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">까사미아<br><span style="font-size:10px;font-weight:400;color:#aaa;">가구 종합</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">일룸<br><span style="font-size:10px;font-weight:400;color:#aaa;">가구 종합</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">에몬스<br><span style="font-size:10px;font-weight:400;color:#aaa;">가구 종합</span></th><th style="padding:10px 12px;text-align:left;vertical-align:bottom;font-size:12px;font-weight:700;white-space:nowrap;border-bottom:2px solid #444;background:#1a1a1a;color:#fff;min-width:155px;">이케아<br><span style="font-size:10px;font-weight:400;color:#aaa;">종합 유통</span></th></tr></thead>
+          <tbody>
+            <tr><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;position:sticky;left:0;z-index:1;font-weight:700;border-right:2px solid #ccc;">연매출</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">3,295억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">3,260억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">811억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">3,876억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">코웨이 전체<br>4조3,101억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">1조9,000억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">1조8,700억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">2,695억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">3,551억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">1,744억</td><td style="padding:8px 12px;font-size:12px;vertical-align:middle;border-bottom:1px solid #ddd;background:#f5f5f5;font-weight:700;color:#1a1a1a;">6,393억</td></tr>
+            <tr><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;position:sticky;left:0;z-index:1;font-weight:700;background:#fafafa;border-right:2px solid #ccc;white-space:nowrap;">제품 / 가격</td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">뷰티레스트 블랙 로렌</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">12,650,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">뷰티레스트 젤몬</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">10,120,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">뷰티레스트 에디슨</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">6,770,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">뷰티레스트 버나드</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,800,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">뷰티레스트 마르코니</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">2,870,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">로얄에이스 90s</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">5,902,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">로얄에이스 60th Special</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,444,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">하이브리드 테크 레드</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,437,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">에이스타임</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,735,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">클럽에이스 III</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,678,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">포스처피딕 베루스</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,890,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">포스처피딕 에드가 2 플러쉬</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,390,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">포스처피딕 메리미 2</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">2,290,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">비욘드 2</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,890,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">아델</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,290,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">클라우드 럭스S 하이브리드</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">708,400원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">클라우드 메모리폼</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">418,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">그린티 럭스 스프링</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">227,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">그린티 럭스 메모리폼</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">211,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">베이직 메모리폼</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">148,900원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">비렉스 S8+ (퀸·7년약정)</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">월 102,900원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">비렉스 S6+ (퀸·7년약정)</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">월 81,900원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">밸런스S 필로우탑</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,329,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">밸런스S 유로탑</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">919,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">밸런스S 슬림탑</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">679,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">노뜨 메모리폼탑</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">479,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">노뜨 컴포트 포켓스프링</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">339,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">엔슬립 시그니처</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,144,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">엔슬립 프리마</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,014,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">엔슬립 호텔형</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">856,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">마테라소 포레스트 클라우드</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,900,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">마테라소 포레스트 블랑쉬</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">3,200,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">마테라소 포레스트 베이</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">2,900,000원</div></div><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">마테라소 포레스트 브리즈</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">2,400,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">마테라소 포레스트 모스</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,900,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #b8860b; background:#fffde7;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">헤이븐 시그니처</div><div style="color:#7b5e00;font-weight:700;font-size:12px;margin-top:1px;">2,750,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">헤이븐 디럭스</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,850,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">헤이븐 슬림</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,250,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">앤리브H 포켓스프링</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,490,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">앤리브M 메모리폼</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">1,490,000원</div></div></td><td style="padding:8px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid #e8e8e8;"><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">MAUSUND (천연 라텍스)</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">999,000원</div></div><div style="border-left:3px solid #546e7a; background:#fff;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">VATNESTRÖM (포켓스프링)</div><div style="color:#37474f;font-weight:700;font-size:12px;margin-top:1px;">899,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">VÅGSTRANDA (포켓스프링)</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">599,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">ÅNNELAND (하이브리드)</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">549,000원</div></div><div style="border-left:3px solid #43a047; background:#f1f8e9;padding:5px 7px;margin-bottom:4px;border-radius:3px;"><div style="color:#555;font-size:11px;line-height:1.3;">VALEVÅG (포켓스프링)</div><div style="color:#2e7d32;font-weight:700;font-size:12px;margin-top:1px;">379,000원</div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:#666;"><span style="display:flex;align-items:center;gap:4px;">  <span style="display:inline-block;width:10px;height:10px;background:#fffde7;border-left:3px solid #b8860b;"></span>프리미엄 (200만원↑)</span><span style="display:flex;align-items:center;gap:4px;">  <span style="display:inline-block;width:10px;height:10px;background:#fff;border-left:3px solid #546e7a;border:1px solid #ccc;"></span>중가 (60만~200만원)</span><span style="display:flex;align-items:center;gap:4px;">  <span style="display:inline-block;width:10px;height:10px;background:#f1f8e9;border-left:3px solid #43a047;"></span>보급 (60만원↓)</span></div>
+      <div style="margin-top:8px;font-size:10px;color:#aaa;line-height:1.6;">
+        * 한샘·현대리바트·이케아·까사미아 매출은 가구·홈인테리어 전체 기준 · 지누스 매출은 연결(해외 포함) 기준<br>
+        * 코웨이 매출은 정수기·공기청정기 등 전 사업 포함 / 비렉스 매트리스 단독 매출 비공개<br>
+        * 에이스침대 제품가는 원매트리스 기준 (투매트리스 세트는 10~15% 추가)
+      </div>
+    </div>
+  </div>
+
   <!-- ① KPI 요약 스트립 (T1-2) -->
+
+  <!-- YouTube 구독자 섹션 -->
+  <div class="chart-row" id="section-social">
+    <div class="card">
+      <div class="card-title">YouTube 공식 채널 구독자 수
+        <span class="source-badge" style="background:#ffebee;color:#c62828;border:1px solid #ffcdd2;">YouTube</span>
+      </div>
+      <div class="card-sub">공식 채널 기준 구독자 수 · 2026년 8월 직접 조사 기준 (약) / 씰리침대 미확인</div>
+      <div id="chart-social" style="height:340px;"></div>
+      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: YouTube · 수집: 2026.08.25 12:38 · 기준: 시몬스=100</div>
+    </div>
+  </div>
+
+  
+
   <div class="chart-row" id="section-kpi">
     <div class="kpi-strip">
       <div class="kpi-card">
@@ -998,49 +1153,6 @@ body {
     <div style="font-size:9px;color:#999;margin-top:4px;">Google Trends · 시몬스 검색 관심도 전년 동월 대비 증감률</div>
   </div>
 </div>
-  </div>
-
-  <!-- ① - 월별 추이 (임원 요약용 — 상단 배치) -->
-  <div class="chart-row" id="section-trend-top">
-    <div class="card">
-      <div class="card-title">시몬스 SoS 월별 추이
-        <span class="source-badge badge-google">Google Trends</span>
-        <span class="period-chip" id="trend-top-period-chip">최근 13개월</span>
-        <span style="margin-left:12px;font-size:11px;font-weight:400;color:#555;">
-          보기:
-          <button id="trend-top-abs" onclick="setTrendTopMode('abs')"
-            style="margin-left:4px;padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#0b0b0b;color:#fff;">절대값</button>
-          <button id="trend-top-rel" onclick="setTrendTopMode('rel')"
-            style="padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#fff;color:#333;">추세(시작=100)</button>
-        </span>
-      </div>
-      <div class="card-sub" id="trend-top-sub">주요 브랜드 월별 검색 관심도 · 기준: 시몬스=100 (시몬스 강조)</div>
-      <div id="chart-trend-top" style="height:380px;"></div>
-    </div>
-  </div>
-
-  <!-- ② 시몬스 포지셔닝 + 주요 발견 (T1-1, T1-4) -->
-  <div class="chart-row" id="section-summary">
-    <div class="chart-row col2">
-      <div class="card">
-        <div class="section-title">시몬스 포지셔닝</div>
-        <div id="insight-simmons"></div>
-      </div>
-      <div class="card">
-        <div class="section-title">주요 발견</div>
-        <div id="insight-findings"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ③ 이번 달 변화점 (T1-1) -->
-  <div class="chart-row">
-    <div class="card">
-      <div class="section-title" id="section-changes-title">이번 달 변화점</div>
-      <div id="insight-changes"
-           style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
-      </div>
-    </div>
   </div>
 
   <!-- 근거 데이터 구분선 -->
@@ -1095,37 +1207,507 @@ body {
     </div>
   </div>
 
-  <!-- ⑦ 월별 추이 -->
-  <div class="chart-row" id="section-trend">
+  
+  <!-- 상세 건수: 블로그/뉴스 기준 -->
+  <div class="chart-row col2" id="section-detail-counts">
+    <!-- 블로그 기준 -->
     <div class="card">
-      <div class="card-title">월별 검색 트렌드 추이
-        <span class="source-badge badge-google">Google Trends</span>
-        <span class="period-chip" id="trend-period-chip">최근 N개월</span>
-        <span style="margin-left:12px;font-size:11px;font-weight:400;color:#555;">
-          보기:
-          <button id="trend-mode-abs" onclick="setTrendMode('abs')"
-            style="margin-left:4px;padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#0b0b0b;color:#fff;">절대값</button>
-          <button id="trend-mode-rel" onclick="setTrendMode('rel')"
-            style="padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#fff;color:#333;">추세(시작=100)</button>
-        </span>
+      <div class="card-title">상세 건수 — 블로그 기준
+        <span class="source-badge badge-naver">Naver Search</span>
+        <span class="period-chip">전체 누적</span>
       </div>
-      <div class="card-sub" id="trend-mode-sub">주요 브랜드 · 음영은 신뢰구간(CV) · 기준: 시몬스=100 (절대값 모드)</div>
-      <div id="chart-monthly" style="height:420px;"></div>
-      <div id="monthly-heatmap"></div>
+      <div class="card-sub">시몬스=100 기준 · 블로그 건수</div>
+      <div id="chart-naver-blog" style="height:376px;"></div>
+      <details style="margin-top:12px;">
+        <summary style="cursor:pointer;font-size:12px;font-weight:600;color:#374151;padding:6px 0;
+          border-top:1px solid #f0f0f0;list-style:none;display:flex;align-items:center;gap:6px;">
+          <span>상세 데이터</span>
+          <span style="font-size:10px;background:#e5e7eb;padding:1px 8px;border-radius:10px;">산출식 보기 ▾</span>
+        </summary>
+        <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+          <thead>
+            <tr style="border-bottom:1px solid #e5e7eb;">
+              <th style="padding:5px 10px;text-align:left;font-size:11px;color:#888;">순위</th>
+              <th style="padding:5px 10px;text-align:left;font-size:11px;color:#888;">브랜드</th>
+              <th style="padding:5px 10px;text-align:right;font-size:11px;color:#888;">지수</th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">1</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#378add;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">이케아</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">165.6</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">2</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#e34948;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">에이스침대</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">128.9</td>
+          </tr>
+          <tr style="background:#f8f8f8;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">3</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#0b0b0b;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:1.0;">시몬스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:700;font-size:12px;">100.0</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">4</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#1baf7a;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">씰리침대</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">83.2</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">5</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#8b1538;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">템퍼</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">82.3</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">6</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#534ab7;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">에몬스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">59.4</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">7</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#199e70;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">한샘</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">55.4</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">8</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#d95926;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">일룸</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">50.4</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">9</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#eb6834;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">까사미아</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">36.1</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">10</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#4a3aa7;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">현대리바트</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">26.9</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">11</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#008300;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">지누스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">16.5</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">12</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#2a78d6;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">코웨이 비렉스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">7.3</td>
+          </tr></tbody>
+        </table>
+        <div style="margin-top:8px;font-size:10px;color:#999;border-top:1px solid #f0f0f0;padding-top:6px;">
+          실제 건수 (내림차순):
+          <table style="width:100%;border-collapse:collapse;margin-top:4px;">
+            <tbody>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">1</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#378add;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">이케아</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">201,791건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">2</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#e34948;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">에이스침대</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">157,082건</td>
+          </tr>
+          <tr style="background:#f8f8f8;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">3</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#0b0b0b;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:1.0;">시몬스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:700;font-size:12px;">121,844건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">4</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#1baf7a;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">씰리침대</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">101,392건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">5</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#8b1538;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">템퍼</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">100,310건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">6</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#534ab7;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">에몬스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">72,403건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">7</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#199e70;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">한샘</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">67,527건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">8</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#d95926;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">일룸</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">61,406건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">9</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#eb6834;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">까사미아</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">43,931건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">10</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#4a3aa7;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">현대리바트</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">32,753건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">11</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#008300;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">지누스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">20,145건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">12</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#2a78d6;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">코웨이 비렉스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">8,878건</td>
+          </tr></tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+
+    <!-- 뉴스 기준 -->
+    <div class="card">
+      <div class="card-title">상세 건수 — 뉴스 기준
+        <span class="source-badge badge-naver">Naver Search</span>
+        <span class="period-chip">전체 누적</span>
+      </div>
+      <div class="card-sub">시몬스=100 기준 · 뉴스 건수</div>
+      <div id="chart-naver-news" style="height:376px;"></div>
+      <details style="margin-top:12px;">
+        <summary style="cursor:pointer;font-size:12px;font-weight:600;color:#374151;padding:6px 0;
+          border-top:1px solid #f0f0f0;list-style:none;display:flex;align-items:center;gap:6px;">
+          <span>상세 데이터</span>
+          <span style="font-size:10px;background:#e5e7eb;padding:1px 8px;border-radius:10px;">산출식 보기 ▾</span>
+        </summary>
+        <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+          <thead>
+            <tr style="border-bottom:1px solid #e5e7eb;">
+              <th style="padding:5px 10px;text-align:left;font-size:11px;color:#888;">순위</th>
+              <th style="padding:5px 10px;text-align:left;font-size:11px;color:#888;">브랜드</th>
+              <th style="padding:5px 10px;text-align:right;font-size:11px;color:#888;">지수</th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr style="background:#f8f8f8;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">1</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#0b0b0b;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:1.0;">시몬스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:700;font-size:12px;">100.0</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">2</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#e34948;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">에이스침대</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">69.0</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">3</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#2a78d6;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">코웨이 비렉스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">44.9</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">4</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#1baf7a;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">씰리침대</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">40.9</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">5</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#8b1538;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">템퍼</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">38.2</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">6</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#199e70;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">한샘</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">32.3</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">7</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#534ab7;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">에몬스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">30.4</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">8</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#4a3aa7;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">현대리바트</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">21.6</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">9</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#eb6834;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">까사미아</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">18.4</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">10</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#008300;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">지누스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">17.8</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">11</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#378add;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">이케아</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">13.6</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">12</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#d95926;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">일룸</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">10.9</td>
+          </tr></tbody>
+        </table>
+        <div style="margin-top:8px;font-size:10px;color:#999;border-top:1px solid #f0f0f0;padding-top:6px;">
+          실제 건수 (내림차순):
+          <table style="width:100%;border-collapse:collapse;margin-top:4px;">
+            <tbody>
+          <tr style="background:#f8f8f8;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">1</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#0b0b0b;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:1.0;">시몬스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:700;font-size:12px;">34,789건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">2</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#e34948;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">에이스침대</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">23,990건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">3</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#2a78d6;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">코웨이 비렉스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">15,618건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">4</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#1baf7a;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">씰리침대</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">14,228건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">5</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#8b1538;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">템퍼</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">13,303건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">6</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#199e70;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">한샘</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">11,245건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">7</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#534ab7;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">에몬스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">10,589건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">8</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#4a3aa7;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">현대리바트</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">7,530건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">9</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#eb6834;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">까사미아</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">6,395건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">10</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#008300;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.75;">지누스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">6,199건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">11</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#378add;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">이케아</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">4,738건</td>
+          </tr>
+          <tr style="background:transparent;">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">12</td>
+            <td style="padding:5px 10px;">
+              <span style="background:#d95926;color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:0.45;">일룸</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">3,791건</td>
+          </tr></tbody>
+          </table>
+        </div>
+      </details>
     </div>
   </div>
 
-  <!-- DataLab 트렌드 (§12, API 수집 시 표시) -->
-  <div class="chart-row" id="datalab-row">
-    <div class="card">
-      <div class="card-title">네이버 데이터랩 검색어트렌드
-        <span class="source-badge badge-naver">Naver DataLab API</span>
-      </div>
-      <div class="card-sub">시몬스=100 기준 · 월별 추이 (키워드 그룹 통합)</div>
-      <div id="chart-datalab" style="height:360px;"></div>
-      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Naver DataLab (Playwright) · 수집: 2026.08.25 12:38 · 기준: 시몬스=100 · N=단회 수집</div>
-    </div>
-  </div>
+  <script>
+  (function() {
+    var blogData = [{"value": 165.6, "name": "이케아", "itemStyle": {"color": "#378add", "opacity": 0.45}}, {"value": 128.9, "name": "에이스침대", "itemStyle": {"color": "#e34948", "opacity": 0.75}}, {"value": 100.0, "name": "시몬스", "itemStyle": {"color": "#0b0b0b", "opacity": 1.0, "borderColor": "#c8a96e", "borderWidth": 2}}, {"value": 83.2, "name": "씰리침대", "itemStyle": {"color": "#1baf7a", "opacity": 0.75}}, {"value": 82.3, "name": "템퍼", "itemStyle": {"color": "#8b1538", "opacity": 0.75}}, {"value": 59.4, "name": "에몬스", "itemStyle": {"color": "#534ab7", "opacity": 0.75}}, {"value": 55.4, "name": "한샘", "itemStyle": {"color": "#199e70", "opacity": 0.45}}, {"value": 50.4, "name": "일룸", "itemStyle": {"color": "#d95926", "opacity": 0.45}}, {"value": 36.1, "name": "까사미아", "itemStyle": {"color": "#eb6834", "opacity": 0.45}}, {"value": 26.9, "name": "현대리바트", "itemStyle": {"color": "#4a3aa7", "opacity": 0.45}}, {"value": 16.5, "name": "지누스", "itemStyle": {"color": "#008300", "opacity": 0.75}}, {"value": 7.3, "name": "코웨이 비렉스", "itemStyle": {"color": "#2a78d6", "opacity": 0.45}}];
+    var newsData = [{"value": 100.0, "name": "시몬스", "itemStyle": {"color": "#0b0b0b", "opacity": 1.0, "borderColor": "#c8a96e", "borderWidth": 2}}, {"value": 69.0, "name": "에이스침대", "itemStyle": {"color": "#e34948", "opacity": 0.75}}, {"value": 44.9, "name": "코웨이 비렉스", "itemStyle": {"color": "#2a78d6", "opacity": 0.45}}, {"value": 40.9, "name": "씰리침대", "itemStyle": {"color": "#1baf7a", "opacity": 0.75}}, {"value": 38.2, "name": "템퍼", "itemStyle": {"color": "#8b1538", "opacity": 0.75}}, {"value": 32.3, "name": "한샘", "itemStyle": {"color": "#199e70", "opacity": 0.45}}, {"value": 30.4, "name": "에몬스", "itemStyle": {"color": "#534ab7", "opacity": 0.75}}, {"value": 21.6, "name": "현대리바트", "itemStyle": {"color": "#4a3aa7", "opacity": 0.45}}, {"value": 18.4, "name": "까사미아", "itemStyle": {"color": "#eb6834", "opacity": 0.45}}, {"value": 17.8, "name": "지누스", "itemStyle": {"color": "#008300", "opacity": 0.75}}, {"value": 13.6, "name": "이케아", "itemStyle": {"color": "#378add", "opacity": 0.45}}, {"value": 10.9, "name": "일룸", "itemStyle": {"color": "#d95926", "opacity": 0.45}}];
+
+    function initBar(divId, data) {
+      var el = document.getElementById(divId);
+      if (!el || typeof echarts === 'undefined') return;
+      var rev  = data.slice().reverse();
+      var chart = echarts.init(el);
+      chart.setOption({
+        grid: { left: 100, right: 70, top: 10, bottom: 20 },
+        tooltip: { trigger: 'axis', formatter: function(p) {
+          return p[0].name + '<br/>지수: <b>' + p[0].value + '</b> (시몬스=100)';
+        } },
+        xAxis: { type: 'value', axisLabel: { fontSize: 11 } },
+        yAxis: { type: 'category',
+          data: rev.map(function(d) { return d.name; }),
+          axisLabel: { fontSize: 11, fontFamily: 'Malgun Gothic,Arial,sans-serif' } },
+        series: [{
+          type: 'bar',
+          barMaxWidth: 22,
+          data: rev.map(function(d) { return {
+            value: d.value,
+            itemStyle: d.itemStyle
+          }; }),
+          label: { show: true, position: 'right', fontSize: 11,
+            formatter: function(p) { return p.value; } }
+        }]
+      });
+      window.addEventListener('resize', function() { chart.resize(); });
+    }
+
+    // ECharts 로드 대기 후 초기화
+    function tryInit() {
+      if (typeof echarts !== 'undefined') {
+        initBar('chart-naver-blog', blogData);
+        initBar('chart-naver-news', newsData);
+      } else {
+        setTimeout(tryInit, 200);
+      }
+    }
+    tryInit();
+  })();
+  </script>
+
+  
 
   <!-- ⑧ 성별 / 연령대 (T2-6: 인덱스화 토글) -->
   <div id="demo-partial-notice" style="display:none;background:#fff3e0;border:1px solid #ffcc02;border-radius:8px;padding:8px 14px;font-size:11px;color:#e65100;margin-bottom:-4px;">
@@ -1155,6 +1737,51 @@ body {
       </div>
       <div class="card-sub" id="age-sub">브랜드별 연령대 비율 (브랜드 내 합계=100%)</div>
       <div id="chart-age" style="height:320px;"></div>
+    </div>
+  </div>
+
+  
+
+  <!-- ① - 월별 추이 (임원 요약용 — 상단 배치) -->
+  <div class="chart-row" id="section-trend-top">
+    <div class="card">
+      <div class="card-title">시몬스 SoS 월별 추이
+        <span class="source-badge badge-google">Google Trends</span>
+        <span class="period-chip" id="trend-top-period-chip">최근 13개월</span>
+        <span style="margin-left:12px;font-size:11px;font-weight:400;color:#555;">
+          보기:
+          <button id="trend-top-abs" onclick="setTrendTopMode('abs')"
+            style="margin-left:4px;padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#0b0b0b;color:#fff;">절대값</button>
+          <button id="trend-top-rel" onclick="setTrendTopMode('rel')"
+            style="padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#fff;color:#333;">추세(시작=100)</button>
+        </span>
+      </div>
+      <div class="card-sub" id="trend-top-sub">주요 브랜드 월별 검색 관심도 · 기준: 시몬스=100 (시몬스 강조)</div>
+      <div id="chart-trend-top" style="height:380px;"></div>
+    </div>
+  </div>
+
+  <!-- ② 시몬스 포지셔닝 + 주요 발견 (T1-1, T1-4) -->
+  <div class="chart-row" id="section-summary">
+    <div class="chart-row col2">
+      <div class="card">
+        <div class="section-title">시몬스 포지셔닝</div>
+        <div id="insight-simmons"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">주요 발견</div>
+        <div id="insight-findings"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 이번 달 변화점 (T1-1) -->
+  <div class="chart-row">
+    <div class="card">
+      <div class="section-title" id="section-changes-title">이번 달 변화점</div>
+      <div id="insight-changes"
+           style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
+      </div>
     </div>
   </div>
 
@@ -1196,6 +1823,38 @@ body {
     </div>
   </div>
 
+  <!-- ⑦ 월별 추이 -->
+  <div class="chart-row" id="section-trend">
+    <div class="card">
+      <div class="card-title">월별 검색 트렌드 추이
+        <span class="source-badge badge-google">Google Trends</span>
+        <span class="period-chip" id="trend-period-chip">최근 N개월</span>
+        <span style="margin-left:12px;font-size:11px;font-weight:400;color:#555;">
+          보기:
+          <button id="trend-mode-abs" onclick="setTrendMode('abs')"
+            style="margin-left:4px;padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#0b0b0b;color:#fff;">절대값</button>
+          <button id="trend-mode-rel" onclick="setTrendMode('rel')"
+            style="padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#fff;color:#333;">추세(시작=100)</button>
+        </span>
+      </div>
+      <div class="card-sub" id="trend-mode-sub">주요 브랜드 · 음영은 신뢰구간(CV) · 기준: 시몬스=100 (절대값 모드)</div>
+      <div id="chart-monthly" style="height:420px;"></div>
+      <div id="monthly-heatmap"></div>
+    </div>
+  </div>
+
+  <!-- DataLab 트렌드 (§12, API 수집 시 표시) -->
+  <div class="chart-row" id="datalab-row">
+    <div class="card">
+      <div class="card-title">네이버 데이터랩 검색어트렌드
+        <span class="source-badge badge-naver">Naver DataLab API</span>
+      </div>
+      <div class="card-sub">시몬스=100 기준 · 월별 추이 (키워드 그룹 통합)</div>
+      <div id="chart-datalab" style="height:360px;"></div>
+      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: Naver DataLab (Playwright) · 수집: 2026.08.25 12:38 · 기준: 시몬스=100 · N=단회 수집</div>
+    </div>
+  </div>
+
   <!-- ⑩ 부록: 지표 변동성 (CV 분석) -->
   <div class="chart-row" id="section-cv">
     <div class="card">
@@ -1232,20 +1891,6 @@ body {
       </div>
     </div>
   </div>
-
-  <!-- YouTube 구독자 섹션 -->
-  <div class="chart-row" id="section-social">
-    <div class="card">
-      <div class="card-title">YouTube 공식 채널 구독자 수
-        <span class="source-badge" style="background:#ffebee;color:#c62828;border:1px solid #ffcdd2;">YouTube</span>
-      </div>
-      <div class="card-sub">공식 채널 기준 구독자 수 · 2026년 8월 직접 조사 기준 (약) / 씰리침대 미확인</div>
-      <div id="chart-social" style="height:340px;"></div>
-      <div style="font-size:10px;color:#767676;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0;">출처: YouTube · 수집: 2026.08.25 12:38 · 기준: 시몬스=100</div>
-    </div>
-  </div>
-
-  
   <!-- 부록 섹션 (T3-1) -->
   <div class="chart-row" id="section-appendix">
     <div class="card">

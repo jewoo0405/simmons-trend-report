@@ -170,7 +170,7 @@ def update_index():
 <div class="wrap">
   <div class="header">
     <h1>시몬스 브랜드 트렌드 보고서</h1>
-    <p>11개 브랜드 경쟁 분석 — 월간 자동 발행 | 데스크톱 전용</p>
+    <p>12개 브랜드 경쟁 분석 — 월간 자동 발행 | 데스크톱 전용</p>
   </div>
   <table>{items}</table>
   <div class="footer"><span>SIMMONS KOREA · CS팀 · 내부 공유용</span></div>

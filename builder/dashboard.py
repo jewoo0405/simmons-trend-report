@@ -164,7 +164,7 @@ def _build_kpi_strip(kpi, prev_kpi, total_brands):
     return f'<div class="kpi-strip">{items}</div>{footnote}'
 
 
-def _build_strategy_kpi(esov, sos_cat, som, yoy_pct, yoy_curr, yoy_prev):
+def _build_strategy_kpi(esov, sos_cat, som, yoy_pct, yoy_curr, yoy_prev, yoy_is_partial=False):
     """전략 KPI 행: ESOV + YoY SoS 변화율"""
 
     # ── ESOV 카드 ──
@@ -190,10 +190,11 @@ def _build_strategy_kpi(esov, sos_cat, som, yoy_pct, yoy_curr, yoy_prev):
         yoy_arrow = "▲" if yoy_pct >= 0 else "▼"
         yoy_val_html = (f'<span style="font-size:28px;font-weight:800;color:{yoy_color};">'
                         f'{yoy_arrow} {yoy_sign}{yoy_pct}%</span>')
-        yoy_note = f"SoS 전년 동기 대비 · {yoy_curr} vs {yoy_prev}"
+        _partial_mark = "*(부분집계)" if yoy_is_partial else ""
+        yoy_note = f"전년 동월 대비 · {yoy_curr}{_partial_mark} vs {yoy_prev}"
     else:
         yoy_bg = "#f5f5f5"
-        yoy_val_html = '<span style="font-size:18px;color:#999;">12개월 데이터 부족</span>'
+        yoy_val_html = '<span style="font-size:18px;color:#999;">데이터 부족</span>'
         yoy_note = "월별 데이터 13개월 이상 축적 후 표시"
 
     return f"""
@@ -863,14 +864,15 @@ def build_dashboard(data, report_month, collected_at, confidence_score,
     action_table_html = _build_action_table(data, kpi)
 
     # ── 전략 KPI: ESOV + YoY ──────────────────────────────
-    # YoY: monthly_series에서 현재 완결 월 vs 12개월 전
+    # YoY: 전년 동월 대비 — 최신 월(부분집계 포함) vs 12개월 전 동월
     _ms_simmons = data.get("google", {}).get("monthly_series", {}).get("시몬스", [])
     _yoy_pct = None
     _yoy_curr_period = None
     _yoy_prev_period = None
+    _yoy_is_partial = False
     if len(_ms_simmons) >= 13:
-        _ci = -2 if is_partial_month else -1   # 완결 월 인덱스
-        _yi = _ci - 12
+        _ci = -1   # 최신 월 (부분집계이어도 전년 동월과 비교)
+        _yi = _ci - 12  # 전년 동월
         _cm = _ms_simmons[_ci] if len(_ms_simmons) >= abs(_ci) else None
         _ym = _ms_simmons[_yi] if len(_ms_simmons) >= abs(_yi) else None
         if _cm and _ym:
@@ -879,8 +881,10 @@ def build_dashboard(data, report_month, collected_at, confidence_score,
                 _yoy_pct = round((_cv2 - _yv2) / _yv2 * 100, 1)
                 _yoy_curr_period = _cm.get("period", "")[:7]
                 _yoy_prev_period = _ym.get("period", "")[:7]
+                _yoy_is_partial = is_partial_month
     strategy_kpi_html = _build_strategy_kpi(_a_esov, _simmons_sos_cat, _simmons_som,
-                                            _yoy_pct, _yoy_curr_period, _yoy_prev_period)
+                                            _yoy_pct, _yoy_curr_period, _yoy_prev_period,
+                                            _yoy_is_partial)
 
     html = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -1369,10 +1373,15 @@ body {{
 }}
 
 @media print {{
-  /* ── A4 세로 페이지 설정 ── */
+  /* ── A4 기본 페이지 설정 (방향은 JS exportPrint()에서 동적 주입) ── */
   @page {{
     size: A4 portrait;
     margin: 14mm 12mm 14mm 12mm;
+  }}
+  /* ── 가로 출력 시 자동 적용 ── */
+  @page landscape-override {{
+    size: A4 landscape;
+    margin: 10mm 14mm 10mm 14mm;
   }}
 
   /* 배경색·이미지 강제 출력 */
@@ -1398,29 +1407,52 @@ body {{
 
   /* ── 표지 ── */
   .print-only {{ display: block !important; }}
-  #cover-page {{ page-break-after: always; break-after: page; }}
+  #cover-page {{
+    page-break-after: always; break-after: page;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: calc(297mm - 28mm) !important;  /* A4 - 상하 여백 14mm×2 */
+    min-height: 0 !important;
+  }}
+  .cover-inner {{
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 20px !important;
+    text-align: center !important;
+  }}
 
   /* ── 레이아웃 초기화: 사이드바 제거 후 전체 너비 ── */
   body {{
-    font-size: 9pt;
+    font-size: 10.5pt;
     background: #fff !important;
     margin: 0 !important;
     padding: 0 !important;
+    min-width: 0 !important;        /* 1280px 강제 최소폭 해제 — 핵심 축소 원인 */
+    width: auto !important;
+  }}
+  html {{
+    min-width: 0 !important;
   }}
   #layout {{
     display: block !important;
     height: auto !important;
     overflow: visible !important;
+    min-width: 0 !important;
   }}
   #main {{
     display: block !important;
     overflow: visible !important;
     height: auto !important;
-    width: 100% !important;
-    max-width: 100% !important;
+    width: 186mm !important;
+    max-width: 186mm !important;
     margin: 0 !important;
     padding: 8px 0 !important;
     box-sizing: border-box !important;
+    min-width: 0 !important;
   }}
 
   /* ── 카드 스타일 ── */
@@ -1449,14 +1481,14 @@ body {{
     gap: 8px !important;
   }}
 
-  /* ── 차트 높이 축소 (A4에 여러 차트 들어가도록) ── */
+  /* ── 차트 높이 (JS resize와 동일하게 맞춰야 canvas 클리핑 없음) ── */
   [id^="chart-"] {{
-    height: 200px !important;
-    min-height: 200px !important;
-    max-height: 200px !important;
+    height: 280px !important;
+    min-height: 280px !important;
+    max-height: 280px !important;
   }}
-  #chart-trend-top {{ height: 160px !important; max-height: 160px !important; }}
-  #chart-social    {{ height: 220px !important; max-height: 220px !important; }}
+  #chart-trend-top {{ height: 240px !important; max-height: 240px !important; }}
+  #chart-social    {{ height: 320px !important; max-height: 320px !important; }}
 
   /* ── 가격 비교 테이블: 폰트 축소 + 가로 스크롤 해제 ── */
   #section-price-table .card {{ break-inside: auto !important; }}
@@ -1472,6 +1504,36 @@ body {{
   }}
   #section-price-table > div > div {{ overflow: visible !important; }}
 
+  /* ── ESOV 산점도: 730px 고정 가이드박스 → 세로 배치 (A4 너비 초과 방지) ── */
+  #section-sos-som .card > div:first-child {{
+    flex-direction: column !important;
+    gap: 8px !important;
+  }}
+  #section-sos-som .card > div:first-child > div:last-child {{
+    flex: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }}
+
+  /* ── 히트맵 테이블: 가로 스크롤 해제 + 폰트·셀 축소 ── */
+  #monthly-heatmap {{ overflow: visible !important; }}
+  #monthly-heatmap table {{
+    font-size: 7pt !important;
+    width: 100% !important;
+    min-width: unset !important;
+    table-layout: fixed !important;
+  }}
+  #monthly-heatmap th,
+  #monthly-heatmap td {{
+    padding: 2px 3px !important;
+    min-width: unset !important;
+    font-size: 7pt !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }}
+  #monthly-heatmap > div {{ overflow: visible !important; }}
+
   /* ── KPI·인사이트 섹션 ── */
   .kpi-strip, .section-card {{ break-inside: avoid; }}
   h2, h3 {{ break-after: avoid; page-break-after: avoid; }}
@@ -1482,11 +1544,39 @@ body {{
     print-color-adjust: exact !important;
   }}
 
-  /* ── ECharts 캔버스 ── */
-  canvas {{ max-width: 100% !important; height: auto !important; }}
+  /* ── ECharts 캔버스: JS resize() 로 크기 맞추므로 CSS 강제 변환 금지 ── */
+  canvas {{ display: block !important; }}
 
   /* ── 링크 URL 숨기기 ── */
   a[href]::after {{ content: none !important; }}
+}}
+
+/* ── 가로 인쇄 전용 CSS (JS에서 body.print-landscape 클래스로 활성화) ── */
+/* @page 방향은 exportPrint()가 동적 주입 — 여기서는 레이아웃만 제어 */
+@media print {{
+  body.print-landscape #cover-page {{
+    height: calc(210mm - 20mm) !important;  /* 가로 A4 높이 210mm - 상하 여백 10mm×2 */
+  }}
+  body.print-landscape #main {{
+    width: 271mm !important;
+    max-width: 271mm !important;
+  }}
+  body.print-landscape [id^="chart-"] {{
+    height: 180px !important;
+    min-height: 180px !important;
+    max-height: 180px !important;
+  }}
+  body.print-landscape #chart-trend-top {{
+    height: 150px !important;
+    max-height: 150px !important;
+  }}
+  body.print-landscape #chart-social {{
+    height: 200px !important;
+    max-height: 200px !important;
+  }}
+  body.print-landscape .chart-row.col2 {{
+    grid-template-columns: 1fr 1fr !important;
+  }}
 }}
 </style>
 </head>
@@ -1523,7 +1613,7 @@ body {{
   </div>
   <div class="header-right">
     <span class="header-chip">수집 {collected_at}</span>
-    <span class="header-chip">11개 브랜드</span>
+    <span class="header-chip">12개 브랜드</span>
     <span class="conf-badge">{conf_label} {confidence_score}점</span>
   </div>
 </div>
@@ -1552,7 +1642,8 @@ body {{
   <div class="nav-section">
     <div class="nav-label">내보내기</div>
     <button class="action-btn" onclick="exportCSV()">↓ CSV 다운로드</button>
-    <button class="action-btn" onclick="exportPrint()">⎙ 인쇄 / PDF</button>
+    <button class="action-btn" onclick="exportPrint('portrait')" style="margin-bottom:3px;">⎙ 세로 인쇄 (A4)</button>
+    <button class="action-btn" onclick="exportPrint('landscape')">⎙ 가로 인쇄 (A4)</button>
     <button class="action-btn" onclick="openAnalysis()" style="background:#1a1a2e;color:#fff;border-color:#1a1a2e;margin-top:5px;">📋 분석 내용 보기</button>
   </div>
 
@@ -1594,7 +1685,7 @@ body {{
         <div class="an-kpi-card">
           <div class="akc-label">전체 SoS</div>
           <div class="akc-val">{_simmons_sos_total}%</div>
-          <div class="akc-sub">11개 브랜드 전체 기준</div>
+          <div class="akc-sub">12개 브랜드 전체 기준</div>
         </div>
         <div class="an-kpi-card">
           <div class="akc-label">SoM (시장점유율)</div>
@@ -3624,11 +3715,71 @@ function setRange(btn, range) {{
 }}
 
 // T3-3: PDF 인쇄
-function exportPrint() {{
-  if (window._chartInstances) {{
-    window._chartInstances.forEach(c => {{ try {{ c.resize(); }} catch(e) {{}} }});
+// reInitChart() 경유 차트는 _chartInstances에 없으므로 DOM 직접 조회로 보완
+const _PRINT_CHART_IDS = [
+  'chart-google-rank','chart-google-rank-ikea','chart-naver-rank',
+  'chart-monthly','chart-trend-top','chart-gap','chart-social',
+  'chart-sos','chart-gender','chart-age','chart-sos-som','chart-datalab'
+];
+function _getAllPrintCharts() {{
+  const seen = new Set(), all = [];
+  (window._chartInstances || []).forEach(c => {{ if (c && !seen.has(c)) {{ seen.add(c); all.push(c); }} }});
+  _PRINT_CHART_IDS.forEach(id => {{
+    const el = document.getElementById(id);
+    if (!el) return;
+    const inst = echarts.getInstanceByDom(el);
+    if (inst && !seen.has(inst)) {{ seen.add(inst); all.push(inst); }}
+  }});
+  return all;
+}}
+
+function exportPrint(orientation) {{
+  // orientation: 'portrait'(기본) 또는 'landscape'
+  const isLandscape = orientation === 'landscape';
+
+  // ① @page 방향 동적 주입 (print dialog의 기본값 덮어씀)
+  let oStyle = document.getElementById('_print_page_size');
+  if (!oStyle) {{
+    oStyle = document.createElement('style');
+    oStyle.id = '_print_page_size';
+    document.head.appendChild(oStyle);
   }}
-  setTimeout(() => window.print(), 600);
+  if (isLandscape) {{
+    oStyle.textContent = '@media print {{ @page {{ size: A4 landscape; margin: 10mm 14mm; }} }}';
+    document.body.classList.add('print-landscape');
+  }} else {{
+    oStyle.textContent = '@media print {{ @page {{ size: A4 portrait; margin: 14mm 12mm; }} }}';
+    document.body.classList.remove('print-landscape');
+  }}
+
+  // ② 방향별 ECharts 유효폭
+  // 세로: 210-24=186mm ≈ 703px  /  가로: 297-28=269mm ≈ 1017px (10mm+14mm 여백)
+  const PW   = isLandscape ? 1017 : 703;
+  const HALF = Math.floor((PW - 8) / 2);
+
+  function _printH(id) {{
+    if (isLandscape) {{
+      if (id === 'chart-trend-top') return 150;
+      if (id === 'chart-social')    return 200;
+      return 180;
+    }}
+    if (id === 'chart-trend-top') return 240;
+    if (id === 'chart-social')    return 320;
+    return 280;
+  }}
+
+  // ③ 모든 차트 리사이즈
+  _getAllPrintCharts().forEach(c => {{
+    try {{
+      const el = c.getDom();
+      if (!el) return;
+      const isHalf = !!el.closest('.chart-row.col2');
+      c.resize({{ width: isHalf ? HALF : PW, height: _printH(el.id) }});
+    }} catch(e) {{}}
+  }});
+
+  // ④ 재렌더링 완료 후 인쇄
+  setTimeout(() => window.print(), 1000);
 }}
 
 // ── 전략 분석 모달 ──────────────────────────────────────────────────────
@@ -3713,16 +3864,29 @@ function printAnalysis() {{
   setTimeout(() => {{ win.print(); }}, 400);
 }}
 
-// 인쇄 전후 ECharts 강제 리사이즈
+// 인쇄 전후 ECharts 리사이즈 (Ctrl+P 직접 인쇄 + exportPrint 버튼 대응)
 window.addEventListener('beforeprint', () => {{
-  if (window._chartInstances) {{
-    window._chartInstances.forEach(c => {{ try {{ c.resize(); }} catch(e) {{}} }});
+  const isLandscape = document.body.classList.contains('print-landscape');
+  const PW = isLandscape ? 1017 : 703;
+  const HALF = Math.floor((PW - 8) / 2);
+  function _ph(id) {{
+    if (isLandscape) return id==='chart-trend-top'?150:id==='chart-social'?200:180;
+    return id==='chart-trend-top'?240:id==='chart-social'?320:280;
   }}
+  _getAllPrintCharts().forEach(c => {{
+    try {{
+      const el = c.getDom();
+      if (!el) return;
+      c.resize({{ width: el.closest('.chart-row.col2') ? HALF : PW, height: _ph(el.id) }});
+    }} catch(e) {{}}
+  }});
 }});
 window.addEventListener('afterprint', () => {{
-  if (window._chartInstances) {{
-    window._chartInstances.forEach(c => {{ try {{ c.resize(); }} catch(e) {{}} }});
-  }}
+  // 화면 크기로 복원 + landscape 클래스 제거
+  document.body.classList.remove('print-landscape');
+  const oStyle = document.getElementById('_print_page_size');
+  if (oStyle) oStyle.textContent = '';
+  _getAllPrintCharts().forEach(c => {{ try {{ c.resize(); }} catch(e) {{}} }});
 }});
 
 // CSV 내보내기 (시몬스 첫 행, 헤더 주석)
@@ -3827,7 +3991,7 @@ renderSocialChart();
     source: 'Google Trends / Naver DataLab',
     collected,
     n: Object.keys(RAW.sos || {{}}).length + '개 브랜드',
-    note: '분모: 11개 브랜드 전체 합산. Tier C(종합가구) 브랜드 포함으로 직접 비교 주의.',
+    note: '분모: 12개 브랜드 전체 합산. Tier C(종합가구) 브랜드 포함으로 직접 비교 주의.',
     drillId: 'drill-sos',
     drillContent: sosDrillContent
   }});
@@ -3876,8 +4040,8 @@ renderSocialChart();
   // 지수 설명 박스 (P1-2 재정의 반영)
   const gapGuide = `<div style="margin-top:10px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#475569;line-height:1.9;">
     <div style="margin-bottom:6px;font-weight:700;color:#1e3a8a;font-size:11px;">📌 지수 해석 가이드</div>
-    <div><span style="display:inline-block;width:16px;text-align:center;margin-right:4px;">🔵</span><b>구글 검색 수요</b> — Google Trends 검색 관심도 · 소비자가 얼마나 찾는가 (수요 지표) · 11개 브랜드 평균=100 재정규화 · 한국</div>
-    <div style="margin-top:4px;"><span style="display:inline-block;width:16px;text-align:center;margin-right:4px;">🟢</span><b>네이버 콘텐츠 공급</b> — 블로그+뉴스 총 건수 · 마케팅 물량 지표 (수요 지표 아님) · 11개 브랜드 평균=100 재정규화</div>
+    <div><span style="display:inline-block;width:16px;text-align:center;margin-right:4px;">🔵</span><b>구글 검색 수요</b> — Google Trends 검색 관심도 · 소비자가 얼마나 찾는가 (수요 지표) · 12개 브랜드 평균=100 재정규화 · 한국</div>
+    <div style="margin-top:4px;"><span style="display:inline-block;width:16px;text-align:center;margin-right:4px;">🟢</span><b>네이버 콘텐츠 공급</b> — 블로그+뉴스 총 건수 · 마케팅 물량 지표 (수요 지표 아님) · 12개 브랜드 평균=100 재정규화</div>
     <div style="margin-top:5px;padding:6px 8px;background:#eff6ff;border-radius:4px;color:#1e40af;font-size:10.5px;">
       <b>P1-2 재정의:</b> &nbsp;두 지표는 차원이 다름(수요 vs 공급) — 단순 뺄셈 불가. &nbsp;<b>콘텐츠 생산성 = 네이버 상대지수 ÷ 구글 상대지수</b>로 재정의. &nbsp;100 이상 = 수요 대비 콘텐츠 집중, 100 미만 = 발행 부족.
     </div>
@@ -3892,7 +4056,7 @@ renderSocialChart();
     formula: '비율(%) 모드: 브랜드 내 성별·연령 구성비 합계=100% | 인덱스 모드: 브랜드 비율 ÷ 카테고리 평균 × 100 (100 초과: 과대색인)',
     source: 'Naver DataLab',
     collected,
-    note: '카테고리 평균 = 11개 브랜드 단순 평균'
+    note: '카테고리 평균 = 12개 브랜드 단순 평균'
   }});
   document.getElementById('section-demo')?.insertAdjacentHTML('beforeend', demoCaption);
 }})();
