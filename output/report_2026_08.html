@@ -2922,6 +2922,7 @@ function renderInsights() {
   // P0-1: 미완결 월이면 N-2 vs N-3 (직전 완결 월 기준)으로 전환
   const changeEl = document.getElementById('insight-changes');
   const changesTitleEl = document.getElementById('section-changes-title');
+  if (!changeEl) return;
   (function renderThisMonthChanges() {
     const ms = RAW.google?.monthly_series || {};
     const simonsPts = ms['시몬스'] || [];
