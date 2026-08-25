@@ -1244,25 +1244,6 @@ body {
   </div>
 
   
-  <!-- 부록 구분선 + 분석 버튼 -->
-  <div style="margin:32px 0 0;display:flex;align-items:center;gap:16px;">
-    <div style="flex:1;height:2px;background:linear-gradient(90deg,#1a1a2e 0%,#c8a96e 50%,transparent 100%);border-radius:2px;"></div>
-    <button onclick="openAnalysis()" style="
-      flex-shrink:0;
-      background:#1a1a2e;color:#fff;
-      border:none;border-radius:8px;
-      padding:10px 22px;font-size:13px;font-weight:700;
-      cursor:pointer;letter-spacing:.3px;
-      box-shadow:0 2px 8px rgba(0,0,0,.18);
-      transition:background .15s;
-      white-space:nowrap;"
-      onmouseover="this.style.background='#2d2d4e'"
-      onmouseout="this.style.background='#1a1a2e'">
-      📋 분석 내용 보기
-    </button>
-    <div style="flex:1;height:2px;background:linear-gradient(90deg,transparent 0%,#c8a96e 50%,#1a1a2e 100%);border-radius:2px;"></div>
-  </div>
-
 
   <div class="chart-row" id="section-kpi">
     <div class="kpi-strip">
@@ -1584,7 +1565,7 @@ body {
               <span style="background:#d95926;color:#fff;padding:1px 7px;border-radius:3px;
                 font-size:10px;font-weight:700;opacity:0.45;">일룸</span>
             </td>
-            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">61,416건</td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">61,417건</td>
           </tr>
           <tr style="background:transparent;">
             <td style="padding:5px 10px;color:#888;font-size:12px;">9</td>
@@ -2032,6 +2013,13 @@ body {
       </div>
     </div>
   </div>
+  <!-- 부록 구분선 + 분석 버튼 -->
+  <div style="margin:40px 0 8px;display:flex;align-items:center;gap:16px;">
+    <div style="flex:1;height:2px;background:linear-gradient(90deg,#1a1a2e 0%,#c8a96e 60%,transparent 100%);border-radius:2px;"></div>
+    <button onclick="openAnalysis()" style="flex-shrink:0;background:#1a1a2e;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);white-space:nowrap;letter-spacing:.3px;" onmouseover="this.style.background='#2d2d4e'" onmouseout="this.style.background='#1a1a2e'">📋 분석 내용 보기</button>
+    <div style="flex:1;height:2px;background:linear-gradient(90deg,transparent 0%,#c8a96e 40%,#1a1a2e 100%);border-radius:2px;"></div>
+  </div>
+
   <!-- 부록 섹션 (T3-1) -->
   <div class="chart-row" id="section-appendix">
     <div class="card">

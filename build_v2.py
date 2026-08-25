@@ -797,6 +797,26 @@ def main():
         1
     )
 
+    # 부록 바로 앞에 분석 버튼 + 구분선 삽입 (최종 레이아웃 고정 후 처리)
+    APPENDIX_MARKER = '<!-- 부록 섹션 (T3-1) -->'
+    if APPENDIX_MARKER in src:
+        DIVIDER_BTN = (
+            '<!-- 부록 구분선 + 분석 버튼 -->\n'
+            '  <div style="margin:40px 0 8px;display:flex;align-items:center;gap:16px;">\n'
+            '    <div style="flex:1;height:2px;background:linear-gradient(90deg,#1a1a2e 0%,#c8a96e 60%,transparent 100%);border-radius:2px;"></div>\n'
+            '    <button onclick="openAnalysis()" style="'
+            'flex-shrink:0;background:#1a1a2e;color:#fff;border:none;border-radius:8px;'
+            'padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;'
+            'box-shadow:0 2px 8px rgba(0,0,0,.2);white-space:nowrap;letter-spacing:.3px;"'
+            ' onmouseover="this.style.background=\'#2d2d4e\'"'
+            ' onmouseout="this.style.background=\'#1a1a2e\'">'
+            '📋 분석 내용 보기</button>\n'
+            '    <div style="flex:1;height:2px;background:linear-gradient(90deg,transparent 0%,#c8a96e 40%,#1a1a2e 100%);border-radius:2px;"></div>\n'
+            '  </div>\n\n  '
+        )
+        src = src.replace(APPENDIX_MARKER, DIVIDER_BTN + APPENDIX_MARKER, 1)
+        print("  → 부록 앞 분석 버튼 + 구분선 삽입 완료")
+
     with open(DEST_HTML, "w", encoding="utf-8") as f:
         f.write(src)
 
