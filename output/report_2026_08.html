@@ -1003,29 +1003,7 @@ body {
   <!-- ① - 월별 추이 (임원 요약용 — 상단 배치) -->
 
 
-  <!-- ② 시몬스 포지셔닝 + 주요 발견 (T1-1, T1-4) -->
-  <div class="chart-row" id="section-summary">
-    <div class="chart-row col2">
-      <div class="card">
-        <div class="section-title">시몬스 포지셔닝</div>
-        <div id="insight-simmons"></div>
-      </div>
-      <div class="card">
-        <div class="section-title">주요 발견</div>
-        <div id="insight-findings"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ③ 이번 달 변화점 (T1-1) -->
-  <div class="chart-row">
-    <div class="card">
-      <div class="section-title" id="section-changes-title">이번 달 변화점</div>
-      <div id="insight-changes"
-           style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
-      </div>
-    </div>
-  </div>
+  
 
   <!-- 근거 데이터 구분선 -->
   <div class="section-divider">근거 데이터</div>
@@ -2901,7 +2879,7 @@ function renderInsights() {
   const gSimmons = norm_g['시몬스'] || 100;
   const contentProd = gSimmons > 0 ? (nSimmons / gSimmons).toFixed(2) : '-';
 
-  document.getElementById('insight-simmons').innerHTML = `
+  (document.getElementById('insight-simmons') || {}).innerHTML = `
     <div class="insight-item ${g_pos<=3?'good':'warn'}">
       전체 구글 순위: <b>${g_pos}위 / 11개</b><br>
       침대 전업 순위: <b>${bedPos}위 / ${bedBrands.length}개</b>
@@ -2936,7 +2914,7 @@ function renderInsights() {
   if (topNonCompetitor && !uniqueCompetitors.includes(topNonCompetitor))
     findings.push({type:'',text:`참고: 카테고리 전체 1위는 ${topNonCompetitor} (종합가구 — 직접 경쟁 아님)`});
 
-  document.getElementById('insight-findings').innerHTML = findings.length
+  (document.getElementById('insight-findings') || {}).innerHTML = findings.length
     ? findings.map(f=>`<div class="insight-item ${f.type}">${f.text}</div>`).join('')
     : '<div class="insight-item">특이사항 없음</div>';
 
