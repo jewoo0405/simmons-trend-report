@@ -1005,9 +1005,6 @@ body {
 
   
 
-  <!-- 근거 데이터 구분선 -->
-  <div class="section-divider">근거 데이터</div>
-
   <!-- ⑤ Share of Search (T1-3 순서 앞으로) -->
   <div class="chart-row col2" id="section-sos">
     <div class="card">
@@ -3248,16 +3245,9 @@ function renderSocialChart() {
 }
 
 // 전체 렌더
-renderRankCharts();
-renderMonthly();
-renderDatalab();
-renderSoS();
-renderGap();
-renderGender();
-renderAge();
-renderSoSSoM();
-renderInsights();
-renderSocialChart();
+[renderRankCharts, renderMonthly, renderDatalab, renderSoS, renderGap,
+ renderGender, renderAge, renderSoSSoM, renderInsights, renderSocialChart
+].forEach(fn => { try { fn(); } catch(e) { console.error('[render]', fn.name, e); } });
 
 
 // ── C-2: 섹션별 산출 근거 캡션 삽입 ──────────────────

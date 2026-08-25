@@ -771,7 +771,7 @@ def main():
 
     # ③ 임원 요약 3개 섹션(월별추이·포지셔닝·변화점)을 ESOV 산점도 바로 앞으로 이동
     MOVE_START    = '\n\n  <!-- ① - 월별 추이 (임원 요약용 — 상단 배치) -->'
-    MOVE_END      = '\n\n  <!-- 근거 데이터 구분선 -->'
+    MOVE_END      = '\n\n  <!-- ⑤ Share of Search'
     INSERT_BEFORE = '<!-- T2-3: SoS vs SoM 산점도 -->'
 
     s_idx = src.find(MOVE_START)
