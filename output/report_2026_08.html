@@ -400,6 +400,22 @@ body {
 }
 .analysis-overlay.open { display: flex; }
 .an-action-group { display:flex; align-items:center; gap:6px; margin-left:auto; }
+@keyframes an-spin { to { transform: rotate(360deg); } }
+.an-spinner {
+  display: inline-block; width: 11px; height: 11px;
+  border: 2px solid rgba(255,255,255,.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: an-spin .6s linear infinite;
+  vertical-align: middle; margin-right: 4px;
+}
+.an-spinner-lg {
+  width: 36px; height: 36px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #1a1a2e;
+  border-radius: 50%;
+  animation: an-spin .7s linear infinite;
+}
 .an-run-btn, .an-save-btn, .an-edit-btn {
   padding:6px 14px; border-radius:6px; font-size:12px; font-weight:600;
   cursor:pointer; border:1.5px solid; transition:all .15s;
@@ -3120,10 +3136,41 @@ function _doSosTrend() {
 }
 
 function runAnalysis() {
+  const btn  = document.getElementById('btn-analyze');
   const body = document.getElementById('analysis-body-content');
-  if (body && body.dataset.original) body.innerHTML = body.dataset.original;
-  _doSosTrend();
-  _refreshAnalysisBtns(false);
+
+  // ① 버튼 로딩 상태
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="an-spinner"></span> 분석 중...';
+  }
+
+  // ② 콘텐츠 영역 로딩 오버레이
+  if (body) {
+    body.style.position = 'relative';
+    const overlay = document.createElement('div');
+    overlay.id = 'an-loading-overlay';
+    overlay.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+        <div class="an-spinner-lg"></div>
+        <div style="font-size:13px;color:#555;font-weight:600;">데이터 분석 중입니다...</div>
+        <div style="font-size:11px;color:#999;">구글 트렌드 · 네이버 · DART 지표 종합 중</div>
+      </div>`;
+    overlay.style.cssText = 'position:absolute;inset:0;background:rgba(255,255,255,.85);' +
+      'display:flex;align-items:center;justify-content:center;border-radius:8px;z-index:10;min-height:200px;';
+    body.appendChild(overlay);
+  }
+
+  // ③ 실제 분석 (400ms 딜레이로 로딩 느낌 부여)
+  setTimeout(() => {
+    if (body && body.dataset.original) body.innerHTML = body.dataset.original;
+    _doSosTrend();
+    _refreshAnalysisBtns(false);
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '▶ 분석하기';
+    }
+  }, 400);
 }
 
 function saveAnalysis() {
