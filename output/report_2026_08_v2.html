@@ -54,7 +54,7 @@ body {
   font-family: 'Noto Sans KR', 'Malgun Gothic', -apple-system, sans-serif;
   background: var(--bg);
   color: var(--tx1);
-  min-width: 1280px;
+  min-width: 0;
   font-size: 13px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -717,6 +717,49 @@ body {
     grid-template-columns: 1fr 1fr !important;
   }
 }
+
+/* ── 반응형 브레이크포인트 ─────────────────── */
+/* 사이드바 토글 오버레이 */
+#sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.35); z-index: 150;
+}
+#sidebar-overlay.open { display: block; }
+
+/* 사이드바 토글 버튼 */
+#sidebar-toggle {
+  display: none; align-items: center; justify-content: center;
+  width: 36px; height: 36px; margin-right: 8px;
+  border: 1px solid var(--border); border-radius: var(--r-s);
+  background: var(--surface); cursor: pointer; font-size: 18px; color: var(--tx2);
+  flex-shrink: 0;
+}
+
+@media (max-width: 1100px) {
+  #sidebar-toggle { display: flex; }
+  #sidebar {
+    position: fixed; left: 0; top: var(--header-h);
+    height: calc(100vh - var(--header-h));
+    transform: translateX(-100%);
+    transition: transform .22s ease;
+    z-index: 160; box-shadow: var(--shadow-m);
+  }
+  #sidebar.open { transform: translateX(0); }
+  #main { padding: 16px; }
+}
+
+@media (max-width: 800px) {
+  .chart-row.col2,
+  .chart-row.col3 { grid-template-columns: 1fr !important; }
+  .kpi-strip { grid-template-columns: 1fr 1fr !important; }
+  .summary-grid { grid-template-columns: 1fr !important; }
+  #main { padding: 12px; gap: 14px; }
+}
+
+@media (max-width: 480px) {
+  .kpi-strip { grid-template-columns: 1fr !important; }
+  .header-chip, .conf-badge { display: none; }
+}
 </style>
 <style>#section-kpi{display:none!important;}#section-price-table{display:none!important;}</style>
 </head>
@@ -751,6 +794,7 @@ body {
       <div class="header-sub">2026년 08월 · 월간 리포트</div>
     </div>
   </div>
+  <button id="sidebar-toggle" onclick="toggleSidebar()" title="메뉴">☰</button>
   <div class="header-right">
     <span class="header-chip">수집 2026.08.25 12:38</span>
     <span class="header-chip">11개 브랜드</span>
@@ -761,18 +805,8 @@ body {
 <div id="layout">
 
 <!-- 좌측 사이드바 -->
+<div id="sidebar-overlay" onclick="toggleSidebar()"></div>
 <nav id="sidebar">
-
-  <div class="nav-section">
-    <div class="nav-label">티어 필터</div>
-    <div class="tier-grid">
-      <button class="tier-pill active tier-filter" data-tier="ALL" onclick="setTierFilter(this,'ALL')">전체</button>
-      <button class="tier-pill tier-filter" data-tier="A" onclick="setTierFilter(this,'A')">Tier A</button>
-      <button class="tier-pill tier-filter" data-tier="B" onclick="setTierFilter(this,'B')">Tier B</button>
-      <button class="tier-pill tier-filter" data-tier="C" onclick="setTierFilter(this,'C')">Tier C</button>
-      <button class="tier-pill tier-filter" data-tier="D" onclick="setTierFilter(this,'D')">Tier D</button>
-    </div>
-  </div>
 
   <div class="nav-section">
     <div class="nav-label">브랜드 목록</div>
@@ -781,10 +815,8 @@ body {
 
   <div class="nav-section">
     <div class="nav-label">내보내기</div>
-    <button class="action-btn" onclick="exportCSV()">↓ CSV 다운로드</button>
     <button class="action-btn" onclick="exportPrint('portrait')" style="margin-bottom:3px;">⎙ 세로 인쇄 (A4)</button>
     <button class="action-btn" onclick="exportPrint('landscape')">⎙ 가로 인쇄 (A4)</button>
-    <button class="action-btn" onclick="openAnalysis()" style="background:#1a1a2e;color:#fff;border-color:#1a1a2e;margin-top:5px;">📋 분석 내용 보기</button>
   </div>
 
 </nav>
@@ -1515,7 +1547,7 @@ body {
               <span style="background:#378add;color:#fff;padding:1px 7px;border-radius:3px;
                 font-size:10px;font-weight:700;opacity:0.45;">이케아</span>
             </td>
-            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">201,807건</td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">201,812건</td>
           </tr>
           <tr style="background:transparent;">
             <td style="padding:5px 10px;color:#888;font-size:12px;">2</td>
@@ -1523,7 +1555,7 @@ body {
               <span style="background:#e34948;color:#fff;padding:1px 7px;border-radius:3px;
                 font-size:10px;font-weight:700;opacity:0.75;">에이스침대</span>
             </td>
-            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">157,113건</td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">157,114건</td>
           </tr>
           <tr style="background:#f8f8f8;">
             <td style="padding:5px 10px;color:#888;font-size:12px;">3</td>
@@ -1531,7 +1563,7 @@ body {
               <span style="background:#0b0b0b;color:#fff;padding:1px 7px;border-radius:3px;
                 font-size:10px;font-weight:700;opacity:1.0;">시몬스</span>
             </td>
-            <td style="padding:5px 10px;text-align:right;font-weight:700;font-size:12px;">121,849건</td>
+            <td style="padding:5px 10px;text-align:right;font-weight:700;font-size:12px;">121,852건</td>
           </tr>
           <tr style="background:transparent;">
             <td style="padding:5px 10px;color:#888;font-size:12px;">4</td>
@@ -1555,7 +1587,7 @@ body {
               <span style="background:#534ab7;color:#fff;padding:1px 7px;border-radius:3px;
                 font-size:10px;font-weight:700;opacity:0.75;">에몬스</span>
             </td>
-            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">72,409건</td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">72,411건</td>
           </tr>
           <tr style="background:transparent;">
             <td style="padding:5px 10px;color:#888;font-size:12px;">7</td>
@@ -1563,7 +1595,7 @@ body {
               <span style="background:#199e70;color:#fff;padding:1px 7px;border-radius:3px;
                 font-size:10px;font-weight:700;opacity:0.45;">한샘</span>
             </td>
-            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">67,530건</td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">67,533건</td>
           </tr>
           <tr style="background:transparent;">
             <td style="padding:5px 10px;color:#888;font-size:12px;">8</td>
@@ -1571,7 +1603,7 @@ body {
               <span style="background:#d95926;color:#fff;padding:1px 7px;border-radius:3px;
                 font-size:10px;font-weight:700;opacity:0.45;">일룸</span>
             </td>
-            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">61,417건</td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">61,418건</td>
           </tr>
           <tr style="background:transparent;">
             <td style="padding:5px 10px;color:#888;font-size:12px;">9</td>
@@ -1579,7 +1611,7 @@ body {
               <span style="background:#eb6834;color:#fff;padding:1px 7px;border-radius:3px;
                 font-size:10px;font-weight:700;opacity:0.45;">까사미아</span>
             </td>
-            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">43,938건</td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">43,940건</td>
           </tr>
           <tr style="background:transparent;">
             <td style="padding:5px 10px;color:#888;font-size:12px;">10</td>
@@ -1587,7 +1619,7 @@ body {
               <span style="background:#4a3aa7;color:#fff;padding:1px 7px;border-radius:3px;
                 font-size:10px;font-weight:700;opacity:0.45;">현대리바트</span>
             </td>
-            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">32,761건</td>
+            <td style="padding:5px 10px;text-align:right;font-weight:400;font-size:12px;">32,763건</td>
           </tr>
           <tr style="background:transparent;">
             <td style="padding:5px 10px;color:#888;font-size:12px;">11</td>
@@ -3815,52 +3847,71 @@ function _getAllPrintCharts() {
 }
 
 function exportPrint(orientation) {
-  // orientation: 'portrait'(기본) 또는 'landscape'
-  const isLandscape = orientation === 'landscape';
+  var isLandscape = (orientation === 'landscape');
 
-  // ① @page 방향 동적 주입 (print dialog의 기본값 덮어씀)
-  let oStyle = document.getElementById('_print_page_size');
+  // ① @page 방향 주입
+  var oStyle = document.getElementById('_print_page_size');
   if (!oStyle) {
     oStyle = document.createElement('style');
     oStyle.id = '_print_page_size';
     document.head.appendChild(oStyle);
   }
-  if (isLandscape) {
-    oStyle.textContent = '@media print { @page { size: A4 landscape; margin: 10mm 14mm; } }';
-    document.body.classList.add('print-landscape');
-  } else {
-    oStyle.textContent = '@media print { @page { size: A4 portrait; margin: 14mm 12mm; } }';
-    document.body.classList.remove('print-landscape');
+  oStyle.textContent = isLandscape
+    ? '@media print { @page { size: A4 landscape; margin: 10mm 14mm; } }'
+    : '@media print { @page { size: A4 portrait;  margin: 14mm 12mm; } }';
+
+  if (isLandscape) document.body.classList.add('print-landscape');
+  else             document.body.classList.remove('print-landscape');
+
+  // ② 방향별 유효 너비
+  var PW   = isLandscape ? 1017 : 703;
+  var HALF = Math.floor((PW - 8) / 2);
+  function _h(id) {
+    if (isLandscape) { return id === 'chart-trend-top' ? 150 : id === 'chart-social' ? 200 : 180; }
+    return id === 'chart-trend-top' ? 240 : id === 'chart-social' ? 320 : 280;
   }
 
-  // ② 방향별 ECharts 유효폭
-  // 세로: 210-24=186mm ≈ 703px  /  가로: 297-28=269mm ≈ 1017px (10mm+14mm 여백)
-  const PW   = isLandscape ? 1017 : 703;
-  const HALF = Math.floor((PW - 8) / 2);
-
-  function _printH(id) {
-    if (isLandscape) {
-      if (id === 'chart-trend-top') return 150;
-      if (id === 'chart-social')    return 200;
-      return 180;
-    }
-    if (id === 'chart-trend-top') return 240;
-    if (id === 'chart-social')    return 320;
-    return 280;
-  }
-
-  // ③ 모든 차트 리사이즈
-  _getAllPrintCharts().forEach(c => {
+  // ③ ECharts 차트 → PNG 스냅샷으로 교체 (캔버스 인쇄 공백 방지)
+  var snaps = [];
+  _getAllPrintCharts().forEach(function(c) {
     try {
-      const el = c.getDom();
+      var el = c.getDom();
       if (!el) return;
-      const isHalf = !!el.closest('.chart-row.col2');
-      c.resize({ width: isHalf ? HALF : PW, height: _printH(el.id) });
-    } catch(e) {}
+      var isHalf = !!el.closest('.chart-row.col2');
+      var w = isHalf ? HALF : PW;
+      var h = _h(el.id || '');
+      c.resize({ width: w, height: h });
+
+      var url = c.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#ffffff' });
+      var img = document.createElement('img');
+      img.src = url;
+      img.className = '_psnap';
+      img.style.cssText = 'display:block;width:100%;height:' + h + 'px;object-fit:contain;';
+
+      // 캔버스 숨기고 img 삽입
+      el.style.display = 'none';
+      el.parentNode.insertBefore(img, el);
+      snaps.push({ el: el, img: img, c: c });
+    } catch(e) { console.warn('[print resize]', e); }
   });
 
-  // ④ 재렌더링 완료 후 인쇄
-  setTimeout(() => window.print(), 1000);
+  // ④ 복원 함수
+  function _restore() {
+    snaps.forEach(function(s) {
+      try { s.img.parentNode && s.img.parentNode.removeChild(s.img); } catch(e) {}
+      s.el.style.display = '';
+      try { s.c.resize(); } catch(e) {}
+    });
+    document.body.classList.remove('print-landscape');
+    oStyle.textContent = '';
+    snaps = [];
+  }
+
+  // ⑤ 인쇄 후 자동 복원
+  window.addEventListener('afterprint', _restore, { once: true });
+
+  // ⑥ 이미지 로드 여유 후 인쇄 다이얼로그
+  setTimeout(function() { window.print(); }, 500);
 }
 
 // ── 전략 분석 모달 ──────────────────────────────────────────────────────
@@ -4067,28 +4118,6 @@ window.addEventListener('afterprint', () => {
   _getAllPrintCharts().forEach(c => { try { c.resize(); } catch(e) {} });
 });
 
-// CSV 내보내기 (시몬스 첫 행, 헤더 주석)
-function exportCSV() {
-  const norm_g = RAW.google?.normalized || {};
-  const norm_n = RAW.naver?.normalized || {};
-  const sos = RAW.sos || {};
-  const allNames = Object.keys({...norm_g,...norm_n});
-  const others = allNames.filter(n => n !== '시몬스');
-  const ordered = ['시몬스', ...others];
-  const rows = [
-    ['# 시몬스 브랜드 트렌드 리포트', '', '', ''],
-    ['브랜드','구글 지수(시몬스=100)','네이버 지수(시몬스=100)','SoS(%)']
-  ];
-  ordered.forEach(name=>{
-    rows.push([name, norm_g[name]||0, norm_n[name]||0, sos[name]||0]);
-  });
-  const csv = rows.map(r=>r.join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
-  a.download = 'simmons_trend_2026년 08월.csv';
-  a.click();
-}
-
 // ── 소셜 차트 ────────────────────────────────────────────────
 function renderSocialChart() {
   const entries = Object.entries(YOUTUBE_STATIC)
@@ -4223,6 +4252,43 @@ window.addEventListener('resize', ()=>{
    'chart-sos','chart-gap','chart-gender','chart-age','chart-sos-som']
   .forEach(id=>{const el=document.getElementById(id);if(el){const inst=echarts.getInstanceByDom(el);if(inst)inst.resize();}});
 });
+// ── 사이드바 토글 ──────────────────────────────────────────────
+function toggleSidebar() {
+  var sb = document.getElementById('sidebar');
+  var ov = document.getElementById('sidebar-overlay');
+  var open = sb.classList.toggle('open');
+  ov.classList.toggle('open', open);
+}
+
+// ── ECharts 자동 리사이즈 (ResizeObserver) ─────────────────────
+(function() {
+  if (typeof ResizeObserver === 'undefined') return;
+  var _resizeTimer = null;
+  var ro = new ResizeObserver(function(entries) {
+    clearTimeout(_resizeTimer);
+    _resizeTimer = setTimeout(function() {
+      entries.forEach(function(entry) {
+        var el = entry.target;
+        var chart = (typeof echarts !== 'undefined') && echarts.getInstanceByDom(el);
+        if (chart) { try { chart.resize(); } catch(e) {} }
+      });
+    }, 80);
+  });
+  // 모든 차트 컨테이너 관찰 등록 (DOM 준비 후)
+  function _observeCharts() {
+    document.querySelectorAll('[id^="chart-"]').forEach(function(el) {
+      ro.observe(el);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _observeCharts);
+  } else {
+    _observeCharts();
+  }
+  // 렌더 함수들이 나중에 차트를 생성하는 경우 대비 — 500ms 후 재스캔
+  setTimeout(_observeCharts, 800);
+})();
+
 </script>
 </body>
 </html>
