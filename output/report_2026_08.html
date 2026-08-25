@@ -399,6 +399,17 @@ body {
   padding: 32px 16px; overflow-y: auto;
 }
 .analysis-overlay.open { display: flex; }
+.an-action-group { display:flex; align-items:center; gap:6px; margin-left:auto; }
+.an-run-btn, .an-save-btn, .an-edit-btn {
+  padding:6px 14px; border-radius:6px; font-size:12px; font-weight:600;
+  cursor:pointer; border:1.5px solid; transition:all .15s;
+}
+.an-run-btn  { background:#1a1a2e; color:#fff; border-color:#1a1a2e; }
+.an-run-btn:hover  { background:#2d2d4e; }
+.an-save-btn { background:#2e7d32; color:#fff; border-color:#2e7d32; }
+.an-save-btn:hover { background:#388e3c; }
+.an-edit-btn { background:#fff; color:#c62828; border-color:#c62828; }
+.an-edit-btn:hover { background:#ffebee; }
 .analysis-box {
   background: #fff; border-radius: 12px; width: 100%; max-width: 880px;
   box-shadow: 0 24px 60px rgba(0,0,0,.3); display: flex; flex-direction: column;
@@ -768,8 +779,17 @@ body {
     <!-- 헤더 -->
     <div class="analysis-header">
       <h2>시몬스 브랜드 트렌드 — 전략 분석<span class="ah-sub">2026년 08월</span></h2>
-      <button class="an-print-btn" onclick="printAnalysis()">⎙ PDF 인쇄</button>
-      <button class="an-close-btn" onclick="closeAnalysis()">✕</button>
+      <div class="an-action-group">
+        <button class="an-run-btn"  id="btn-analyze" onclick="runAnalysis()" title="현재 데이터로 분석 내용을 불러옵니다">▶ 분석하기</button>
+        <button class="an-save-btn" id="btn-save"    onclick="saveAnalysis()" title="현재 분석 내용을 저장합니다">💾 저장</button>
+        <button class="an-edit-btn" id="btn-edit"    onclick="editAnalysis()" title="저장된 내용을 지우고 다시 분석합니다" style="display:none;">✏ 수정</button>
+        <button class="an-print-btn" onclick="printAnalysis()">⎙ PDF 인쇄</button>
+        <button class="an-close-btn" onclick="closeAnalysis()">✕</button>
+      </div>
+    </div>
+    <!-- 저장 상태 배너 -->
+    <div id="an-saved-banner" style="display:none;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:6px;padding:7px 14px;font-size:11px;color:#1b5e20;margin-bottom:10px;display:none;">
+      💾 <strong>저장된 분석</strong> — <span id="an-saved-date"></span> · 수정 버튼을 누르면 잠금이 해제됩니다.
     </div>
     <div id="an-partial-notice" style="display:none;background:#fff3e0;border:1px solid #ffb300;border-radius:6px;padding:7px 14px;font-size:11px;color:#e65100;margin-bottom:12px;">
       ⚠ <strong>미완결 월 데이터</strong> — 이 보고서는 월 중간 수집본입니다. 월말 최종 집계 후 수치가 변동될 수 있습니다. 확정 데이터는 익월 초 보고서를 참고하세요.
@@ -785,6 +805,7 @@ body {
 
     <!-- 본문 -->
     <div class="analysis-body">
+      <div id="analysis-body-content">
 
       <!-- KPI 카드 요약 -->
       <div class="an-kpi-row">
@@ -941,6 +962,7 @@ body {
         </p>
       </div>
 
+    </div><!-- /analysis-body-content -->
     </div><!-- /analysis-body -->
   </div><!-- /analysis-box -->
 </div><!-- /analysis-overlay -->
@@ -3065,10 +3087,21 @@ function exportPrint(orientation) {
 }
 
 // ── 전략 분석 모달 ──────────────────────────────────────────────────────
-function openAnalysis() {
-  document.getElementById('analysis-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-  // 전월 대비 구글 검색 지수 추세 (시몬스 기준)
+// ── 분석 저장/불러오기 ──────────────────────────────────────
+const ANALYSIS_STORAGE_KEY = 'simmons_analysis_saved_2026_08';
+
+function _refreshAnalysisBtns(isSaved) {
+  const btnAnalyze = document.getElementById('btn-analyze');
+  const btnSave    = document.getElementById('btn-save');
+  const btnEdit    = document.getElementById('btn-edit');
+  const banner     = document.getElementById('an-saved-banner');
+  if (btnAnalyze) btnAnalyze.style.display = isSaved ? 'none' : '';
+  if (btnSave)    btnSave.style.display    = isSaved ? 'none' : '';
+  if (btnEdit)    btnEdit.style.display    = isSaved ? ''     : 'none';
+  if (banner)     banner.style.display     = isSaved ? 'flex' : 'none';
+}
+
+function _doSosTrend() {
   const trendEl = document.getElementById('an-sos-trend');
   if (trendEl) {
     const ms = RAW.google?.monthly_series?.['시몬스'] || [];
@@ -3083,6 +3116,61 @@ function openAnalysis() {
         trendEl.innerHTML = `${period} 전월 대비 <span style="color:${isUp?'#80cbc4':'#ef9a9a'};font-weight:700;">${isUp?'▲':'▼'}${isUp?'+':''}${pct}%</span>`;
       }
     }
+  }
+}
+
+function runAnalysis() {
+  const body = document.getElementById('analysis-body-content');
+  if (body && body.dataset.original) body.innerHTML = body.dataset.original;
+  _doSosTrend();
+  _refreshAnalysisBtns(false);
+}
+
+function saveAnalysis() {
+  const body = document.getElementById('analysis-body-content');
+  if (!body) return;
+  const now = new Date();
+  const stamp = now.getFullYear() + '.' +
+    String(now.getMonth()+1).padStart(2,'0') + '.' +
+    String(now.getDate()).padStart(2,'0') + ' ' +
+    String(now.getHours()).padStart(2,'0') + ':' +
+    String(now.getMinutes()).padStart(2,'0');
+  try {
+    localStorage.setItem(ANALYSIS_STORAGE_KEY, JSON.stringify({ html: body.innerHTML, savedAt: stamp }));
+    const dateEl = document.getElementById('an-saved-date');
+    if (dateEl) dateEl.textContent = stamp + ' 저장됨';
+    _refreshAnalysisBtns(true);
+    const btn = document.getElementById('btn-save');
+    if (btn) { btn.textContent = '✓ 저장됨'; setTimeout(() => { btn.textContent = '💾 저장'; }, 1500); }
+  } catch(e) { alert('저장 실패: ' + e.message); }
+}
+
+function editAnalysis() {
+  if (!confirm('저장된 분석을 삭제하고 현재 데이터로 다시 불러오시겠습니까?')) return;
+  localStorage.removeItem(ANALYSIS_STORAGE_KEY);
+  runAnalysis();
+}
+
+function openAnalysis() {
+  document.getElementById('analysis-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // 원본 HTML 최초 1회 저장
+  const body = document.getElementById('analysis-body-content');
+  if (body && !body.dataset.original) body.dataset.original = body.innerHTML;
+
+  // localStorage 저장본 확인
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(ANALYSIS_STORAGE_KEY)); } catch {}
+
+  if (saved && saved.html) {
+    if (body) body.innerHTML = saved.html;
+    const dateEl = document.getElementById('an-saved-date');
+    if (dateEl) dateEl.textContent = saved.savedAt + ' 저장됨';
+    _refreshAnalysisBtns(true);
+  } else {
+    _doSosTrend();
+    _refreshAnalysisBtns(false);
   }
 }
 function closeAnalysis() {
