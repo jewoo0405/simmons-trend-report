@@ -175,7 +175,7 @@ def build_detail_section(api_data):
     <div class="card">
       <div class="card-title">상세 건수 — 블로그 기준
         <span class="source-badge badge-naver">Naver Search</span>
-        <span class="period-chip">전체 누적</span>
+        <span class="period-chip">최근 3개월</span>
       </div>
       <div class="card-sub">시몬스=100 기준 · 블로그 건수</div>
       <div id="chart-naver-blog" style="height:{chart_h}px;"></div>
@@ -208,7 +208,7 @@ def build_detail_section(api_data):
     <div class="card">
       <div class="card-title">상세 건수 — 뉴스 기준
         <span class="source-badge badge-naver">Naver Search</span>
-        <span class="period-chip">전체 누적</span>
+        <span class="period-chip">최근 3개월</span>
       </div>
       <div class="card-sub">시몬스=100 기준 · 뉴스 건수</div>
       <div id="chart-naver-news" style="height:{chart_h}px;"></div>
@@ -285,76 +285,189 @@ def build_detail_section(api_data):
   </script>"""
 
 
-# ── 4. 매출 섹션 (맨 아래) ──────────────────────────────────────────────────
+# ── 4. 매출 섹션 — 3개년 그룹 세로 막대 + 추세선 ───────────────────────────
 
 def build_revenue_section():
-    BED6 = [
-        ("코웨이 비렉스", 3654, "비렉스 부문 추정 (코웨이 전사 49,636억과 별개)"),
-        ("시몬스",        3239, "DART 감사보고서 FY2025"),
-        ("에이스침대",    3173, "에이스침대 DART 전체 매출 FY2025"),
-        ("템퍼",          1229, "국내 매트리스 시장 추정치 (공개 DART 없음)"),
-        ("씰리침대",       889, "(주)코리아씰 DART 공시 FY2025 — 전년 811억 대비 +9.8%"),
-        ("지누스",         590, "국내 별도기준 (연결 9,132억 ≠ 국내 단독)"),
+    # FY2023/2024: DART·언론 IR 조사 (2026-08-25)
+    # FY2025: 기존 수집 기준 유지
+    BRANDS_REV = [
+        # (이름, [FY2023, FY2024, FY2025], 출처, 추정여부)
+        ("시몬스",        [3138, 3295, 3239], "DART 감사보고서",            False),
+        ("에이스침대",    [3064, 3260, 3173], "DART 사업보고서",            False),
+        ("코웨이 비렉스", [2618, 3167, 3654], "매트리스 부문 IR (추정★)",   True),
+        ("템퍼",          [1016, 1119, 1229], "DART 공시 유한회사 (추정★)", True),
+        ("씰리침대",      [ 676,  810,  889], "씰리코리아컴퍼니(유) DART",  False),
+        ("지누스",        [ 384,  443,  590], "국내별도 사측발표 (추정★)",  True),
     ]
-    bed5_total = sum(v for _, v, _ in BED6)   # 12,432억
-    bed5_som   = round(3239 / bed5_total * 100, 1)
-    bed5_max   = max(v for _, v, _ in BED6)
 
-    bed5_bars = ""
-    for name, amt, src in BED6:
-        col  = brand_color(name)
-        opac = brand_opacity(name)
-        pct  = round(amt / bed5_total * 100, 1)
-        bw   = round(amt / bed5_max * 100, 1)
-        hl   = "outline:2px solid #c8a96e;outline-offset:2px;border-radius:6px;" if name == "시몬스" else ""
-        label = name
-        bed5_bars += f"""
-      <div style="display:flex;align-items:center;gap:10px;margin:5px 0;{hl}padding:2px 4px;">
-        <div style="width:95px;font-size:12px;font-weight:{'700' if name=='시몬스' else '400'};
-          text-align:right;color:{col};opacity:{opac};">{label}</div>
-        <div style="flex:1;background:#f1f5f9;border-radius:4px;height:20px;overflow:hidden;">
-          <div style="width:{bw}%;background:{col};opacity:{opac};height:100%;display:flex;align-items:center;
-            padding-left:6px;font-size:10px;color:#fff;font-weight:600;">
-            {str(amt)+'억' if bw>22 else ''}</div>
-        </div>
-        <div style="width:130px;font-size:11px;text-align:right;">
-          <b>{amt:,}억</b>&nbsp;<span style="color:#9ca3af;">{pct}%</span></div>
-      </div>
-      <div style="font-size:10px;color:#9ca3af;padding-left:111px;margin-top:-3px;margin-bottom:4px;">
-        출처: {src}</div>"""
+    total_fy25 = sum(d[1][2] for d in BRANDS_REV)
+    simmons_som = round(3239 / total_fy25 * 100, 1)
+
+    import json as _j
+
+    bar_series  = []
+    line_series = []
+    legend_names = []
+
+    for name, vals, src_note, is_est in BRANDS_REV:
+        fy23, fy24, fy25 = vals
+        yoy24 = round((fy24 - fy23) / fy23 * 100, 1)
+        yoy25 = round((fy25 - fy24) / fy24 * 100, 1)
+        col   = brand_color(name)
+        opac  = brand_opacity(name)
+        nm_j  = _j.dumps(name)
+        col_j = _j.dumps(col)
+        border_extra = ", borderColor: '#c8a96e', borderWidth: 2" if name == "시몬스" else ""
+
+        bar_series.append(f"""{{
+            name: {nm_j}, type: 'bar', barMaxWidth: 45, barCategoryGap: '22%', barGap: '30%',
+            itemStyle: {{ color: {col_j}, opacity: {opac}{border_extra} }},
+            label: {{
+                show: true, position: 'top', distance: 6,
+                rich: {{
+                    v:  {{ fontSize: 12, color: '#111', fontWeight: 'bold' }},
+                    up: {{ fontSize: 11, color: '#2e7d32', fontWeight: 'bold' }},
+                    dn: {{ fontSize: 11, color: '#c62828', fontWeight: 'bold' }}
+                }},
+                formatter: function(p) {{
+                    return '{{v|' + p.value.toLocaleString() + '}}';
+                }}
+            }},
+            data: [{fy23}, {fy24}, {fy25}]
+        }}""")
+
+        # 추세선 제거됨
+
+        legend_names.append(name)
+
+    all_series  = ',\n            '.join(bar_series)
+    legend_data = _j.dumps(legend_names)
+
+    # 연도별 합계
+    tot23 = sum(d[1][0] for d in BRANDS_REV)
+    tot24 = sum(d[1][1] for d in BRANDS_REV)
+    tot25 = sum(d[1][2] for d in BRANDS_REV)
+
+    # 출처 테이블 (SoM% 포함)
+    src_rows = ""
+    for name, vals, src_note, is_est in BRANDS_REV:
+        fy23, fy24, fy25 = vals
+        yoy24  = round((fy24 - fy23) / fy23 * 100, 1)
+        yoy25  = round((fy25 - fy24) / fy24 * 100, 1)
+        som23  = round(fy23 / tot23 * 100, 1)
+        som24  = round(fy24 / tot24 * 100, 1)
+        som25  = round(fy25 / tot25 * 100, 1)
+        sign24 = "+" if yoy24 >= 0 else ""
+        sign25 = "+" if yoy25 >= 0 else ""
+        c24    = "#2e7d32" if yoy24 >= 0 else "#c62828"
+        c25    = "#2e7d32" if yoy25 >= 0 else "#c62828"
+        BL  = "border-left:2px solid #cbd5e1;"   # 연도 구분선
+        bold = "font-weight:700;background:#fafaf5;" if name == "시몬스" else ""
+        # 각 셀: 매출액 | 전년비 | (비중%) — 한 줄 인라인
+        cell23 = (f'<span style="font-size:13px;font-weight:700;">{fy23:,}</span>'
+                  f'&nbsp;&nbsp;<span style="font-size:11px;color:#6b7280;">({som23}%)</span>')
+        cell24 = (f'<span style="font-size:13px;font-weight:700;">{fy24:,}</span>'
+                  f'&nbsp;<span style="font-size:11px;color:{c24};font-weight:600;">{sign24}{yoy24}%</span>'
+                  f'&nbsp;&nbsp;<span style="font-size:11px;color:#6b7280;">({som24}%)</span>')
+        cell25 = (f'<span style="font-size:13px;font-weight:700;">{fy25:,}</span>'
+                  f'&nbsp;<span style="font-size:11px;color:{c25};font-weight:600;">{sign25}{yoy25}%</span>'
+                  f'&nbsp;&nbsp;<span style="font-size:11px;color:#6b7280;">({som25}%)</span>')
+        src_rows += f"""<tr style="{bold}border-bottom:1px solid #f0f0f0;">
+          <td style="padding:7px 10px;font-size:12px;white-space:nowrap;font-weight:{'700' if name=='시몬스' else '400'};">{name}</td>
+          <td style="padding:6px 12px;{BL}">{cell23}</td>
+          <td style="padding:6px 12px;{BL}">{cell24}</td>
+          <td style="padding:6px 12px;{BL}">{cell25}</td>
+          <td style="padding:6px 10px;font-size:10px;color:#9ca3af;{BL}white-space:nowrap;">{src_note}</td>
+        </tr>"""
+
+    # 합계 행
+    tot_yoy24 = round((tot24 - tot23) / tot23 * 100, 1)
+    tot_yoy25 = round((tot25 - tot24) / tot24 * 100, 1)
+    BL = "border-left:2px solid #374151;"
+    total_row = f"""<tr style="background:#1a1a2e;color:#fff;font-weight:700;border-top:2px solid #4b5563;">
+          <td style="padding:7px 10px;font-size:12px;">6개사 합계</td>
+          <td style="padding:7px 12px;font-size:12px;{BL}">{tot23:,}억</td>
+          <td style="padding:7px 12px;font-size:12px;{BL}">{tot24:,}억&nbsp;<span style="font-size:10px;color:#86efac;font-weight:600;">(+{tot_yoy24}%)</span></td>
+          <td style="padding:7px 12px;font-size:12px;{BL}">{tot25:,}억&nbsp;<span style="font-size:10px;color:#86efac;font-weight:600;">(+{tot_yoy25}%)</span></td>
+          <td style="padding:7px 10px;font-size:10px;color:#6b7280;{BL}">6개사 단순합</td>
+        </tr>"""
 
     return f"""
   <div class="chart-row" id="section-revenue-market" style="margin-top:0;">
     <div class="card">
       <div class="card-title">매트리스 시장 매출 현황 · 시몬스 비중
-        <span class="source-badge" style="background:#fff3e0;color:#e65100;">추정치 포함</span>
-        <span class="period-chip">FY2025</span>
+        <span class="source-badge" style="background:#fff3e0;color:#e65100;border:1px solid #ffcc80;">추정치 포함</span>
+        <span class="period-chip">FY2023–2025</span>
       </div>
-      <div class="card-sub">침대·매트리스 매출이 분리되는 6개사 기준</div>
+      <div class="card-sub">침대·매트리스 매출이 분리되는 6개사 기준 · 3개년 추이</div>
 
-      <div style="display:flex;gap:12px;margin:14px 0;">
-        <div style="flex:1;background:#0b0b0b;border-radius:8px;padding:14px;text-align:center;">
-          <div style="font-size:28px;font-weight:800;color:#c8a96e;">{bed5_som}%</div>
-          <div style="font-size:11px;color:#aaa;margin-top:3px;">시몬스 SoM (매트리스 부문)</div>
-          <div style="font-size:10px;color:#555;margin-top:1px;">분모 {bed5_total:,}억 (6개사 합계)</div>
+      <div style="display:flex;gap:12px;margin:14px 0 12px;">
+        <div style="background:#0b0b0b;border-radius:8px;padding:16px 20px;text-align:center;min-width:118px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="font-size:30px;font-weight:800;color:#c8a96e;line-height:1;">{simmons_som}%</div>
+          <div style="font-size:12px;color:#d1d5db;margin-top:6px;font-weight:600;">시몬스 SoM</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:3px;">FY2025 · 6개사 {total_fy25:,}억</div>
         </div>
-        <div style="flex:2;background:#f0fdf4;border-radius:8px;padding:14px;border:1px solid #bbf7d0;
-          font-size:11px;color:#166534;line-height:1.9;">
-          <b>DART 전체 기준(20.8%)</b>과의 차이:<br>
-          ① 에이스침대 DART 전체 매출 기준 적용 (3,173억)<br>
-          ② 코웨이 비렉스 전사→비렉스 부문만 (49,636억→3,654억)<br>
-          ③ 지누스 연결→국내 별도 (9,132억→590억)<br>
-          ④ 템퍼 국내 추정치 신규 포함 (1,229억)<br>
-          ⑤ 씰리침대 (주)코리아씰 DART FY2025 포함 (889억)
+        <div style="flex:1;overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;">
+            <tr style="background:#1a1a2e;color:#fff;">
+              <th style="padding:7px 10px;text-align:left;font-size:11px;font-weight:600;">브랜드</th>
+              <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600;border-left:2px solid #374151;">FY2023&nbsp;<span style="font-size:9px;font-weight:400;color:#9ca3af;">매출 (비중)</span></th>
+              <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600;border-left:2px solid #374151;">FY2024&nbsp;<span style="font-size:9px;font-weight:400;color:#9ca3af;">매출 전년비 (비중)</span></th>
+              <th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:600;border-left:2px solid #374151;">FY2025&nbsp;<span style="font-size:9px;font-weight:400;color:#9ca3af;">매출 전년비 (비중)</span></th>
+              <th style="padding:7px 10px;text-align:left;font-size:11px;font-weight:600;border-left:2px solid #374151;">출처</th>
+            </tr>
+            {src_rows}
+            {total_row}
+          </table>
         </div>
       </div>
 
-      {bed5_bars}
+      <div id="chart-revenue-3y" style="height:480px;"></div>
+      <script>
+      (function() {{
+        var dom = document.getElementById('chart-revenue-3y');
+        if (!dom || typeof echarts === 'undefined') return;
+        var chart = echarts.init(dom);
+        chart.setOption({{
+          legend: {{
+            data: {legend_data}, bottom: 0, type: 'scroll',
+            itemWidth: 16, itemHeight: 10, textStyle: {{ fontSize: 13 }}
+          }},
+          grid: {{ left: 72, right: 20, top: 60, bottom: 60 }},
+          xAxis: {{
+            type: 'category', data: ['FY2023', 'FY2024', 'FY2025'],
+            axisLabel: {{ fontSize: 14, fontWeight: 'bold' }},
+            axisTick: {{ alignWithLabel: true }}
+          }},
+          yAxis: {{
+            type: 'value', name: '억원',
+            nameTextStyle: {{ fontSize: 11, color: '#999' }},
+            axisLabel: {{ formatter: function(v) {{ return v.toLocaleString(); }}, fontSize: 11 }},
+            splitLine: {{ lineStyle: {{ type: 'dashed', color: '#f0f0f0' }} }}
+          }},
+          tooltip: {{
+            trigger: 'axis',
+            formatter: function(params) {{
+              var html = '<b>' + params[0].axisValue + '</b><br>';
+              params.forEach(function(p) {{
+                if (p.seriesName.indexOf('_trend_') === 0) return;
+                html += p.marker + ' ' + p.seriesName + ': <b>' + p.value.toLocaleString() + '억</b><br>';
+              }});
+              return html;
+            }}
+          }},
+          series: [
+            {all_series}
+          ]
+        }});
+        window.addEventListener('resize', function() {{ chart.resize(); }});
+      }})();
+      </script>
 
       <div style="margin-top:10px;font-size:10px;color:#9ca3af;background:#fffbeb;
         padding:8px 12px;border-radius:5px;border-left:3px solid #fbbf24;line-height:1.7;">
-        ⚠ 코웨이 비렉스·템퍼 수치는 공식 DART 부문 공시가 아닌 추정치입니다.
-        에이스침대·씰리침대(코리아씰)·시몬스는 DART 전체 매출 공시 기준. 내부 참고용으로만 활용하고 대외 보고 시 주석 필요.
+        ★ 코웨이 비렉스(매트리스 부문 IR)·지누스(국내별도 사측발표)·템퍼(유한회사 DART)는 공식 부문 공시가 아닌 추정·발표 기준.
+        시몬스·에이스침대·씰리침대는 DART 공시 기준. 내부 참고용으로만 활용하고 대외 보고 시 주석 필요.
       </div>
     </div>
   </div>"""
@@ -495,6 +608,68 @@ def build_youtube_section():
 
 # ── 7. 조합 및 저장 ─────────────────────────────────────────────────────────
 
+def patch_sos_som_tempur(src: str) -> str:
+    """
+    latest.json에서 템퍼 Google Trends 데이터가 수집된 경우
+    SOS_SOM_DATA의 템퍼 항목을 실데이터로 교체한다.
+    템퍼 데이터 없으면 아무것도 하지 않는다.
+    """
+    try:
+        with open(DATA_PATH, encoding="utf-8") as f:
+            latest = json.load(f)
+    except Exception:
+        return src
+
+    google_linked = latest.get("google", {}).get("linked", {})
+    tempur_val = google_linked.get("템퍼")
+    if not tempur_val or tempur_val <= 0:
+        return src  # 아직 수집 안 됨 → 변경 없음
+
+    # 6개 매출 브랜드 중 Google Trends 있는 것만 SoS 계산
+    REV_BRANDS = ["코웨이 비렉스", "시몬스", "에이스침대", "템퍼", "씰리침대", "지누스"]
+    REV_REV    = {  # FY2025 매출 (억원)
+        "시몬스": 3239, "에이스침대": 3173, "코웨이 비렉스": 3654,
+        "템퍼": 1229,  "씰리침대": 889,   "지누스": 590,
+    }
+    r_total = sum(REV_REV.values())  # 12,774억
+
+    g_subset = {b: google_linked[b] for b in REV_BRANDS if b in google_linked and google_linked[b] > 0}
+    g_total  = sum(g_subset.values())
+    if g_total == 0:
+        return src
+
+    sos = {b: round(v / g_total * 100, 1) for b, v in g_subset.items()}
+    som = {b: round(REV_REV[b] / r_total * 100, 1) for b in g_subset}
+
+    # SOS_SOM_DATA 내 템퍼 항목 교체 (caution→False, sos/som 실값)
+    import re
+    tempur_sos = sos.get("템퍼")
+    tempur_som = som.get("템퍼")
+    if tempur_sos is None:
+        return src
+
+    # 기존 템퍼 caution 항목 패턴 교체
+    old_pat = r'\{"brand":"템퍼","sos":null[^}]*"caution":true[^}]*\}'
+    new_entry = (
+        f'{{"brand":"템퍼","sos":{tempur_sos},"sos_total":null,"sos_cat":{tempur_sos},'
+        f'"som":{tempur_som},"caution":false,"tier":"A","in_dart":true,'
+        f'"is_simmons":false,"data_source":"DART_유한회사_추정★",'
+        f'"som_note":"국내별도 추정★"}}'
+    )
+    patched, n = re.subn(old_pat, new_entry, src)
+    if n > 0:
+        # 시몬스 SoS도 업데이트
+        sim_sos = sos.get("시몬스", 58.3)
+        patched = re.sub(
+            r'"brand":"시몬스","sos":\d+\.?\d*,"sos_total":\d+\.?\d*,"sos_cat":\d+\.?\d*,"som":\d+\.?\d*',
+            f'"brand":"시몬스","sos":{sim_sos},"sos_total":8.5,"sos_cat":{sim_sos},"som":{som.get("시몬스", 25.4)}',
+            patched, count=1
+        )
+        print(f"  → 템퍼 SoS={tempur_sos}% / SoM={tempur_som}% 실데이터 반영 완료")
+        return patched
+    return src
+
+
 def main():
     print("[v2] 기존 리포트 로드...")
     with open(SRC_HTML, encoding="utf-8") as f:
@@ -504,6 +679,7 @@ def main():
     api_data = fetch_blog_news()
 
     print("[v2] 섹션 생성...")
+    src = patch_sos_som_tempur(src)   # 템퍼 SoS 실데이터 반영 (수집됐을 때만 동작)
     detail_sec   = build_detail_section(api_data)
     revenue_sec  = build_revenue_section()
     price_sec    = build_price_section()
@@ -579,8 +755,8 @@ def main():
     if tr_s != -1 and tr_e != -1:
         trend_block = src[tr_s:tr_e]
         src = src[:tr_s] + src[tr_e:]          # 원위치 제거
-        # id="section-cv" 앞에 삽입 (한글 주석 인코딩 우회)
-        cv_pos = src.find('id="section-cv"')
+        # id="section-price-table" 앞에 삽입 (한글 주석 인코딩 우회)
+        cv_pos = src.find('id="section-price-table"')
         if cv_pos != -1:
             ins = src.rfind('\n\n', 0, cv_pos)
             if ins == -1:
@@ -588,7 +764,7 @@ def main():
             src = src[:ins] + trend_block + src[ins:]
             print("  → 월별 추이 섹션: ESOV 산점도 아래로 이동 완료")
         else:
-            print("  ⚠ section-cv 앵커 없음 — 원위치 유지")
+            print("  ⚠ section-price-table 앵커 없음 — 원위치 유지")
             src = src[:tr_s] + trend_block + src[tr_s:]
     else:
         print(f"  ⚠ section-trend 탐색 실패 (s={tr_s}, e={tr_e})")

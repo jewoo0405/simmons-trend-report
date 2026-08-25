@@ -1,0 +1,1397 @@
+{
+  "collected_at": "2026-08-25T11:08:32+09:00",
+  "baseline": "시몬스",
+  "run_id": "20260825_110832",
+  "google": {
+    "batches": [
+      {
+        "label": "A",
+        "keywords": [
+          "시몬스",
+          "일룸",
+          "까사미아",
+          "에이스침대",
+          "지누스"
+        ],
+        "bridge": "시몬스",
+        "raw_medians": {
+          "시몬스": 23.815384615384616,
+          "일룸": 13.861538461538462,
+          "까사미아": 8.876923076923077,
+          "에이스침대": 7.838461538461538,
+          "지누스": 8.734615384615385
+        },
+        "note": null
+      },
+      {
+        "label": "B",
+        "keywords": [
+          "시몬스",
+          "이케아",
+          "한샘"
+        ],
+        "bridge": "시몬스",
+        "raw_medians": {
+          "시몬스": 11.457692307692307,
+          "이케아": 77.28846153846153,
+          "한샘": 23.41923076923077
+        },
+        "note": null
+      },
+      {
+        "label": "C",
+        "keywords": [
+          "시몬스",
+          "에몬스"
+        ],
+        "bridge": "에몬스",
+        "raw_medians": {
+          "시몬스": 23.815384615384616,
+          "에몬스": 3.5153846153846153
+        },
+        "note": null
+      },
+      {
+        "label": "D",
+        "keywords": [
+          "에몬스",
+          "현대리바트",
+          "씰리침대"
+        ],
+        "bridge": "씰리침대",
+        "raw_medians": {
+          "에몬스": 23.638461538461538,
+          "현대리바트": 22.115384615384617,
+          "씰리침대": 2.3423076923076924
+        },
+        "note": null
+      },
+      {
+        "label": "E",
+        "keywords": [
+          "씰리침대",
+          "코웨이 비렉스"
+        ],
+        "bridge": null,
+        "raw_medians": {
+          "씰리침대": 8.523076923076923,
+          "코웨이 비렉스": 1.6923076923076923
+        },
+        "note": "코웨이 비렉스 측정 해상도 한계 (원본값 < 1). 예상 max/min ≈34x (20x 초과). P0-3 키워드 재검증 예정."
+      }
+    ],
+    "linked": {
+      "시몬스": 100.0,
+      "일룸": 58.2,
+      "까사미아": 37.3,
+      "에이스침대": 32.9,
+      "지누스": 36.7,
+      "이케아": 674.6,
+      "한샘": 204.4,
+      "에몬스": 14.8,
+      "현대리바트": 13.8,
+      "씰리침대": 1.5,
+      "코웨이 비렉스": 0.3
+    },
+    "normalized": {
+      "시몬스": 100.0,
+      "일룸": 58.2,
+      "까사미아": 37.3,
+      "에이스침대": 32.9,
+      "지누스": 36.7,
+      "이케아": 674.6,
+      "한샘": 204.4,
+      "에몬스": 14.8,
+      "현대리바트": 13.8,
+      "씰리침대": 1.5,
+      "코웨이 비렉스": 0.3
+    },
+    "warnings": [
+      "배치C: 브리지 '에몬스' 값 3.5 < 5 (유효숫자 부족)",
+      "배치D: 브리지 '씰리침대' 값 2.3 < 5 (유효숫자 부족)"
+    ],
+    "monthly_series": {
+      "시몬스": [
+        {
+          "period": "2025-08",
+          "value": 291.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-09",
+          "value": 94.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-10",
+          "value": 90.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-11",
+          "value": 100.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-12",
+          "value": 96.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-01",
+          "value": 75.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-02",
+          "value": 84.0,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-03",
+          "value": 79.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-04",
+          "value": 110.2,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-05",
+          "value": 82.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-06",
+          "value": 67.2,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-07",
+          "value": 69.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-08",
+          "value": 57.7,
+          "cv": 0.0,
+          "confidence": "stable"
+        }
+      ],
+      "일룸": [
+        {
+          "period": "2025-08",
+          "value": 48.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-09",
+          "value": 52.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-10",
+          "value": 57.7,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-11",
+          "value": 59.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-12",
+          "value": 68.2,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-01",
+          "value": 74.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-02",
+          "value": 72.4,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-03",
+          "value": 59.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-04",
+          "value": 56.7,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-05",
+          "value": 53.7,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-06",
+          "value": 48.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-07",
+          "value": 56.7,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-08",
+          "value": 48.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        }
+      ],
+      "까사미아": [
+        {
+          "period": "2025-08",
+          "value": 37.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-09",
+          "value": 29.4,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-10",
+          "value": 32.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-11",
+          "value": 37.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-12",
+          "value": 45.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-01",
+          "value": 52.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-02",
+          "value": 35.7,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-03",
+          "value": 41.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-04",
+          "value": 32.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-05",
+          "value": 36.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-06",
+          "value": 38.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-07",
+          "value": 34.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-08",
+          "value": 30.4,
+          "cv": 0.0,
+          "confidence": "stable"
+        }
+      ],
+      "에이스침대": [
+        {
+          "period": "2025-08",
+          "value": 33.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-09",
+          "value": 29.4,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-10",
+          "value": 34.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-11",
+          "value": 35.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-12",
+          "value": 33.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-01",
+          "value": 34.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-02",
+          "value": 38.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-03",
+          "value": 38.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-04",
+          "value": 31.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-05",
+          "value": 37.0,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-06",
+          "value": 28.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-07",
+          "value": 28.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-08",
+          "value": 24.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        }
+      ],
+      "지누스": [
+        {
+          "period": "2025-08",
+          "value": 33.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-09",
+          "value": 33.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-10",
+          "value": 40.9,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-11",
+          "value": 33.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-12",
+          "value": 38.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-01",
+          "value": 40.9,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-02",
+          "value": 35.7,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-03",
+          "value": 47.0,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-04",
+          "value": 32.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-05",
+          "value": 36.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-06",
+          "value": 36.7,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-07",
+          "value": 33.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-08",
+          "value": 33.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        }
+      ],
+      "이케아": [
+        {
+          "period": "2025-08",
+          "value": 685.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-09",
+          "value": 634.9,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-10",
+          "value": 691.7,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-11",
+          "value": 712.2,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-12",
+          "value": 792.0,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-01",
+          "value": 735.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-02",
+          "value": 731.0,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-03",
+          "value": 693.0,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-04",
+          "value": 589.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-05",
+          "value": 593.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-06",
+          "value": 580.4,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-07",
+          "value": 674.2,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-08",
+          "value": 656.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        }
+      ],
+      "한샘": [
+        {
+          "period": "2025-08",
+          "value": 187.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-09",
+          "value": 198.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-10",
+          "value": 194.2,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-11",
+          "value": 219.9,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-12",
+          "value": 220.4,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-01",
+          "value": 222.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-02",
+          "value": 216.0,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-03",
+          "value": 242.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-04",
+          "value": 192.0,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-05",
+          "value": 219.9,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-06",
+          "value": 194.2,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-07",
+          "value": 181.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-08",
+          "value": 168.0,
+          "cv": 0.0,
+          "confidence": "stable"
+        }
+      ],
+      "에몬스": [
+        {
+          "period": "2025-08",
+          "value": 16.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-09",
+          "value": 12.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-10",
+          "value": 12.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-11",
+          "value": 26.0,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-12",
+          "value": 21.0,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-01",
+          "value": 12.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-02",
+          "value": 15.7,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-03",
+          "value": 12.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-04",
+          "value": 10.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-05",
+          "value": 16.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-06",
+          "value": 16.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-07",
+          "value": 10.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-08",
+          "value": 7.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        }
+      ],
+      "현대리바트": [
+        {
+          "period": "2025-08",
+          "value": 8.4,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-09",
+          "value": 16.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-10",
+          "value": 10.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-11",
+          "value": 9.2,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-12",
+          "value": 4.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-01",
+          "value": 25.9,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-02",
+          "value": 25.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-03",
+          "value": 16.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-04",
+          "value": 14.5,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-05",
+          "value": 15.9,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-06",
+          "value": 12.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-07",
+          "value": 11.7,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-08",
+          "value": 8.0,
+          "cv": 0.0,
+          "confidence": "stable"
+        }
+      ],
+      "씰리침대": [
+        {
+          "period": "2025-08",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-09",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-10",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-11",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-12",
+          "value": 4.4,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-01",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-02",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-03",
+          "value": 2.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-04",
+          "value": 2.3,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-05",
+          "value": 3.1,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-06",
+          "value": 2.8,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-07",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-08",
+          "value": 3.7,
+          "cv": 0.0,
+          "confidence": "stable"
+        }
+      ],
+      "코웨이 비렉스": [
+        {
+          "period": "2025-08",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-09",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-10",
+          "value": 2.6,
+          "cv": 0.0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-11",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2025-12",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-01",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-02",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-03",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-04",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-05",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-06",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-07",
+          "value": 0.0,
+          "cv": 0,
+          "confidence": "stable"
+        },
+        {
+          "period": "2026-08",
+          "value": 1.2,
+          "cv": 0.0,
+          "confidence": "stable"
+        }
+      ]
+    },
+    "periods": [
+      "2025-08",
+      "2025-09",
+      "2025-10",
+      "2025-11",
+      "2025-12",
+      "2026-01",
+      "2026-02",
+      "2026-03",
+      "2026-04",
+      "2026-05",
+      "2026-06",
+      "2026-07",
+      "2026-08"
+    ]
+  },
+  "naver_datalab_trend": {},
+  "naver_datalab": {
+    "시몬스": {
+      "gender": {
+        "여성": 40.6,
+        "남성": 7.0
+      },
+      "age": {
+        "10대": 2.1,
+        "20대": 5.1,
+        "30대": 18.9,
+        "40대": 29.1,
+        "50대": 31.3,
+        "60대+": 21.4
+      }
+    },
+    "에이스침대": {
+      "gender": {
+        "여성": 55.0,
+        "남성": 56.2
+      },
+      "age": {
+        "10대": 31.8,
+        "20대": 52.3,
+        "30대": 56.1,
+        "40대": 50.0,
+        "50대": 56.0,
+        "60대+": 59.6
+      }
+    },
+    "씰리침대": {
+      "gender": {
+        "여성": 47.4,
+        "남성": 45.9
+      },
+      "age": {
+        "10대": 13.7,
+        "20대": 45.3,
+        "30대": 48.3,
+        "40대": 45.6,
+        "50대": 36.3,
+        "60대+": 34.8
+      }
+    },
+    "지누스": {
+      "gender": {
+        "여성": 58.7,
+        "남성": 26.0
+      },
+      "age": {
+        "10대": 18.8,
+        "20대": 49.5,
+        "30대": 24.9,
+        "40대": 34.4,
+        "50대": 32.0,
+        "60대+": 28.5
+      }
+    },
+    "코웨이 비렉스": {
+      "gender": {
+        "여성": 13.2,
+        "남성": 19.1
+      },
+      "age": {
+        "10대": 10.6,
+        "20대": 23.9,
+        "30대": 23.6,
+        "40대": 20.7,
+        "50대": 11.2,
+        "60대+": 8.5
+      }
+    },
+    "한샘": {
+      "gender": {
+        "여성": 59.5,
+        "남성": 20.6
+      },
+      "age": {
+        "10대": 38.7,
+        "20대": 52.1,
+        "30대": 46.0,
+        "40대": 33.0,
+        "50대": 24.1,
+        "60대+": 17.8
+      }
+    },
+    "현대리바트": {
+      "gender": {
+        "여성": 27.9,
+        "남성": 16.9
+      },
+      "age": {
+        "10대": 15.1,
+        "20대": 9.8,
+        "30대": 28.1,
+        "40대": 14.6,
+        "50대": 15.2,
+        "60대+": 15.4
+      }
+    },
+    "까사미아": {
+      "gender": {
+        "여성": 56.5,
+        "남성": 57.7
+      },
+      "age": {
+        "10대": 36.1,
+        "20대": 54.2,
+        "30대": 55.5,
+        "40대": 53.5,
+        "50대": 54.7,
+        "60대+": 64.1
+      }
+    },
+    "일룸": {
+      "gender": {
+        "여성": 51.4,
+        "남성": 47.2
+      },
+      "age": {
+        "10대": 30.8,
+        "20대": 60.9,
+        "30대": 50.8,
+        "40대": 45.1,
+        "50대": 59.9,
+        "60대+": 42.9
+      }
+    },
+    "에몬스": {
+      "gender": {
+        "여성": 56.1,
+        "남성": 55.4
+      },
+      "age": {
+        "10대": 16.2,
+        "20대": 39.9,
+        "30대": 55.0,
+        "40대": 51.1,
+        "50대": 59.8,
+        "60대+": 45.6
+      }
+    },
+    "이케아": {
+      "gender": {
+        "여성": 56.7,
+        "남성": 55.0
+      },
+      "age": {
+        "10대": 33.8,
+        "20대": 56.9,
+        "30대": 61.4,
+        "40대": 48.2,
+        "50대": 40.0,
+        "60대+": 46.8
+      }
+    }
+  },
+  "naver_search": {
+    "시몬스": {
+      "blog_news_total": 156616
+    },
+    "에이스침대": {
+      "blog_news_total": 181049
+    },
+    "씰리침대": {
+      "blog_news_total": 115607
+    },
+    "지누스": {
+      "blog_news_total": 26334
+    },
+    "코웨이 비렉스": {
+      "blog_news_total": 24480
+    },
+    "한샘": {
+      "blog_news_total": 78745
+    },
+    "현대리바트": {
+      "blog_news_total": 40254
+    },
+    "까사미아": {
+      "blog_news_total": 50307
+    },
+    "일룸": {
+      "blog_news_total": 65180
+    },
+    "에몬스": {
+      "blog_news_total": 82972
+    },
+    "이케아": {
+      "blog_news_total": 206486
+    }
+  },
+  "dart": {
+    "에이스침대": {
+      "amount": 3173,
+      "year": "2025",
+      "unit": "억원",
+      "caution": false,
+      "note": "매트리스 전업",
+      "source": "naver_finance"
+    },
+    "한샘": {
+      "amount": 17445,
+      "year": "2025",
+      "unit": "억원",
+      "caution": true,
+      "note": "종합 가구 포함",
+      "source": "naver_finance"
+    },
+    "현대리바트": {
+      "amount": 15462,
+      "year": "2025",
+      "unit": "억원",
+      "caution": true,
+      "note": "종합 가구 포함",
+      "source": "naver_finance"
+    },
+    "지누스": {
+      "amount": 9132,
+      "year": "2025",
+      "unit": "억원",
+      "caution": false,
+      "note": "매트리스 전업",
+      "source": "naver_finance"
+    },
+    "코웨이 비렉스": {
+      "amount": 49636,
+      "year": "2025",
+      "unit": "억원",
+      "caution": true,
+      "note": "코웨이 전체 매출 (비렉스 분리 불가)",
+      "source": "naver_finance"
+    },
+    "시몬스": {
+      "amount": 3239,
+      "year": "2025",
+      "unit": "억원",
+      "caution": false,
+      "note": "매트리스 전업 (비상장, 감사보고서 기준)",
+      "source": "DART_audit_report"
+    }
+  },
+  "price_data": {
+    "시몬스": {
+      "min_price": null,
+      "avg_price": null,
+      "product_count": 0,
+      "review_count": 0,
+      "rating": null,
+      "keyword": "시몬스 매트리스"
+    }
+  },
+  "social_data": {
+    "시몬스": {
+      "youtube_subscribers": null,
+      "youtube_search_kw": "시몬스침대 공식"
+    },
+    "에이스침대": {
+      "youtube_subscribers": 38300,
+      "youtube_search_kw": "에이스침대 공식채널"
+    },
+    "씰리침대": {
+      "youtube_subscribers": 428,
+      "youtube_search_kw": "씰리침대 SEALY Korea"
+    },
+    "지누스": {
+      "youtube_subscribers": null,
+      "youtube_search_kw": "지누스 Zinus Korea"
+    },
+    "코웨이 비렉스": {
+      "youtube_subscribers": 210000,
+      "youtube_search_kw": "코웨이 공식"
+    },
+    "한샘": {
+      "youtube_subscribers": 118000,
+      "youtube_search_kw": "한샘 공식채널"
+    },
+    "현대리바트": {
+      "youtube_subscribers": 20900,
+      "youtube_search_kw": "현대리바트 공식"
+    },
+    "까사미아": {
+      "youtube_subscribers": null,
+      "youtube_search_kw": "까사미아 CASAMIA"
+    },
+    "일룸": {
+      "youtube_subscribers": 29100,
+      "youtube_search_kw": "일룸 공식채널"
+    },
+    "에몬스": {
+      "youtube_subscribers": 223,
+      "youtube_search_kw": "에몬스가구 공식"
+    },
+    "이케아": {
+      "youtube_subscribers": 1530,
+      "youtube_search_kw": "IKEA Korea 이케아"
+    }
+  },
+  "gap": [
+    {
+      "brand": "이케아",
+      "naver": 220.9,
+      "google": 631.8,
+      "gap": -410.9
+    },
+    {
+      "brand": "에이스침대",
+      "naver": 193.8,
+      "google": 30.8,
+      "gap": 163.0
+    },
+    {
+      "brand": "씰리침대",
+      "naver": 123.7,
+      "google": 1.4,
+      "gap": 122.3
+    },
+    {
+      "brand": "한샘",
+      "naver": 84.3,
+      "google": 191.4,
+      "gap": -107.1
+    },
+    {
+      "brand": "에몬스",
+      "naver": 88.8,
+      "google": 13.9,
+      "gap": 74.9
+    },
+    {
+      "brand": "시몬스",
+      "naver": 167.6,
+      "google": 93.7,
+      "gap": 73.9
+    },
+    {
+      "brand": "현대리바트",
+      "naver": 43.1,
+      "google": 12.9,
+      "gap": 30.2
+    },
+    {
+      "brand": "코웨이 비렉스",
+      "naver": 26.1,
+      "google": 0.3,
+      "gap": 25.8
+    },
+    {
+      "brand": "까사미아",
+      "naver": 53.8,
+      "google": 34.9,
+      "gap": 18.9
+    },
+    {
+      "brand": "일룸",
+      "naver": 69.7,
+      "google": 54.5,
+      "gap": 15.2
+    },
+    {
+      "brand": "지누스",
+      "naver": 28.2,
+      "google": 34.4,
+      "gap": -6.2
+    }
+  ],
+  "keyword_version": "2026-08-v2",
+  "quality": {
+    "cv": {
+      "시몬스": 0.0,
+      "에이스침대": 0.0,
+      "씰리침대": 0.0,
+      "지누스": 0.0,
+      "코웨이 비렉스": 0.0,
+      "한샘": 0.0,
+      "현대리바트": 0.0,
+      "까사미아": 0.0,
+      "일룸": 0.0,
+      "에몬스": 0.0,
+      "이케아": 0.0
+    },
+    "confidence_score": 100,
+    "sample_count": 3,
+    "outliers_removed": 0,
+    "suspect": false
+  }
+}
