@@ -473,6 +473,211 @@ def build_revenue_section():
   </div>"""
 
 
+# ── 5-a. 인스타그램·매장 수 정적 데이터 (2026-09-01 직접 조사) ───────────────
+_INSTAGRAM_DATA = {
+    '시몬스':        75500,
+    '에이스침대':    53600,
+    '씰리침대':      20000,
+    '지누스':        19000,
+    '템퍼':          15000,
+    '에몬스':       125000,
+    '한샘':         315000,
+    '현대리바트':   119000,
+    '까사미아':     156000,
+    '일룸':         110000,
+    '이케아':       409000,
+    '코웨이 비렉스': 115000,
+}
+
+_STORE_DATA = {
+    '시몬스':        150,
+    '에이스침대':     54,
+    '씰리침대':      150,
+    '템퍼':           90,
+    '에몬스':         88,
+    '한샘':          657,
+    '현대리바트':    200,
+    '까사미아':      107,
+    '일룸':           30,
+    '이케아':          5,
+    '코웨이 비렉스':  42,
+    # 지누스: 확인불가 제외
+}
+
+_STORE_NOTES = {
+    '한샘':      '직영+대리점 포함',
+    '에이스침대': '에이스스퀘어 기준',
+    '현대리바트': '추정',
+    '씰리침대':  '추정',
+    '시몬스':    '직영 전환 후',
+    '템퍼':      '추정',
+    '일룸':      '추정',
+}
+
+
+def build_instagram_section():
+    import json as _json
+    sorted_data = sorted(_INSTAGRAM_DATA.items(), key=lambda x: x[1], reverse=True)
+    echarts_data, table_rows = [], ""
+    for rank, (name, val) in enumerate(sorted_data, 1):
+        is_simm = name == "시몬스"
+        bg = "#f8f8f8" if is_simm else "transparent"
+        fw = "700"     if is_simm else "400"
+        echarts_data.append({"value": val, "name": name, "itemStyle": brand_item_style(name)})
+        disp = f"{val/10000:.1f}만" if val >= 10000 else f"{val:,}"
+        table_rows += f"""
+          <tr style="background:{bg};">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">{rank}</td>
+            <td style="padding:5px 10px;">
+              <span style="background:{brand_color(name)};color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:{brand_opacity(name)};">{name}</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:{fw};font-size:12px;">{disp}명</td>
+          </tr>"""
+    chart_h  = max(len(sorted_data) * 28 + 40, 320)
+    ig_json  = _json.dumps(echarts_data, ensure_ascii=False)
+    note_brands = "씰리침대·지누스·템퍼는 검색 결과 기준, 나머지는 공식 계정 직접 조사"
+    return f"""
+  <!-- 인스타그램 팔로워 섹션 -->
+  <div class="chart-row" id="section-instagram">
+    <div class="card">
+      <div class="card-title">인스타그램 공식 채널 팔로워
+        <span class="source-badge" style="background:#fce4ec;color:#c2185b;border:1px solid #f48fb1;">Instagram</span>
+        <span class="period-chip">2026.09.01 기준</span>
+      </div>
+      <div class="card-sub">{note_brands}</div>
+      <div id="chart-instagram" style="height:{chart_h}px;"></div>
+      <details style="margin-top:12px;">
+        <summary style="cursor:pointer;font-size:12px;font-weight:600;color:#374151;padding:6px 0;
+          border-top:1px solid #f0f0f0;list-style:none;display:flex;align-items:center;gap:6px;">
+          <span>상세 데이터</span>
+          <span style="font-size:10px;background:#e5e7eb;padding:1px 8px;border-radius:10px;">보기 ▾</span>
+        </summary>
+        <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+          <thead><tr style="border-bottom:1px solid #e5e7eb;">
+            <th style="padding:5px 10px;text-align:left;font-size:11px;color:#888;">순위</th>
+            <th style="padding:5px 10px;text-align:left;font-size:11px;color:#888;">브랜드</th>
+            <th style="padding:5px 10px;text-align:right;font-size:11px;color:#888;">팔로워</th>
+          </tr></thead>
+          <tbody>{table_rows}</tbody>
+        </table>
+      </details>
+    </div>
+  </div>
+  <script>
+  (function(){{
+    var igData={ig_json};
+    function init(){{
+      var el=document.getElementById('chart-instagram');
+      if(!el||typeof echarts==='undefined'){{setTimeout(init,200);return;}}
+      var rev=igData.slice().reverse();
+      var chart=echarts.init(el);
+      chart.setOption({{
+        grid:{{left:100,right:90,top:10,bottom:20}},
+        tooltip:{{trigger:'axis',formatter:function(p){{
+          var v=p[0].value;
+          return p[0].name+'<br/>팔로워: <b>'+(v>=10000?(v/10000).toFixed(1)+'만':v.toLocaleString())+'명</b>';
+        }}}},
+        xAxis:{{type:'value',axisLabel:{{fontSize:11,formatter:function(v){{return v>=10000?(v/10000).toFixed(0)+'만':v;}}}}}},
+        yAxis:{{type:'category',data:rev.map(function(d){{return d.name;}}),
+          axisLabel:{{fontSize:11,fontFamily:'Malgun Gothic,Arial,sans-serif'}}}},
+        series:[{{type:'bar',barMaxWidth:22,
+          data:rev.map(function(d){{return{{value:d.value,itemStyle:d.itemStyle}};}}),
+          label:{{show:true,position:'right',fontSize:11,
+            formatter:function(p){{var v=p.value;return v>=10000?(v/10000).toFixed(1)+'만':v.toLocaleString();}}}}
+        }}]
+      }});
+      window.addEventListener('resize',function(){{chart.resize();}});
+    }}
+    init();
+  }})();
+  </script>"""
+
+
+def build_store_section():
+    import json as _json
+    sorted_data = sorted(_STORE_DATA.items(), key=lambda x: x[1], reverse=True)
+    echarts_data, table_rows = [], ""
+    for rank, (name, val) in enumerate(sorted_data, 1):
+        is_simm = name == "시몬스"
+        bg = "#f8f8f8" if is_simm else "transparent"
+        fw = "700"     if is_simm else "400"
+        echarts_data.append({"value": val, "name": name, "itemStyle": brand_item_style(name)})
+        note = _STORE_NOTES.get(name, "")
+        note_html = f' <span style="font-size:10px;color:#999;">({note})</span>' if note else ""
+        table_rows += f"""
+          <tr style="background:{bg};">
+            <td style="padding:5px 10px;color:#888;font-size:12px;">{rank}</td>
+            <td style="padding:5px 10px;">
+              <span style="background:{brand_color(name)};color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:{brand_opacity(name)};">{name}</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-weight:{fw};font-size:12px;">{val}개{note_html}</td>
+          </tr>"""
+    table_rows += f"""
+          <tr>
+            <td style="padding:5px 10px;color:#888;font-size:12px;">—</td>
+            <td style="padding:5px 10px;">
+              <span style="background:{brand_color('지누스')};color:#fff;padding:1px 7px;border-radius:3px;
+                font-size:10px;font-weight:700;opacity:{brand_opacity('지누스')};">지누스</span>
+            </td>
+            <td style="padding:5px 10px;text-align:right;font-size:12px;color:#999;">확인불가</td>
+          </tr>"""
+    chart_h    = max(len(sorted_data) * 28 + 40, 280)
+    store_json = _json.dumps(echarts_data, ensure_ascii=False)
+    return f"""
+  <!-- 직영점·전시장 수 섹션 -->
+  <div class="chart-row" id="section-store">
+    <div class="card">
+      <div class="card-title">직영점·전시장 수
+        <span class="source-badge" style="background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;">공식 홈페이지</span>
+        <span class="period-chip">2026.09.01 기준</span>
+      </div>
+      <div class="card-sub">각 브랜드 공식 홈페이지 매장찾기 기준 · 한샘은 직영+대리점 포함 · 지누스 확인불가</div>
+      <div id="chart-store" style="height:{chart_h}px;"></div>
+      <details style="margin-top:12px;">
+        <summary style="cursor:pointer;font-size:12px;font-weight:600;color:#374151;padding:6px 0;
+          border-top:1px solid #f0f0f0;list-style:none;display:flex;align-items:center;gap:6px;">
+          <span>상세 데이터</span>
+          <span style="font-size:10px;background:#e5e7eb;padding:1px 8px;border-radius:10px;">보기 ▾</span>
+        </summary>
+        <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+          <thead><tr style="border-bottom:1px solid #e5e7eb;">
+            <th style="padding:5px 10px;text-align:left;font-size:11px;color:#888;">순위</th>
+            <th style="padding:5px 10px;text-align:left;font-size:11px;color:#888;">브랜드</th>
+            <th style="padding:5px 10px;text-align:right;font-size:11px;color:#888;">매장 수</th>
+          </tr></thead>
+          <tbody>{table_rows}</tbody>
+        </table>
+      </details>
+    </div>
+  </div>
+  <script>
+  (function(){{
+    var stData={store_json};
+    function init(){{
+      var el=document.getElementById('chart-store');
+      if(!el||typeof echarts==='undefined'){{setTimeout(init,200);return;}}
+      var rev=stData.slice().reverse();
+      var chart=echarts.init(el);
+      chart.setOption({{
+        grid:{{left:100,right:60,top:10,bottom:20}},
+        tooltip:{{trigger:'axis',formatter:function(p){{return p[0].name+'<br/>매장: <b>'+p[0].value+'개</b>';}}}},
+        xAxis:{{type:'value',axisLabel:{{fontSize:11}}}},
+        yAxis:{{type:'category',data:rev.map(function(d){{return d.name;}}),
+          axisLabel:{{fontSize:11,fontFamily:'Malgun Gothic,Arial,sans-serif'}}}},
+        series:[{{type:'bar',barMaxWidth:22,
+          data:rev.map(function(d){{return{{value:d.value,itemStyle:d.itemStyle}};}}),
+          label:{{show:true,position:'right',fontSize:11,formatter:function(p){{return p.value+'개';}}}}
+        }}]
+      }});
+      window.addEventListener('resize',function(){{chart.resize();}});
+    }}
+    init();
+  }})();
+  </script>"""
+
+
 # ── 5. 주력 매트리스 가격 비교 섹션 ────────────────────────────────────────
 
 def build_price_section():
@@ -680,9 +885,11 @@ def main():
 
     print("[v2] 섹션 생성...")
     src = patch_sos_som_tempur(src)   # 템퍼 SoS 실데이터 반영 (수집됐을 때만 동작)
-    detail_sec   = build_detail_section(api_data)
-    revenue_sec  = build_revenue_section()
-    price_sec    = build_price_section()
+    detail_sec    = build_detail_section(api_data)
+    revenue_sec   = build_revenue_section()
+    price_sec     = build_price_section()
+    instagram_sec = build_instagram_section()
+    store_sec     = build_store_section()
 
     # ① 매출 현황 → 가격 비교 순으로 main 최상단에 삽입
     top_anchor = '<div id="main">'
@@ -713,6 +920,15 @@ def main():
             print("  ⚠ section-kpi 삽입 위치 없음 — YouTube 원위치 유지")
     else:
         print(f"  ⚠ section-social 탐색 실패 (s={yt_s}, e={yt_e})")
+
+    # ① -c  인스타그램·매장 수 섹션을 YouTube 바로 뒤(section-kpi 앞)에 삽입
+    kpi_pos2 = src.find('id="section-kpi"')
+    if kpi_pos2 != -1:
+        tag_open2 = src.rfind('\n  <div', 0, kpi_pos2)
+        src = src[:tag_open2] + '\n\n' + instagram_sec + '\n\n' + store_sec + '\n' + src[tag_open2:]
+        print("  → 인스타그램·매장 수 섹션: YouTube 뒤 삽입 완료")
+    else:
+        src = src.replace("</body>", instagram_sec + "\n\n" + store_sec + "\n</body>")
 
     # ② 상세 건수 → section-rank 바로 뒤 (⑦ 월별 추이 앞)에 삽입
     rank_anchor = "<!-- ⑦ 월별 추이 -->"
@@ -793,7 +1009,9 @@ def main():
     src = src.replace(
         "</head>",
         "<style>#section-kpi{display:none!important;}"
-        "#section-price-table{display:none!important;}</style>\n</head>",
+        "#section-price-table{display:none!important;}"
+        "#section-price-compare{display:none!important;}"
+        "#section-own-search{display:none!important;}</style>\n</head>",
         1
     )
 

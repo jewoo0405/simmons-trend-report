@@ -515,7 +515,7 @@ body {
   /* ── A4 기본 페이지 설정 (방향은 JS exportPrint()에서 동적 주입) ── */
   @page {
     size: A4 portrait;
-    margin: 14mm 12mm 14mm 12mm;
+    margin: 10mm 12mm 10mm 12mm;
   }
   /* ── 가로 출력 시 자동 적용 ── */
   @page landscape-override {
@@ -532,15 +532,21 @@ body {
 
   /* ── 숨길 요소 ── */
   #sidebar,
+  #sidebar-overlay,
+  #sidebar-toggle,
   #top-header,
   #filter-changed-banner,
   #filter-banner,
+  #partial-month-banner,
+  #demo-partial-notice,
+  .analysis-overlay,
   .tier-filter,
   .toggle-btn,
   button,
   .action-btn,
   .no-print,
-  .source-badge {
+  .source-badge,
+  #section-price-compare {
     display: none !important;
   }
 
@@ -551,7 +557,7 @@ body {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    height: calc(297mm - 28mm) !important;  /* A4 - 상하 여백 14mm×2 */
+    height: calc(297mm - 20mm) !important;  /* A4 - 상하 여백 10mm×2 */
     min-height: 0 !important;
   }
   .cover-inner {
@@ -589,7 +595,7 @@ body {
     width: 186mm !important;
     max-width: 186mm !important;
     margin: 0 !important;
-    padding: 8px 0 !important;
+    padding: 4px 0 !important;
     box-sizing: border-box !important;
     min-width: 0 !important;
   }
@@ -601,19 +607,24 @@ body {
     box-shadow: none !important;
     border: 1px solid #ccc !important;
     background: #fff !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 4px !important;
     padding: 10px 12px !important;
   }
   .card-title { font-size: 11pt !important; margin-bottom: 4px !important; }
   .card-sub   { font-size: 8pt  !important; margin-bottom: 6px !important; }
 
-  /* ── 2단 그리드 → A4 너비에 맞게 유지 (가로 배치) ── */
+  /* ── 섹션 단위 페이지 분할 제어 ── */
+  /* 각 chart-row는 내부 자름 없이 통째로 이동 */
   .chart-row {
     break-inside: avoid;
     page-break-inside: avoid;
-    margin-bottom: 8px !important;
+    margin-bottom: 4px !important;
     gap: 8px !important;
   }
+  /* 테이블 행이 페이지 경계에서 잘리지 않도록 */
+  tr { break-inside: avoid; page-break-inside: avoid; }
+  /* 카드 제목과 첫 콘텐츠가 분리되지 않도록 */
+  .card-title, .card-sub { break-after: avoid; page-break-after: avoid; }
   .chart-row.col2 {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -626,8 +637,11 @@ body {
     min-height: 280px !important;
     max-height: 280px !important;
   }
-  #chart-trend-top { height: 240px !important; max-height: 240px !important; }
-  #chart-social    { height: 320px !important; max-height: 320px !important; }
+  #chart-trend-top  { height: 240px !important; max-height: 240px !important; }
+  #chart-social     { height: 320px !important; max-height: 320px !important; }
+  #chart-revenue-3y { height: 300px !important; max-height: 300px !important; }
+  #chart-naver-blog { height: 280px !important; max-height: 280px !important; }
+  #chart-naver-news { height: 280px !important; max-height: 280px !important; }
 
   /* ── 가격 비교 테이블: 폰트 축소 + 가로 스크롤 해제 ── */
   #section-price-table .card { break-inside: auto !important; }
@@ -674,7 +688,12 @@ body {
   #monthly-heatmap > div { overflow: visible !important; }
 
   /* ── KPI·인사이트 섹션 ── */
-  .kpi-strip, .section-card { break-inside: avoid; }
+  .kpi-strip {
+    break-inside: avoid;
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+  .section-card { break-inside: avoid; }
+  .summary-grid { grid-template-columns: 1fr 2fr !important; }
   h2, h3 { break-after: avoid; page-break-after: avoid; }
 
   /* ── 히트맵·배경색 셀 ── */
@@ -683,8 +702,13 @@ body {
     print-color-adjust: exact !important;
   }
 
-  /* ── ECharts 캔버스: JS resize() 로 크기 맞추므로 CSS 강제 변환 금지 ── */
-  canvas { display: block !important; }
+  /* ── ECharts 캔버스: 인쇄 시 반드시 표시 ── */
+  /* JS resize()로 카드 내부 너비에 정확히 맞추므로 max-width 제약 없음 */
+  canvas {
+    display: block !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 
   /* ── 링크 URL 숨기기 ── */
   a[href]::after { content: none !important; }
@@ -697,8 +721,8 @@ body {
     height: calc(210mm - 20mm) !important;  /* 가로 A4 높이 210mm - 상하 여백 10mm×2 */
   }
   body.print-landscape #main {
-    width: 271mm !important;
-    max-width: 271mm !important;
+    width: 269mm !important;
+    max-width: 269mm !important;
   }
   body.print-landscape [id^="chart-"] {
     height: 180px !important;
@@ -735,7 +759,7 @@ body {
   flex-shrink: 0;
 }
 
-@media (max-width: 1100px) {
+@media screen and (max-width: 1100px) {
   #sidebar-toggle { display: flex; }
   #sidebar {
     position: fixed; left: 0; top: var(--header-h);
@@ -748,7 +772,7 @@ body {
   #main { padding: 16px; }
 }
 
-@media (max-width: 800px) {
+@media screen and (max-width: 800px) {
   .chart-row.col2,
   .chart-row.col3 { grid-template-columns: 1fr !important; }
   .kpi-strip { grid-template-columns: 1fr 1fr !important; }
@@ -756,7 +780,7 @@ body {
   #main { padding: 12px; gap: 14px; }
 }
 
-@media (max-width: 480px) {
+@media screen and (max-width: 480px) {
   .kpi-strip { grid-template-columns: 1fr !important; }
   .header-chip, .conf-badge { display: none; }
 }
@@ -3073,18 +3097,13 @@ function setRange(btn, range) {
 }
 
 // T3-3: PDF 인쇄
-// reInitChart() 경유 차트는 _chartInstances에 없으므로 DOM 직접 조회로 보완
-const _PRINT_CHART_IDS = [
-  'chart-google-rank','chart-google-rank-ikea','chart-naver-rank',
-  'chart-monthly','chart-trend-top','chart-gap','chart-social',
-  'chart-sos','chart-gender','chart-age','chart-sos-som','chart-datalab'
-];
+// DOM 전체 [id^="chart-"] 자동 탐색 — build_v2가 추가한 차트도 누락 없이 수집
 function _getAllPrintCharts() {
   const seen = new Set(), all = [];
+  // ① gc()로 생성된 인스턴스 (_chartInstances)
   (window._chartInstances || []).forEach(c => { if (c && !seen.has(c)) { seen.add(c); all.push(c); } });
-  _PRINT_CHART_IDS.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
+  // ② DOM에서 id="chart-*" 원소 전부 검색 (hardcode 목록 불필요)
+  document.querySelectorAll('[id^="chart-"]').forEach(el => {
     const inst = echarts.getInstanceByDom(el);
     if (inst && !seen.has(inst)) { seen.add(inst); all.push(inst); }
   });
@@ -3094,7 +3113,7 @@ function _getAllPrintCharts() {
 function exportPrint(orientation) {
   var isLandscape = (orientation === 'landscape');
 
-  // ① @page 방향 주입
+  // ① 방향별 @page 주입
   var oStyle = document.getElementById('_print_page_size');
   if (!oStyle) {
     oStyle = document.createElement('style');
@@ -3103,60 +3122,63 @@ function exportPrint(orientation) {
   }
   oStyle.textContent = isLandscape
     ? '@media print { @page { size: A4 landscape; margin: 10mm 14mm; } }'
-    : '@media print { @page { size: A4 portrait;  margin: 14mm 12mm; } }';
+    : '@media print { @page { size: A4 portrait;  margin: 10mm 12mm; } }';
 
   if (isLandscape) document.body.classList.add('print-landscape');
   else             document.body.classList.remove('print-landscape');
 
-  // ② 방향별 유효 너비
+  // ② A4 유효폭 px 환산 (96dpi: 1mm ≈ 3.78px)
+  //    세로 186mm ≈ 703px / 가로 269mm ≈ 1017px
   var PW   = isLandscape ? 1017 : 703;
   var HALF = Math.floor((PW - 8) / 2);
+
+  // 인쇄 CSS: .card { padding: 10px 12px; border: 1px }  box-sizing:border-box
+  // → 카드 내부 너비 = 카드 박스 너비 - 2×(12px padding + 1px border) = -26px
+  var CARD_INSET  = 26;
+  var PW_CHART    = PW   - CARD_INSET;   // 전체폭 카드 내부: 677px(세로) / 991px(가로)
+  var HALF_CHART  = HALF - CARD_INSET;   // 반폭  카드 내부: 321px(세로) / 478px(가로)
+
   function _h(id) {
-    if (isLandscape) { return id === 'chart-trend-top' ? 150 : id === 'chart-social' ? 200 : 180; }
-    return id === 'chart-trend-top' ? 240 : id === 'chart-social' ? 320 : 280;
+    if (isLandscape) {
+      if (id === 'chart-trend-top')  return 150;
+      if (id === 'chart-social')     return 200;
+      if (id === 'chart-revenue-3y') return 220;
+      if (id === 'chart-naver-blog') return 220;
+      if (id === 'chart-naver-news') return 220;
+      return 180;
+    }
+    if (id === 'chart-trend-top')  return 240;
+    if (id === 'chart-social')     return 320;
+    if (id === 'chart-revenue-3y') return 300;
+    if (id === 'chart-naver-blog') return 280;
+    if (id === 'chart-naver-news') return 280;
+    return 280;
   }
 
-  // ③ ECharts 차트 → PNG 스냅샷으로 교체 (캔버스 인쇄 공백 방지)
-  var snaps = [];
+  // ③ 모든 ECharts 차트를 카드 내부 너비 기준으로 리사이즈
   _getAllPrintCharts().forEach(function(c) {
     try {
       var el = c.getDom();
       if (!el) return;
       var isHalf = !!el.closest('.chart-row.col2');
-      var w = isHalf ? HALF : PW;
-      var h = _h(el.id || '');
-      c.resize({ width: w, height: h });
-
-      var url = c.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#ffffff' });
-      var img = document.createElement('img');
-      img.src = url;
-      img.className = '_psnap';
-      img.style.cssText = 'display:block;width:100%;height:' + h + 'px;object-fit:contain;';
-
-      // 캔버스 숨기고 img 삽입
-      el.style.display = 'none';
-      el.parentNode.insertBefore(img, el);
-      snaps.push({ el: el, img: img, c: c });
+      c.resize({ width: isHalf ? HALF_CHART : PW_CHART, height: _h(el.id || '') });
     } catch(e) { console.warn('[print resize]', e); }
   });
 
-  // ④ 복원 함수
-  function _restore() {
-    snaps.forEach(function(s) {
-      try { s.img.parentNode && s.img.parentNode.removeChild(s.img); } catch(e) {}
-      s.el.style.display = '';
-      try { s.c.resize(); } catch(e) {}
+  // ④ 리사이즈 완료 대기(800ms) 후 인쇄 다이얼로그
+  // beforeprint 리스너의 중복 리사이즈를 막는 플래그 설정
+  window._exportPrintActive = true;
+  setTimeout(function() { window.print(); }, 800);
+
+  // ⑤ 인쇄 완료/취소 후 자동 복원
+  window.addEventListener('afterprint', function _restore() {
+    window.removeEventListener('afterprint', _restore);
+    _getAllPrintCharts().forEach(function(c) {
+      try { c.resize(); } catch(e) {}
     });
     document.body.classList.remove('print-landscape');
-    oStyle.textContent = '';
-    snaps = [];
-  }
-
-  // ⑤ 인쇄 후 자동 복원
-  window.addEventListener('afterprint', _restore, { once: true });
-
-  // ⑥ 이미지 로드 여유 후 인쇄 다이얼로그
-  setTimeout(function() { window.print(); }, 500);
+    if (oStyle) oStyle.textContent = '';
+  });
 }
 
 // ── 전략 분석 모달 ──────────────────────────────────────────────────────
@@ -3338,25 +3360,43 @@ function printAnalysis() {
   setTimeout(() => { win.print(); }, 400);
 }
 
-// 인쇄 전후 ECharts 리사이즈 (Ctrl+P 직접 인쇄 + exportPrint 버튼 대응)
+// 인쇄 전후 ECharts 리사이즈 (Ctrl+P 직접 인쇄 전용 — exportPrint 버튼 사용 시 건너뜀)
 window.addEventListener('beforeprint', () => {
+  // exportPrint()가 이미 리사이즈를 완료한 경우 중복 실행 방지
+  if (window._exportPrintActive) { window._exportPrintActive = false; return; }
   const isLandscape = document.body.classList.contains('print-landscape');
-  const PW = isLandscape ? 1017 : 703;
-  const HALF = Math.floor((PW - 8) / 2);
+  const PW         = isLandscape ? 1017 : 703;
+  const HALF       = Math.floor((PW - 8) / 2);
+  const CARD_INSET = 26;
+  const PW_CHART   = PW   - CARD_INSET;
+  const HALF_CHART = HALF - CARD_INSET;
   function _ph(id) {
-    if (isLandscape) return id==='chart-trend-top'?150:id==='chart-social'?200:180;
-    return id==='chart-trend-top'?240:id==='chart-social'?320:280;
+    if (isLandscape) {
+      if (id==='chart-trend-top')  return 150;
+      if (id==='chart-social')     return 200;
+      if (id==='chart-revenue-3y') return 220;
+      if (id==='chart-naver-blog') return 220;
+      if (id==='chart-naver-news') return 220;
+      return 180;
+    }
+    if (id==='chart-trend-top')  return 240;
+    if (id==='chart-social')     return 320;
+    if (id==='chart-revenue-3y') return 300;
+    if (id==='chart-naver-blog') return 280;
+    if (id==='chart-naver-news') return 280;
+    return 280;
   }
   _getAllPrintCharts().forEach(c => {
     try {
       const el = c.getDom();
       if (!el) return;
-      c.resize({ width: el.closest('.chart-row.col2') ? HALF : PW, height: _ph(el.id) });
+      c.resize({ width: el.closest('.chart-row.col2') ? HALF_CHART : PW_CHART, height: _ph(el.id) });
     } catch(e) {}
   });
 });
+// afterprint 복원은 exportPrint 내부 리스너가 담당.
+// Ctrl+P 직접 인쇄를 위한 최소 복원만 전역에 유지.
 window.addEventListener('afterprint', () => {
-  // 화면 크기로 복원 + landscape 클래스 제거
   document.body.classList.remove('print-landscape');
   const oStyle = document.getElementById('_print_page_size');
   if (oStyle) oStyle.textContent = '';
