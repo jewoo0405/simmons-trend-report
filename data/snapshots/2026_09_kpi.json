@@ -1,0 +1,13 @@
+{
+  "sos": 7.2,
+  "sos_cat": 36.4,
+  "g_rank": 3,
+  "g_rank_bed": 1,
+  "n_rank": 3,
+  "g_top_brand": "이케아",
+  "gap_to_top": 646.5,
+  "gap_to_bed_top": 0.0,
+  "bed_top_brand": "시몬스",
+  "total_brands": 12,
+  "bed_brands": 5
+}

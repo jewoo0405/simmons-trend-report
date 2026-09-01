@@ -1517,6 +1517,6 @@
     "confidence_score": 100,
     "sample_count": 3,
     "outliers_removed": 0,
-    "suspect": true
+    "suspect": false
   }
 }
