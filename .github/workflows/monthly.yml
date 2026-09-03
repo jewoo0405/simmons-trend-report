@@ -1,8 +1,8 @@
 name: 월간 브랜드 트렌드 보고서
 
 on:
-  schedule:
-    - cron: '0 0 1 * *'   # 매월 1일 오전 9시 (KST = UTC+9, 즉 UTC 00:00)
+  # schedule:
+  #   - cron: '0 0 1 * *'   # 매월 1일 오전 9시 (KST = UTC+9, 즉 UTC 00:00) — 데이터 준비 완료 후 활성화
   workflow_dispatch:        # 수동 실행 버튼
 
 permissions:
